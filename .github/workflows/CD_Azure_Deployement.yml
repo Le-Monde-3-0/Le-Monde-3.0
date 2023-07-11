@@ -7,7 +7,7 @@ on:
 
 env:
   credentials: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-
+#testwith updated permissions
 jobs:
   deploy:
     runs-on: ubuntu-latest
