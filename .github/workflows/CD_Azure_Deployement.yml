@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  credentials: ${{ secrets.AZURE_CREDENTIALS }}
+  credentials: ${{ secrets.AZURE_PUBLISH_PROFILE }}
 
 jobs:
   deploy:
