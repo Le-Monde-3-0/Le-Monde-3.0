@@ -5,13 +5,14 @@ on:
     branches:
       - main
 
-env:
-  credentials: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-#testwith updated permissions
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Sample Azure action
+        env:
+          CREDENTIALS: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+
       - name: Install Azure CLI
         run: |
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
@@ -22,4 +23,4 @@ jobs:
       - name: Set up Azure CLI
         uses: azure/login@v1
         with:
-          creds: ${{ env.credentials }}
+          creds: $CREDENTIALS
