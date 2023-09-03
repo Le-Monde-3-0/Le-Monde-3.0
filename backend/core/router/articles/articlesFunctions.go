@@ -135,6 +135,26 @@ func GetMyArticles(c *gin.Context) {
 	c.Data(statusCode, "application/json", responseBody)
 }
 
+// GetLikedArticles godoc
+// @Schemes
+// @Description Retrieve liked articles
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} []Article
+// @Failure      400  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /articles/liked [get]
+func GetLikedArticles(c *gin.Context) {
+
+	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/liked", nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
 // GetLikesInfo godoc
 // @Schemes
 // @Description Retrieve likes information related to an article
