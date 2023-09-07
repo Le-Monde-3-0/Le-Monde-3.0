@@ -1,9 +1,9 @@
 package router
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"github.com/gin-contrib/cors"
 	src "main/sources"
 )
 
@@ -20,19 +20,19 @@ func Router(db *gorm.DB) *gin.Engine {
 	}))
  
 	r.POST("/topics", func(c *gin.Context) {
-		src.AddTopics(c)
+		src.AddTopics(c, db)
 	})
 
 	r.GET("/topics/:id", func(c *gin.Context) {
-		src.GetTopics(c)
+		src.GetTopics(c, db)
 	})
 
 	r.DELETE("/topics/:id", func(c *gin.Context) {
-		src.DeleteTopics(c)
+		src.DeleteTopics(c, db)
 	})
 
 	r.PUT("/topics/:id", func(c *gin.Context) {
-		src.PutTopics(c)
+		src.PutTopics(c, db)
 	})
 
 	return r
