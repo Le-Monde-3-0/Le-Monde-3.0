@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Button, Link, useToast } from '@chakra-ui/react';
-import { Link as RouteLink, useNavigate } from 'react-router-dom';
+import { Link as RouteLink } from 'react-router-dom';
 
+import { useAuthContext } from 'contexts/auth';
 import FormInput from 'components/FormInput';
 import PwdInput from 'components/PwdInput';
 import services from 'services';
@@ -11,7 +12,7 @@ const Inscription = (): JSX.Element => {
 	const emailRegex = new RegExp(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/);
 
 	const toast = useToast();
-	const navigate = useNavigate();
+	const { setAccessToken } = useAuthContext();
 	const [email, setEmail] = useState('');
 	const [username, setUsername] = useState('');
 	const [pwd, setPwd] = useState('');
@@ -30,17 +31,9 @@ const Inscription = (): JSX.Element => {
 		try {
 			await services.authService.register({ email, password: pwd, username });
 			const loginRes = await services.authService.login({ email, password: pwd });
-			const { token } = loginRes.data;
-			console.log(token);
-			toast({
-				title: 'Inscription réussie.',
-				description: 'Nous vous avons créé un compte.',
-				status: 'success',
-				duration: 9000,
-				isClosable: true,
-			});
-			navigate('/favoris');
-		} catch (error) {
+			setAccessToken(loginRes.data.token);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} catch (error: any) {
 			console.log(error);
 			const { status } = error.response;
 			toast({
