@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Link as RouteLink, useNavigate } from 'react-router-dom';
-import { Button, Input, Link } from '@chakra-ui/react';
+import { Button, Input, Link, useToast } from '@chakra-ui/react';
 
 import services from 'services';
 import PwdInput from 'components/PwdInput';
 
 const Connexion = (): JSX.Element => {
+	const toast = useToast();
 	const navigate = useNavigate();
 	const [login, setLogin] = useState('');
 	const [pwd, setPwd] = useState('');
@@ -14,11 +15,27 @@ const Connexion = (): JSX.Element => {
 
 	const connexion = async () => {
 		try {
-			const res = await services.authService.login({ email: 'a@a.com', password: 'aaa' });
-			console.log(res);
+			const res = await services.authService.login({ email: login, password: pwd });
+			const { token } = res.data;
+			console.log(token);
+			toast({
+				title: 'Connexion réussie.',
+				description: 'Nous vous avons connecté à votre compte.',
+				status: 'success',
+				duration: 9000,
+				isClosable: true,
+			});
 			navigate('/favoris');
 		} catch (error) {
 			console.log(error);
+			const { status } = error.response;
+			toast({
+				title: status === 400 ? 'Paramètres invalides.' : 'Erreur du service interne.',
+				description: status === 400 ? 'Veuillez en renseigner de nouveaux.' : 'Veuillez réessayer ultérieurement.',
+				status: 'error',
+				duration: 9000,
+				isClosable: true,
+			});
 		}
 	};
 

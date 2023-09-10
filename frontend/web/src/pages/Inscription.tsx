@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Button, Link } from '@chakra-ui/react';
+import { Button, Link, useToast } from '@chakra-ui/react';
 import { Link as RouteLink, useNavigate } from 'react-router-dom';
 
 import FormInput from 'components/FormInput';
@@ -10,6 +10,7 @@ import services from 'services';
 const Inscription = (): JSX.Element => {
 	const emailRegex = new RegExp(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/);
 
+	const toast = useToast();
 	const navigate = useNavigate();
 	const [email, setEmail] = useState('');
 	const [username, setUsername] = useState('');
@@ -27,11 +28,28 @@ const Inscription = (): JSX.Element => {
 
 	const inscription = async () => {
 		try {
-			const res = await services.authService.register({ email: 'a@a.com', password: 'aaa', username: 'aaa' });
-			console.log(res);
+			await services.authService.register({ email, password: pwd, username });
+			const loginRes = await services.authService.login({ email, password: pwd });
+			const { token } = loginRes.data;
+			console.log(token);
+			toast({
+				title: 'Inscription réussie.',
+				description: 'Nous vous avons créé un compte.',
+				status: 'success',
+				duration: 9000,
+				isClosable: true,
+			});
 			navigate('/favoris');
 		} catch (error) {
 			console.log(error);
+			const { status } = error.response;
+			toast({
+				title: status === 400 ? 'Paramètres invalides.' : 'Erreur du service interne.',
+				description: status === 400 ? 'Veuillez en renseigner de nouveaux.' : 'Veuillez réessayer ultérieurement.',
+				status: 'error',
+				duration: 9000,
+				isClosable: true,
+			});
 		}
 	};
 
