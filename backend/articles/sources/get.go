@@ -71,6 +71,34 @@ func GetMyArticles(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, articles)
 }
 
+func GetMyLikedArticles(c *gin.Context, db *gorm.DB) {
+	var articles []Article
+
+	userId, err := getUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	result := db.Find(&articles)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+		return
+	}
+	var filteredArticles []Article
+	filteredArticles = []Article{}
+	for _, article := range articles {
+		for _, like := range article.Likes {
+			if like == userId {
+				filteredArticles = append(filteredArticles, article)
+				break
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, filteredArticles)
+}
+
 func GetLikesInfo(c *gin.Context, db *gorm.DB) {
 	article := new(Article)
 
