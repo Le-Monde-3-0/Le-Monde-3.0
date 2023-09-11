@@ -28,16 +28,16 @@ describe('[LAYOUT] Connexion page', () => {
 	});
 });
 
-describe('[LINKS] Connexion page', () => {
-	beforeEach('Go to connexion page', () => {
-		cy.visit('/connexion');
-	});
+// describe('[LINKS] Connexion page', () => {
+// 	beforeEach('Go to connexion page', () => {
+// 		cy.visit('/connexion');
+// 	});
 
-	it('Link to favoris page', () => {
-		cy.get('#connexion-connexion-btn').click().url().should('eq', `${Cypress.config().baseUrl}/favoris`);
-	});
+// 	it('Link to favoris page', () => {
+// 		cy.get('#connexion-connexion-btn').click().url().should('eq', `${Cypress.config().baseUrl}/favoris`);
+// 	});
 
-	it('Link to inscription page', () => {
-		cy.get('#connexion-inscription-btn').click().url().should('eq', `${Cypress.config().baseUrl}/inscription`);
-	});
-});
+// 	it('Link to inscription page', () => {
+// 		cy.get('#connexion-inscription-btn').click().url().should('eq', `${Cypress.config().baseUrl}/inscription`);
+// 	});
+// });

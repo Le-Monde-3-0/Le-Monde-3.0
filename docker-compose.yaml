@@ -5,7 +5,9 @@ services:
     container_name: lemonde-web
     build:
       context: frontend/web
-    env_file:
-      - .env
+    environment:
+      - REACT_APP_HOST=${API_HOST}
+      - REACT_APP_PORT=${CLIENT_PORT}
+      - REACT_APP_BACKEND_URL=http://${API_HOST}:${API_PORT}
     ports:
       - ${CLIENT_PORT}:80

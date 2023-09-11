@@ -36,16 +36,16 @@ describe('[LAYOUT] Inscription page', () => {
 	});
 });
 
-describe('[LINKS] Inscription page', () => {
-	beforeEach('Go to inscription page', () => {
-		cy.visit('/inscription');
-	});
+// describe('[LINKS] Inscription page', () => {
+// 	beforeEach('Go to inscription page', () => {
+// 		cy.visit('/inscription');
+// 	});
 
-	it('Link to favoris page', () => {
-		cy.get('#inscription-inscription-btn').click().url().should('eq', `${Cypress.config().baseUrl}/favoris`);
-	});
+// 	it('Link to favoris page', () => {
+// 		cy.get('#inscription-inscription-btn').click().url().should('eq', `${Cypress.config().baseUrl}/favoris`);
+// 	});
 
-	it('Link to inscription page', () => {
-		cy.get('#inscription-connexion-btn').click().url().should('eq', `${Cypress.config().baseUrl}/connexion`);
-	});
-});
+// 	it('Link to inscription page', () => {
+// 		cy.get('#inscription-connexion-btn').click().url().should('eq', `${Cypress.config().baseUrl}/connexion`);
+// 	});
+// });

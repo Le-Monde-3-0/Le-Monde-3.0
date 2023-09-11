@@ -19,6 +19,10 @@ jobs:
 
       - name: Run e2e tests
         uses: cypress-io/github-action@v5
+        env:
+          REACT_APP_HOST: localhost
+          REACT_APP_PORT: 3000
+          REACT_APP_BACKEND_URL: http://localhost:8080
         with:
           working-directory: ./frontend/web
           start: npm start
