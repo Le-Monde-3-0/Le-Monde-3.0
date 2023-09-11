@@ -7,6 +7,7 @@ import HomePage from 'pages/Home';
 import ConnexionPage from 'pages/Connexion';
 import InscriptionPage from 'pages/Inscription';
 import Favoris from 'pages/Favoris';
+import Article from 'pages/Article';
 import MarquePages from 'pages/MarquePages';
 import Nouveautes from 'pages/Nouveautes';
 import Decouvertes from 'pages/Decouvertes';
@@ -28,6 +29,7 @@ const Routes = (): JSX.Element => (
 				</Route>
 				<Route path="/" element={<PrivateRoute />}>
 					<Route path="/favoris" element={<Favoris />} />
+					<Route path="/articles/:articleId" element={<Article />} />
 					<Route path="/marque-pages" element={<MarquePages />} />
 					<Route path="/nouveautes" element={<Nouveautes />} />
 					<Route path="/decouvertes" element={<Decouvertes />} />

@@ -1,6 +1,6 @@
 import { servicesURL } from 'services';
 
-const create = async ({ token, title, content }: { token: string; title: string; content: string }) =>
+const publish = async ({ token, title, content }: { token: string; title: string; content: string }) =>
 	servicesURL.post(
 		'/articles',
 		{
@@ -12,4 +12,4 @@ const create = async ({ token, title, content }: { token: string; title: string;
 		},
 	);
 
-export default create;
+export default publish;

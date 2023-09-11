@@ -54,7 +54,7 @@ const NavBar = (): JSX.Element => {
 			w="360px"
 			minW="360px !important"
 			h="100vh"
-			position="sticky"
+			position="fixed"
 			spacing="48px"
 			p="16px 16px 16px 0px"
 			borderTopRightRadius="sm"
@@ -119,7 +119,9 @@ const NavBar = (): JSX.Element => {
 const Private = ({ children }: PrivateProps): JSX.Element => (
 	<HStack align="start">
 		<NavBar />
-		{children}
+		<Box w="100%" ml="360px">
+			{children}
+		</Box>
 	</HStack>
 );
 
