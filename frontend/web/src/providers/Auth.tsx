@@ -20,10 +20,12 @@ const AuthProvider = ({ children }: { children: JSX.Element }) => {
 
 	const authContextValue: AuthContextType = {
 		auth,
-		clearAuth: () =>
+		clearAuth: () => {
+			localStorage.removeItem('auth');
 			setAuth({
 				accessToken: undefined,
-			}),
+			});
+		},
 		setAccessToken: (accessToken: string) => setAuth((a) => ({ ...a, accessToken })),
 	};
 

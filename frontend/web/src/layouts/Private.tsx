@@ -4,6 +4,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { FaBookOpen, FaPenNib } from 'react-icons/fa';
 import { MdAccountCircle } from 'react-icons/md';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuthContext } from 'contexts/auth';
 
 type PrivateProps = { children: JSX.Element };
 
@@ -43,6 +44,7 @@ const Option = ({
 );
 
 const NavBar = (): JSX.Element => {
+	const { clearAuth } = useAuthContext();
 	const location = useLocation();
 	const navigate = useNavigate();
 
@@ -108,11 +110,7 @@ const NavBar = (): JSX.Element => {
 			<VStack align="start" w="100%">
 				<Title icon={MdAccountCircle} name="Compte" />
 				<Option name="Réglages" isSelected={location.pathname === '/reglages'} onClick={() => navigate('/reglages')} />
-				<Option
-					name="Déconnexion"
-					isSelected={location.pathname === '/deconnexion'}
-					onClick={() => navigate('/deconnexion')}
-				/>
+				<Option name="Déconnexion" isSelected={location.pathname === '/deconnexion'} onClick={() => clearAuth()} />
 			</VStack>
 		</VStack>
 	);
