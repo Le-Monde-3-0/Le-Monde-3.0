@@ -20,3 +20,10 @@ jobs:
         with:
           name: web-build-results
           path: ./frontend/web/build-results
+
+      - name: Run web
+        working-directory: ./frontend/web
+        run: docker run -d -p 3000:80 lemonde-web:latest
+
+      - name: Test web
+        run: curl -s http://localhost:3000/connexion | grep "Le Monde 3.0" > /dev/null && exit 0 || exit 1
