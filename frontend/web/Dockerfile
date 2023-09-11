@@ -15,6 +15,11 @@ RUN npm install --omit=dev
 # Copy sources (see .dockerignore)
 COPY . .
 
+# Set environment
+ARG REACT_APP_HOST=localhost
+ARG REACT_APP_PORT=3000
+ARG REACT_APP_BACKEND_URL=http://localhost:8080
+
 # Build source
 RUN npm run build
 

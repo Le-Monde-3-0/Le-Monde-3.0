@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Button, Link, useToast } from '@chakra-ui/react';
 import { Link as RouteLink } from 'react-router-dom';
+import { AxiosError } from 'axios';
 
 import { useAuthContext } from 'contexts/auth';
 import FormInput from 'components/FormInput';
@@ -33,16 +34,31 @@ const Inscription = (): JSX.Element => {
 			const loginRes = await services.authService.login({ email, password: pwd });
 			setAccessToken(loginRes.data.token);
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		} catch (error: any) {
+		} catch (error) {
 			console.log(error);
-			const { status } = error.response;
-			toast({
-				title: status === 400 ? 'Paramètres invalides.' : 'Erreur du service interne.',
-				description: status === 400 ? 'Veuillez en renseigner de nouveaux.' : 'Veuillez réessayer ultérieurement.',
-				status: 'error',
-				duration: 9000,
-				isClosable: true,
-			});
+			if (error instanceof AxiosError) {
+				if (error.response && error.response.status !== 500) {
+					const status = error.response!.status;
+					console.log(status);
+					if (status === 400) {
+						toast({
+							title: 'Paramètres invalides.',
+							description: 'Veuillez en renseigner de nouveaux.',
+							status: 'error',
+							duration: 9000,
+							isClosable: true,
+						});
+					}
+				} else {
+					toast({
+						title: 'Erreur du service interne.',
+						description: 'Veuillez réessayer ultérieurement.',
+						status: 'error',
+						duration: 9000,
+						isClosable: true,
+					});
+				}
+			}
 		}
 	};
 
