@@ -17,9 +17,8 @@ const Connexion = (): JSX.Element => {
 
 	const connexion = async () => {
 		try {
-			const res = await services.authService.login({ email: login, password: pwd });
+			const res = await services.auth.login({ email: login, password: pwd });
 			setAccessToken(res.data.token);
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {

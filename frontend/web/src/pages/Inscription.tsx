@@ -30,10 +30,9 @@ const Inscription = (): JSX.Element => {
 
 	const inscription = async () => {
 		try {
-			await services.authService.register({ email, password: pwd, username });
-			const loginRes = await services.authService.login({ email, password: pwd });
+			await services.auth.register({ email, password: pwd, username });
+			const loginRes = await services.auth.login({ email, password: pwd });
 			setAccessToken(loginRes.data.token);
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
