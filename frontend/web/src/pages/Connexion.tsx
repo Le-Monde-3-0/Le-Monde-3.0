@@ -24,7 +24,6 @@ const Connexion = (): JSX.Element => {
 			if (error instanceof AxiosError) {
 				if (error.response && error.response.status !== 500) {
 					const status = error.response!.status;
-					console.log(status);
 					if (status === 400) {
 						toast({
 							title: 'Paramètres invalides.',

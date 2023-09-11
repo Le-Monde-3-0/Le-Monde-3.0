@@ -16,23 +16,21 @@ const NouvelArticle = (): JSX.Element => {
 
 	const createArticle = async () => {
 		try {
-			console.log(auth.accessToken);
-			const res = await services.articles.create({ token: auth.accessToken!, title, content });
+			const res = await services.articles.publish({ token: auth.accessToken!, title, content });
 			console.log(res);
 			toast({
 				title: 'Votre article a été publié !',
-				description: 'Cliquez dessus pour voir votre nouvelle publication.',
+				description: 'Nous vous avons redirigé vers votre nouvelle publication.',
 				status: 'success',
 				duration: 9000,
 				isClosable: true,
 			});
-			navigate('/publications');
+			navigate(`/articles/${res.data.Id}`);
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
 				if (error.response && error.response.status !== 500) {
 					const status = error.response!.status;
-					console.log(status);
 					if (status === 400) {
 						toast({
 							title: 'Paramètres invalides.',

@@ -1,7 +1,9 @@
-import create from './create';
+import publish from './publish';
+import read from './read';
 
 const articlesService = {
-	create,
+	publish,
+	read,
 };
 
 export default articlesService;
