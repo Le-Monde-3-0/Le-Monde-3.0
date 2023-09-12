@@ -54,7 +54,7 @@ const NouvelArticle = (): JSX.Element => {
 	};
 
 	return (
-		<VStack w="100%" h="100vh" p="64px" spacing="16px">
+		<VStack w="100%" h="100vh" py="48px" spacing="16px">
 			<HStack w="100%" spacing="16px">
 				<Input
 					id="nouvel-article-title-input"
