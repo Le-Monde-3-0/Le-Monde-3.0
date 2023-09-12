@@ -119,7 +119,7 @@ const NavBar = (): JSX.Element => {
 const Private = ({ children }: PrivateProps): JSX.Element => (
 	<HStack align="start">
 		<NavBar />
-		<Box w="100%" ml="360px">
+		<Box w="100%" ml="360px" px="64px">
 			{children}
 		</Box>
 	</HStack>

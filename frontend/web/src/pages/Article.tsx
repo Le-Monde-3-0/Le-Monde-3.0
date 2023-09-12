@@ -91,7 +91,7 @@ const Article = (): JSX.Element => {
 
 	return (
 		<>
-			<VStack align="left" p="64px" spacing="64px" w="100%">
+			<VStack align="left" spacing="64px" w="100%" py="48px">
 				<VStack align="left" spacing="0px" w="100%">
 					<Text variant="h3">{article.Title}</Text>
 					<Text variant="h6">Topic - {article.Likes.length} j'aimes</Text>
