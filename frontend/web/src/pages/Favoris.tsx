@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { Grid, GridItem, Text, VStack } from '@chakra-ui/react';
 import { AddIcon, CloseIcon } from '@chakra-ui/icons';
 
-import SearchInput from 'components/SearchInput';
-import ArticleCard from 'components/ArticleCard';
+import SearchInput from 'components/Inputs/SearchInput';
+import ArticleCard from 'components/Cards/ArticleCard';
 
 const Favoris = (): JSX.Element => {
 	const [search, setSearch] = useState('');

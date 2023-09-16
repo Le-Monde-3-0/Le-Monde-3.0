@@ -5,8 +5,8 @@ import { Link as RouteLink } from 'react-router-dom';
 import { AxiosError } from 'axios';
 
 import { useAuthContext } from 'contexts/auth';
-import FormInput from 'components/FormInput';
-import PwdInput from 'components/PwdInput';
+import FormInput from 'components/Inputs/FormInput';
+import PwdInput from 'components/Inputs/PwdInput';
 import services from 'services';
 
 const Inscription = (): JSX.Element => {

@@ -6,7 +6,7 @@ import { AxiosError } from 'axios';
 
 import services from 'services';
 import { useAuthContext } from 'contexts/auth';
-import PwdInput from 'components/PwdInput';
+import PwdInput from 'components/Inputs/PwdInput';
 
 const Connexion = (): JSX.Element => {
 	const toast = useToast();
