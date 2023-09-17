@@ -6,8 +6,8 @@ import { AxiosError } from 'axios';
 
 import services from 'services';
 import { useAuthContext } from 'contexts/auth';
-import SearchInput from 'components/SearchInput';
-import ArticleCard from 'components/ArticleCard';
+import SearchInput from 'components/Inputs/SearchInput';
+import ArticleCard from 'components/Cards/ArticleCard';
 
 const Publication = (): JSX.Element => {
 	const [search, setSearch] = useState('');
