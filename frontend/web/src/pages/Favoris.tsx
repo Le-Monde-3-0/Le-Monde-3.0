@@ -1,13 +1,84 @@
 import * as React from 'react';
-import { useState } from 'react';
-import { Grid, GridItem, Text, VStack } from '@chakra-ui/react';
-import { AddIcon, CloseIcon } from '@chakra-ui/icons';
+import { useEffect, useState } from 'react';
+import { CircularProgress, Grid, GridItem, HStack, Text, VStack, useToast } from '@chakra-ui/react';
+import { CloseIcon } from '@chakra-ui/icons';
+import { AxiosError } from 'axios';
 
+import services from 'services';
+import { useAuthContext } from 'contexts/auth';
 import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
 
 const Favoris = (): JSX.Element => {
+	const toast = useToast();
+	const { auth } = useAuthContext();
 	const [search, setSearch] = useState('');
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const [articles, setArticles] = useState<any[] | undefined>(undefined);
+
+	const getArticles = async () => {
+		try {
+			const res = await services.articles.liked({ token: auth.accessToken! });
+			console.log(res.data);
+			setArticles(res.data);
+		} catch (error) {
+			console.log(error);
+			if (error instanceof AxiosError) {
+				if (error.response && error.response.status !== 500) {
+					const status = error.response!.status;
+					console.log(status);
+				} else {
+					toast({
+						title: 'Erreur du service interne.',
+						description: 'Veuillez réessayer ultérieurement.',
+						status: 'error',
+						duration: 9000,
+						isClosable: true,
+					});
+				}
+			}
+		}
+	};
+
+	const unlike = async (articleId: string) => {
+		try {
+			const res = await services.articles.unlike({ token: auth.accessToken!, articleId });
+			console.log(res.data);
+			setArticles({ ...articles!.filter((a) => a.Id !== articleId) });
+		} catch (error) {
+			console.log(error);
+			if (error instanceof AxiosError) {
+				if (error.response && error.response.status !== 500) {
+					const status = error.response!.status;
+					console.log(status);
+				} else {
+					toast({
+						title: 'Erreur du service interne.',
+						description: 'Veuillez réessayer ultérieurement.',
+						status: 'error',
+						duration: 9000,
+						isClosable: true,
+					});
+				}
+			}
+		}
+	};
+
+	useEffect(() => {
+		if (auth.accessToken) {
+			getArticles();
+		}
+	}, [auth]);
+
+	if (!articles) {
+		return (
+			<>
+				<VStack w="100%" h="100vh" justify="center">
+					<CircularProgress size="120px" isIndeterminate color="primary.1" />
+				</VStack>
+			</>
+		);
+	}
 
 	return (
 		<>
@@ -20,95 +91,26 @@ const Favoris = (): JSX.Element => {
 					onChange={(e) => setSearch(e.target.value)}
 				/>
 				<Grid templateColumns="repeat(3, 1fr)" gap={6} w="100%">
-					<GridItem>
-						<ArticleCard
-							id="1000"
-							title="Titre 1"
-							author="User-1"
-							date="08/12/2023"
-							topic="Topic"
-							content="small content"
-							actions={[
-								<>
-									<AddIcon />
-									<Text variant="h6">Ajouter à un marque page</Text>
-								</>,
-								<>
-									<CloseIcon />
-									<Text variant="h6">Retirer des favoris</Text>
-								</>,
-							]}
-						/>
-					</GridItem>
-					<GridItem>
-						<ArticleCard
-							id="1000"
-							title="Titre 2"
-							author="User-2"
-							date="08/12/2023"
-							topic="Topic"
-							content={`Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Velit laoreet id donec ultrices tincidunt arcu non sodales. Massa tempor nec feugiat nisl pretium fusce id. Id cursus metus aliquam eleifend mi in nulla posuere sollicitudin. Vel risus commodo viverra maecenas accumsan lacus. Sed id semper risus in hendrerit gravida rutrum quisque non. Vitae et leo duis ut diam quam. Purus non enim praesent elementum. Vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt ornare. Consectetur adipiscing elit pellentesque habitant morbi tristique. Enim diam vulputate ut pharetra. Consectetur a erat nam at lectus urna duis. Ipsum consequat nisl vel pretium lectus quam id. Sed blandit libero volutpat sed cras ornare arcu dui. Quisque egestas diam in arcu cursus euismod quis. Duis at consectetur lorem donec massa sapien faucibus. Est velit egestas dui id ornare arcu.
-
-Dictum fusce ut placerat orci nulla pellentesque dignissim enim sit. Egestas integer eget aliquet nibh. Consequat semper viverra nam libero justo laoreet sit. Et magnis dis parturient montes nascetur. Hac habitasse platea dictumst quisque sagittis purus sit amet volutpat. Sem nulla pharetra diam sit. Lacus sed viverra tellus in hac habitasse. Luctus accumsan tortor posuere ac ut consequat. Amet consectetur adipiscing elit duis tristique. Lorem sed risus ultricies tristique nulla aliquet.
-`}
-							actions={[
-								<>
-									<AddIcon />
-									<Text variant="h6">Ajouter à un marque page</Text>
-								</>,
-								<>
-									<CloseIcon />
-									<Text variant="h6">Retirer des favoris</Text>
-								</>,
-							]}
-						/>
-					</GridItem>
-					<GridItem>
-						<ArticleCard
-							id="1000"
-							title="Titre 3"
-							author="User-3"
-							date="08/12/2023"
-							topic="Topic"
-							content={`Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Velit laoreet id donec ultrices tincidunt arcu non sodales. Massa tempor nec feugiat nisl pretium fusce id. Id cursus metus aliquam eleifend mi in nulla posuere sollicitudin. Vel risus commodo viverra maecenas accumsan lacus. Sed id semper risus in hendrerit gravida rutrum quisque non. Vitae et leo duis ut diam quam. Purus non enim praesent elementum. Vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt ornare. Consectetur adipiscing elit pellentesque habitant morbi tristique. Enim diam vulputate ut pharetra. Consectetur a erat nam at lectus urna duis. Ipsum consequat nisl vel pretium lectus quam id. Sed blandit libero volutpat sed cras ornare arcu dui. Quisque egestas diam in arcu cursus euismod quis. Duis at consectetur lorem donec massa sapien faucibus. Est velit egestas dui id ornare arcu.
-
-Dictum fusce ut placerat orci nulla pellentesque dignissim enim sit. Egestas integer eget aliquet nibh. Consequat semper viverra nam libero justo laoreet sit. Et magnis dis parturient montes nascetur. Hac habitasse platea dictumst quisque sagittis purus sit amet volutpat. Sem nulla pharetra diam sit. Lacus sed viverra tellus in hac habitasse. Luctus accumsan tortor posuere ac ut consequat. Amet consectetur adipiscing elit duis tristique. Lorem sed risus ultricies tristique nulla aliquet.
-`}
-							actions={[
-								<>
-									<AddIcon />
-									<Text variant="h6">Ajouter à un marque page</Text>
-								</>,
-								<>
-									<CloseIcon />
-									<Text variant="h6">Retirer des favoris</Text>
-								</>,
-							]}
-						/>
-					</GridItem>
-					<GridItem>
-						<ArticleCard
-							id="1000"
-							title="Titre 4"
-							author="User-4"
-							date="08/12/2023"
-							topic="Topic"
-							content={`Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Velit laoreet id donec ultrices tincidunt arcu non sodales. Massa tempor nec feugiat nisl pretium fusce id. Id cursus metus aliquam eleifend mi in nulla posuere sollicitudin. Vel risus commodo viverra maecenas accumsan lacus. Sed id semper risus in hendrerit gravida rutrum quisque non. Vitae et leo duis ut diam quam. Purus non enim praesent elementum. Vestibulum mattis ullamcorper velit sed ullamcorper morbi tincidunt ornare. Consectetur adipiscing elit pellentesque habitant morbi tristique. Enim diam vulputate ut pharetra. Consectetur a erat nam at lectus urna duis. Ipsum consequat nisl vel pretium lectus quam id. Sed blandit libero volutpat sed cras ornare arcu dui. Quisque egestas diam in arcu cursus euismod quis. Duis at consectetur lorem donec massa sapien faucibus. Est velit egestas dui id ornare arcu.
-
-Dictum fusce ut placerat orci nulla pellentesque dignissim enim sit. Egestas integer eget aliquet nibh. Consequat semper viverra nam libero justo laoreet sit. Et magnis dis parturient montes nascetur. Hac habitasse platea dictumst quisque sagittis purus sit amet volutpat. Sem nulla pharetra diam sit. Lacus sed viverra tellus in hac habitasse. Luctus accumsan tortor posuere ac ut consequat. Amet consectetur adipiscing elit duis tristique. Lorem sed risus ultricies tristique nulla aliquet.
-`}
-							actions={[
-								<>
-									<AddIcon />
-									<Text variant="h6">Ajouter à un marque page</Text>
-								</>,
-								<>
-									<CloseIcon />
-									<Text variant="h6">Retirer des favoris</Text>
-								</>,
-							]}
-						/>
-					</GridItem>
+					{articles
+						.filter((a) => (search !== '' ? a.Title.includes(search) : true))
+						.map((article, index) => (
+							<GridItem key={`${index.toString}-${article.Id}`}>
+								<ArticleCard
+									id={article.Id}
+									title={article.Title}
+									author={`User-${article.UserId}`}
+									date={new Date(article.CreatedAt).toLocaleDateString('fr-FR')}
+									topic="Topic"
+									content={article.Content}
+									actions={[
+										<HStack onClick={() => unlike(article.Id)}>
+											<CloseIcon />
+											<Text variant="h6">Retirer des favoris</Text>
+										</HStack>,
+									]}
+								/>
+							</GridItem>
+						))}
 				</Grid>
 			</VStack>
 		</>

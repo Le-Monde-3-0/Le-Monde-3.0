@@ -26,15 +26,6 @@ const Publication = (): JSX.Element => {
 				if (error.response && error.response.status !== 500) {
 					const status = error.response!.status;
 					console.log(status);
-					// if (status === 400) {
-					// 	toast({
-					// 		title: 'Article inconnu.',
-					// 		description: 'Veuillez en renseigner un autre.',
-					// 		status: 'error',
-					// 		duration: 9000,
-					// 		isClosable: true,
-					// 	});
-					// }
 				} else {
 					toast({
 						title: 'Erreur du service interne.',
@@ -69,9 +60,9 @@ const Publication = (): JSX.Element => {
 			<VStack w="100%" spacing="48px" py="48px">
 				<SearchInput
 					value={search}
-					inputId="favoris-search-input"
+					inputId="publications-search-input"
 					maxW="640px"
-					placeholder="Cherchez parmis vos articles favoris"
+					placeholder="Cherchez parmis vos articles publiés"
 					onChange={(e) => setSearch(e.target.value)}
 				/>
 				<Grid templateColumns="repeat(3, 1fr)" gap={6} w="100%">
