@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { CircularProgress, Grid, GridItem, Text, VStack, useToast } from '@chakra-ui/react';
-import { CloseIcon } from '@chakra-ui/icons';
+import { CircularProgress, Grid, GridItem, HStack, Text, VStack, useToast } from '@chakra-ui/react';
+import { DeleteIcon } from '@chakra-ui/icons';
 import { AxiosError } from 'axios';
 
 import services from 'services';
@@ -20,6 +20,30 @@ const Publication = (): JSX.Element => {
 		try {
 			const res = await services.articles.me({ token: auth.accessToken! });
 			setPublications(res.data);
+		} catch (error) {
+			console.log(error);
+			if (error instanceof AxiosError) {
+				if (error.response && error.response.status !== 500) {
+					const status = error.response!.status;
+					console.log(status);
+				} else {
+					toast({
+						title: 'Erreur du service interne.',
+						description: 'Veuillez réessayer ultérieurement.',
+						status: 'error',
+						duration: 9000,
+						isClosable: true,
+					});
+				}
+			}
+		}
+	};
+
+	const hardDelete = async (articleId: string) => {
+		try {
+			const res = await services.articles.delete({ token: auth.accessToken!, articleId });
+			console.log(res.data);
+			setPublications({ ...publications!.filter((p) => p.Id !== articleId) });
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -78,10 +102,10 @@ const Publication = (): JSX.Element => {
 									topic="Topic"
 									content={publication.Content}
 									actions={[
-										<>
-											<CloseIcon />
-											<Text variant="h6">Archiver dans les brouillons</Text>
-										</>,
+										<HStack onClick={() => hardDelete(publication.Id)}>
+											<DeleteIcon />
+											<Text variant="h6">Supprimer définitivement</Text>
+										</HStack>,
 									]}
 								/>
 							</GridItem>
