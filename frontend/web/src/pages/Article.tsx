@@ -1,11 +1,13 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CircularProgress, Text, VStack, useToast } from '@chakra-ui/react';
+import { CircularProgress, HStack, Text, VStack, useToast } from '@chakra-ui/react';
+import { AddIcon, CloseIcon } from '@chakra-ui/icons';
 import { AxiosError } from 'axios';
 
 import services from 'services';
 import { useAuthContext } from 'contexts/auth';
+import ArticleTrigger from 'components/Triggers/ArticleTrigger';
 
 const Article = (): JSX.Element => {
 	const toast = useToast();
@@ -14,6 +16,7 @@ const Article = (): JSX.Element => {
 	const { auth } = useAuthContext();
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [article, setArticle] = useState<any | undefined>(undefined);
+	const [isLiked, setIsLiked] = useState(false);
 
 	const frenchDate = (date: Date) => {
 		const mois = [
@@ -73,9 +76,89 @@ const Article = (): JSX.Element => {
 		}
 	};
 
+	const liked = async () => {
+		try {
+			const res = await services.articles.liked({ token: auth.accessToken! });
+			console.log(res.data);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			if (res.data.find((a: any) => +a.Id === +articleId!)) {
+				setIsLiked(true);
+			}
+		} catch (error) {
+			console.log(error);
+			if (error instanceof AxiosError) {
+				if (error.response && error.response.status !== 500) {
+					const status = error.response!.status;
+					console.log(status);
+				} else {
+					toast({
+						title: 'Erreur du service interne.',
+						description: 'Veuillez réessayer ultérieurement.',
+						status: 'error',
+						duration: 9000,
+						isClosable: true,
+					});
+				}
+			}
+		}
+	};
+
+	const like = async () => {
+		try {
+			const res = await services.articles.like({ token: auth.accessToken!, articleId: articleId! });
+			console.log(res.data);
+			setIsLiked(true);
+			// C'est pourri ça mais il faut l'id du user pour faire mieux
+			setArticle({ ...article, Likes: [...article.Likes, 'new'] });
+		} catch (error) {
+			console.log(error);
+			if (error instanceof AxiosError) {
+				if (error.response && error.response.status !== 500) {
+					const status = error.response!.status;
+					console.log(status);
+				} else {
+					toast({
+						title: 'Erreur du service interne.',
+						description: 'Veuillez réessayer ultérieurement.',
+						status: 'error',
+						duration: 9000,
+						isClosable: true,
+					});
+				}
+			}
+		}
+	};
+
+	const unlike = async () => {
+		try {
+			const res = await services.articles.unlike({ token: auth.accessToken!, articleId: articleId! });
+			console.log(res.data);
+			setIsLiked(false);
+			// C'est pourri ça mais il faut l'id du user pour faire mieux
+			setArticle({ ...article, Likes: [...article.Likes.lenght.slice(1)] });
+		} catch (error) {
+			console.log(error);
+			if (error instanceof AxiosError) {
+				if (error.response && error.response.status !== 500) {
+					const status = error.response!.status;
+					console.log(status);
+				} else {
+					toast({
+						title: 'Erreur du service interne.',
+						description: 'Veuillez réessayer ultérieurement.',
+						status: 'error',
+						duration: 9000,
+						isClosable: true,
+					});
+				}
+			}
+		}
+	};
+
 	useEffect(() => {
 		if (auth.accessToken) {
 			read();
+			liked();
 		}
 	}, [auth]);
 
@@ -91,6 +174,16 @@ const Article = (): JSX.Element => {
 
 	return (
 		<>
+			<ArticleTrigger
+				top="4px"
+				right="4px"
+				actions={[
+					<HStack onClick={() => (isLiked ? unlike() : like())}>
+						{isLiked ? <CloseIcon /> : <AddIcon />}
+						<Text variant="h6">{isLiked ? 'Retirer des favoris' : 'Ajouter aux favoris'}</Text>
+					</HStack>,
+				]}
+			/>
 			<VStack align="left" spacing="64px" w="100%" py="48px">
 				<VStack align="left" spacing="0px" w="100%">
 					<Text variant="h3">{article.Title}</Text>
