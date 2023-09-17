@@ -187,7 +187,9 @@ const Article = (): JSX.Element => {
 			<VStack align="left" spacing="64px" w="100%" py="48px">
 				<VStack align="left" spacing="0px" w="100%">
 					<Text variant="h3">{article.Title}</Text>
-					<Text variant="h6">Topic - {article.Likes.length} j'aimes</Text>
+					<Text variant="h6">
+						Topic - {article.Likes.length} j'aime{article.Likes.length !== 1 && 's'}
+					</Text>
 				</VStack>
 				<Text variant="p" whiteSpace="pre-line">
 					{article.Content}

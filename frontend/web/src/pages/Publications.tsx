@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { CircularProgress, Grid, GridItem, HStack, Text, VStack, useToast } from '@chakra-ui/react';
-import { DeleteIcon } from '@chakra-ui/icons';
+import { DeleteIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { AxiosError } from 'axios';
 
 import services from 'services';
@@ -102,11 +102,17 @@ const Publication = (): JSX.Element => {
 									topic="Topic"
 									content={publication.Content}
 									actions={[
+										<HStack>
+											<ViewOffIcon />
+											<Text variant="h6">Archiver dans les brouillons</Text>
+										</HStack>,
 										<HStack onClick={() => hardDelete(publication.Id)}>
 											<DeleteIcon />
 											<Text variant="h6">Supprimer définitivement</Text>
 										</HStack>,
 									]}
+									view="publisher"
+									likes={+publication.Likes.length}
 								/>
 							</GridItem>
 						))}

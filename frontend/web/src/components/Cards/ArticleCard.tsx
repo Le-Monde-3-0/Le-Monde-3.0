@@ -11,6 +11,8 @@ const ArticleCard = ({
 	topic,
 	content,
 	actions,
+	view = 'reader',
+	likes,
 }: {
 	id: string;
 	title: string;
@@ -19,6 +21,8 @@ const ArticleCard = ({
 	topic: string;
 	content: string;
 	actions: JSX.Element[];
+	view?: 'publisher' | 'reader';
+	likes?: number;
 }): JSX.Element => {
 	const navigate = useNavigate();
 
@@ -40,7 +44,13 @@ const ArticleCard = ({
 					<Text variant="h5">{title}</Text>
 				</VStack>
 				<HStack w="100%" align="baseline" justify="space-between">
-					<Text variant="h5">{author}</Text>
+					{view === 'reader' ? (
+						<Text variant="h5">{author}</Text>
+					) : (
+						<Text variant="h6">
+							me - {likes} j'aime{likes !== 1 && 's'}
+						</Text>
+					)}
 					<Text variant="h6">{date}</Text>
 				</HStack>
 				<VStack w="100%" align="left" spacing="8px">
