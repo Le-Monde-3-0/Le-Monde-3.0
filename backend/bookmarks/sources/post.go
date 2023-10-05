@@ -9,8 +9,8 @@ import (
 )
 
 type TitleArticle struct {
-	Id    int32
-	Title string
+	Id    int32  `json:"id"`
+	Title string `json:"title"`
 }
 
 func addIfNotPresent(arr pq.Int32Array, key int32) pq.Int32Array {

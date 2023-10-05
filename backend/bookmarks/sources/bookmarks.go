@@ -15,6 +15,14 @@ import (
 	"strings"
 )
 
+type Bookmark struct {
+	gorm.Model
+	Id       int32         `json:"id"`
+	UserId   int32         `json:"userId"`
+	Title    string        `json:"title"`
+	Articles pq.Int32Array `json:"articles" gorm:"type:integer[]"`
+}
+
 func getUserId(c *gin.Context) (int32, error) {
 
 	bearerToken := c.Request.Header.Get("Authorization")
@@ -179,12 +187,4 @@ func getArticleById(c *gin.Context, articleId int32) (Article, error) {
 		return Article{}, err
 	}
 	return article, nil
-}
-
-type Bookmark struct {
-	gorm.Model
-	Id       int32
-	UserId   int32
-	Title    string
-	Articles pq.Int32Array `gorm:"type:integer[]"`
 }
