@@ -16,7 +16,6 @@ import (
 )
 
 type Bookmark struct {
-	gorm.Model
 	Id       int32         `json:"id"`
 	UserId   int32         `json:"userId"`
 	Title    string        `json:"title"`
