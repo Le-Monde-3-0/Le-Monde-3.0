@@ -18,7 +18,7 @@ coverages:
 	cd bookmarks ; go test -coverprofile=coverage.out ./... ;  go tool cover -html=coverage.out
 
 doc:
-	cd core ; swag init ; go build ; ./main
+	xdg-open http://localhost:8080/swagger/index.html
 clean:
 	sudo rm -rf data
 	rm -rf core/coverage.out
