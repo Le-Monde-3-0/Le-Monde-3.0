@@ -9,11 +9,9 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
-	"gorm.io/gorm"
 )
 
 type Article struct {
-	gorm.Model
 	Id      int32         `json:"id"`
 	UserId  int32         `json:"userId"`
 	Title   string        `json:"title"`

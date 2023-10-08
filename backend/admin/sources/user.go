@@ -11,7 +11,6 @@ import (
 )
 
 type User struct {
-	gorm.Model
 	Id       int32  `json:"id"`
 	Email    string `json:"email"`
 	Username string `json:"username"`
@@ -23,14 +22,20 @@ type ReceiveUser struct {
 }
 
 func AddUser(email string, username string, password string, c *gin.Context, db *gorm.DB) {
-	user := new(User)
+	var existingUser User
+	if db.Where("email = ? OR username = ?", email, username).First(&existingUser).Error == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User with the same email or username already exists"})
+		return
+	}
 
-	user.Email = html.EscapeString(strings.TrimSpace(email))
-	user.Username = html.EscapeString(strings.TrimSpace(username))
+	user := User{
+		Email:    html.EscapeString(strings.TrimSpace(email)),
+		Username: html.EscapeString(strings.TrimSpace(username)),
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -38,7 +43,7 @@ func AddUser(email string, username string, password string, c *gin.Context, db 
 
 	result := db.Create(&user)
 	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": result.Error})
+		c.JSON(http.StatusBadRequest, gin.H{"error": result.Error.Error()})
 	} else {
 		c.JSON(http.StatusCreated, gin.H{"created": "User created successfully"})
 	}
