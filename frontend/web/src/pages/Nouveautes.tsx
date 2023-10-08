@@ -8,15 +8,14 @@ import services from 'services';
 import { useAuthContext } from 'contexts/auth';
 import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
+import { Article } from 'types/article';
 
 const Nouveautes = (): JSX.Element => {
 	const toast = useToast();
 	const { auth } = useAuthContext();
 	const [search, setSearch] = useState('');
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const [newArticles, setNewArticles] = useState<any[] | undefined>(undefined);
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const [likedArticles, setLikedArticles] = useState<any[] | undefined>(undefined);
+	const [newArticles, setNewArticles] = useState<Article[] | undefined>(undefined);
+	const [likedArticles, setLikedArticles] = useState<Article[] | undefined>(undefined);
 	const [reload, setReload] = useState(1);
 
 	const getNewArticles = async () => {
@@ -67,7 +66,7 @@ const Nouveautes = (): JSX.Element => {
 		}
 	};
 
-	const like = async (articleId: string) => {
+	const like = async (articleId: number) => {
 		try {
 			const res = await services.articles.like({ token: auth.accessToken!, articleId });
 			console.log(res.data);
@@ -91,7 +90,7 @@ const Nouveautes = (): JSX.Element => {
 		}
 	};
 
-	const unlike = async (articleId: string) => {
+	const unlike = async (articleId: number) => {
 		try {
 			const res = await services.articles.unlike({ token: auth.accessToken!, articleId });
 			console.log(res.data);
@@ -115,9 +114,8 @@ const Nouveautes = (): JSX.Element => {
 		}
 	};
 
-	const isLiked = (articleId: string) => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		if (likedArticles!.find((a: any) => +a.Id === +articleId!)) {
+	const isLiked = (articleId: number) => {
+		if (likedArticles!.find((a: Article) => a.id === articleId)) {
 			return true;
 		}
 		return false;
@@ -159,20 +157,21 @@ const Nouveautes = (): JSX.Element => {
 				/>
 				<Grid templateColumns="repeat(3, 1fr)" gap={6} w="100%">
 					{newArticles
-						.filter((a) => (search !== '' ? a.Title.includes(search) : true))
+						.filter((a) => (search !== '' ? a.title.includes(search) : true))
 						.map((article, index) => (
-							<GridItem key={`${index.toString}-${article.Id}`}>
+							<GridItem key={`${index.toString}-${article.id}`}>
 								<ArticleCard
-									id={article.Id}
-									title={article.Title}
-									author={`User-${article.UserId}`}
+									id={article.id.toString()}
+									title={article.title}
+									author={`User-${article.userId}`}
 									date={new Date(article.CreatedAt).toLocaleDateString('fr-FR')}
+									// date={new Date().toLocaleDateString('fr-FR')}
 									topic="Topic"
-									content={article.Content}
+									content={article.content}
 									actions={[
-										<HStack onClick={() => (isLiked(article.Id) ? unlike(article.Id) : like(article.Id))}>
-											{isLiked(article.Id) ? <CloseIcon /> : <AddIcon />}
-											<Text variant="h6">{isLiked(article.Id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}</Text>
+										<HStack onClick={() => (isLiked(article.id) ? unlike(article.id) : like(article.id))}>
+											{isLiked(article.id) ? <CloseIcon /> : <AddIcon />}
+											<Text variant="h6">{isLiked(article.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}</Text>
 										</HStack>,
 									]}
 								/>

@@ -18,6 +18,7 @@ const Connexion = (): JSX.Element => {
 	const connexion = async () => {
 		try {
 			const res = await services.auth.login({ email: login, password: pwd });
+			console.log(res);
 			setAccessToken(res.data.token);
 		} catch (error) {
 			console.log(error);
