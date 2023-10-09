@@ -14,10 +14,12 @@ func ApplyArticlesRoutes(protected *gin.RouterGroup) {
 	protected.GET("/articles/me", GetMyArticles)
 	protected.GET("/articles/liked", GetLikedArticles)
 	protected.GET("/articles/:id/likes", GetLikesInfo)
+	protected.GET("/dashboard/nouveautes", GetNewArticles)
 
 	protected.PUT("/articles/:id", EditArticle)
 
 	protected.DELETE("/articles", DeleteAllArticles)
 	protected.DELETE("/articles/id", DeleteArticle)
 	protected.DELETE("/articles/:id/likes", RemoveLike)
+
 }

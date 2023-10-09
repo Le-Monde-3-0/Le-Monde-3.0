@@ -71,7 +71,7 @@ const NavBar = (): JSX.Element => {
 				<Option
 					name="Marque-pages"
 					isSelected={location.pathname === '/marque-pages'}
-					onClick={() => navigate('/marque-pages')}
+					onClick={() => navigate('/<marque>-pages')}
 				/>
 				<Option
 					name="Nouveautés"

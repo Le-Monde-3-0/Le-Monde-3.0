@@ -47,6 +47,10 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.GetLikesInfo(c, db)
 	})
 
+	r.GET("articles/dashboard/nouveautes", func(c *gin.Context)  {
+		src.GetNewArticles(c, db)
+	})
+
 	r.PUT("/articles/:id", func(c *gin.Context) {
 		src.EditArticle(c, db)
 	})

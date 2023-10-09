@@ -122,3 +122,15 @@ func GetLikesInfo(c *gin.Context, db *gorm.DB) {
 
 	c.JSON(http.StatusOK, LikesResponse{len(article.Likes), article.Likes})
 }
+
+
+func GetNewArticles(c *gin.Context, db *gorm.DB) {
+    articles := new([]Article)
+
+    result := db.Limit(10).Order("created_at desc").Where(Article{}).Find(&articles)
+    if result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+        return
+    }
+    c.JSON(http.StatusOK, articles)
+}
