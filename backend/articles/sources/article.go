@@ -16,7 +16,7 @@ type Article struct {
 	UserId  int32         `json:"userId"`
 	Title   string        `json:"title"`
 	Content string        `json:"content"`
-	Likes   pq.Int32Array `json:"likes"gorm:"type:integer[]"`
+	Likes   pq.Int32Array `json:"likes" gorm:"type:integer[]"`
 }
 
 func getUserId(c *gin.Context) (int32, error) {
