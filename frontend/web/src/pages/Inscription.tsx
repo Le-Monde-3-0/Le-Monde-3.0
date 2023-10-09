@@ -30,8 +30,10 @@ const Inscription = (): JSX.Element => {
 
 	const inscription = async () => {
 		try {
-			await services.auth.register({ email, password: pwd, username });
+			const registerRes = await services.auth.register({ email, password: pwd, username });
+			console.log(registerRes);
 			const loginRes = await services.auth.login({ email, password: pwd });
+			console.log(loginRes);
 			setAccessToken(loginRes.data.token);
 		} catch (error) {
 			console.log(error);

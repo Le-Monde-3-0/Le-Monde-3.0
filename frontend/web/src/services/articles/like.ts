@@ -1,6 +1,11 @@
-import { servicesURL } from 'services';
+import { AxiosResponse } from 'axios';
 
-const like = async ({ token, articleId }: { token: string; articleId: string }) =>
+import { servicesURL } from 'services';
+import { Article } from 'types/article';
+
+type LikeRes = Article;
+
+const like = async ({ token, articleId }: { token: string; articleId: number }): Promise<AxiosResponse<LikeRes>> =>
 	servicesURL.post(
 		`/articles/${articleId}/likes`,
 		{},

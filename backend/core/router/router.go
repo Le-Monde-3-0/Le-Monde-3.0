@@ -1,14 +1,15 @@
 package router
 
 import (
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	mw "main/middlewares"
 	adm "main/router/admin"
 	art "main/router/articles"
 	bkm "main/router/bookmarks"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func Router() *gin.Engine {

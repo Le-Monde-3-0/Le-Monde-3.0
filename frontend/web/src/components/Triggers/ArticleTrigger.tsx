@@ -23,7 +23,7 @@ const ArticleTrigger = ({ actions, ...props }: { actions: JSX.Element[] } & Stac
 			{triggered && (
 				<VStack p="8px" backgroundColor="secondary.4" borderRadius="sm" align="left">
 					{actions.map((action, index) => (
-						<HStack cursor="pointer" key={`${index.toString}`}>
+						<HStack cursor="pointer" key={`${index.toString()}`}>
 							{action}
 						</HStack>
 					))}

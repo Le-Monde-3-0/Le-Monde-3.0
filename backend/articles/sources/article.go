@@ -2,12 +2,13 @@ package sources
 
 import (
 	"errors"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
-	"github.com/lib/pq"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
 
 type Article struct {
@@ -15,7 +16,7 @@ type Article struct {
 	UserId  int32         `json:"userId"`
 	Title   string        `json:"title"`
 	Content string        `json:"content"`
-	Likes   pq.Int32Array `json:"likes "gorm:"type:integer[]"`
+	Likes   pq.Int32Array `json:"likes" gorm:"type:integer[]"`
 }
 
 func getUserId(c *gin.Context) (int32, error) {

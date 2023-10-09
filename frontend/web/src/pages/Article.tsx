@@ -8,15 +8,16 @@ import { AxiosError } from 'axios';
 import services from 'services';
 import { useAuthContext } from 'contexts/auth';
 import ArticleTrigger from 'components/Triggers/ArticleTrigger';
+import { Article as TArticle } from 'types/article';
 
 const Article = (): JSX.Element => {
 	const toast = useToast();
 	const navigate = useNavigate();
 	const { articleId } = useParams();
 	const { auth } = useAuthContext();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const [article, setArticle] = useState<any | undefined>(undefined);
+	const [article, setArticle] = useState<TArticle | undefined>(undefined);
 	const [isLiked, setIsLiked] = useState(false);
+	const [reload, setReload] = useState(1);
 
 	const frenchDate = (date: Date) => {
 		const mois = [
@@ -45,7 +46,7 @@ const Article = (): JSX.Element => {
 
 	const read = async () => {
 		try {
-			const res = await services.articles.read({ token: auth.accessToken!, articleId: articleId! });
+			const res = await services.articles.read({ token: auth.accessToken!, articleId: +articleId! });
 			console.log(res.data);
 			setArticle(res.data);
 		} catch (error) {
@@ -80,8 +81,7 @@ const Article = (): JSX.Element => {
 		try {
 			const res = await services.articles.liked({ token: auth.accessToken! });
 			console.log(res.data);
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			if (res.data.find((a: any) => +a.Id === +articleId!)) {
+			if (res.data.find((a: TArticle) => a.id === +articleId!)) {
 				setIsLiked(true);
 			}
 		} catch (error) {
@@ -105,11 +105,10 @@ const Article = (): JSX.Element => {
 
 	const like = async () => {
 		try {
-			const res = await services.articles.like({ token: auth.accessToken!, articleId: articleId! });
+			const res = await services.articles.like({ token: auth.accessToken!, articleId: +articleId! });
 			console.log(res.data);
 			setIsLiked(true);
-			// C'est pourri ça mais il faut l'id du user pour faire mieux
-			setArticle({ ...article, Likes: [...article.Likes, 'new'] });
+			setReload(reload + 1);
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -131,11 +130,10 @@ const Article = (): JSX.Element => {
 
 	const unlike = async () => {
 		try {
-			const res = await services.articles.unlike({ token: auth.accessToken!, articleId: articleId! });
+			const res = await services.articles.unlike({ token: auth.accessToken!, articleId: +articleId! });
 			console.log(res.data);
 			setIsLiked(false);
-			// C'est pourri ça mais il faut l'id du user pour faire mieux
-			setArticle({ ...article, Likes: [...article.Likes.lenght.slice(1)] });
+			setReload(reload + 1);
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -162,6 +160,13 @@ const Article = (): JSX.Element => {
 		}
 	}, [auth]);
 
+	useEffect(() => {
+		if (reload > 1) {
+			read();
+			liked();
+		}
+	}, [reload]);
+
 	if (!article) {
 		return (
 			<>
@@ -186,17 +191,18 @@ const Article = (): JSX.Element => {
 			/>
 			<VStack align="left" spacing="64px" w="100%" py="48px">
 				<VStack align="left" spacing="0px" w="100%">
-					<Text variant="h3">{article.Title}</Text>
+					<Text variant="h3">{article.title}</Text>
 					<Text variant="h6">
-						Topic - {article.Likes.length} j'aime{article.Likes.length !== 1 && 's'}
+						Topic - {article.likes.length} j'aime{article.likes.length !== 1 && 's'}
 					</Text>
 				</VStack>
 				<Text variant="p" whiteSpace="pre-line">
-					{article.Content}
+					{article.content}
 				</Text>
 				<VStack align="left" spacing="0px" w="100%">
-					<Text variant="h4">Écrit par @user-{article.UserId}</Text>
-					<Text variant="h5">{frenchDate(new Date(article.CreatedAt))}</Text>
+					<Text variant="h4">Écrit par @user-{article.userId}</Text>
+					{/* <Text variant="h5">{frenchDate(new Date(article.CreatedAt))}</Text> */}
+					<Text variant="h5">{frenchDate(new Date())}</Text>
 				</VStack>
 			</VStack>
 		</>
