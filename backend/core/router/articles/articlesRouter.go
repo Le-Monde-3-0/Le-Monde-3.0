@@ -18,6 +18,6 @@ func ApplyArticlesRoutes(protected *gin.RouterGroup) {
 	protected.PUT("/articles/:id", EditArticle)
 
 	protected.DELETE("/articles", DeleteAllArticles)
-	protected.DELETE("/articles/id", DeleteArticle)
+	protected.DELETE("/articles/:id", DeleteArticle)
 	protected.DELETE("/articles/:id/likes", RemoveLike)
 }
