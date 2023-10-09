@@ -201,8 +201,8 @@ const Article = (): JSX.Element => {
 				</Text>
 				<VStack align="left" spacing="0px" w="100%">
 					<Text variant="h4">Écrit par @user-{article.userId}</Text>
-					<Text variant="h5">{frenchDate(new Date(article.CreatedAt))}</Text>
-					{/* <Text variant="h5">{frenchDate(new Date())}</Text> */}
+					{/* <Text variant="h5">{frenchDate(new Date(article.CreatedAt))}</Text> */}
+					<Text variant="h5">{frenchDate(new Date())}</Text>
 				</VStack>
 			</VStack>
 		</>

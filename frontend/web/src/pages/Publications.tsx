@@ -99,8 +99,8 @@ const Publication = (): JSX.Element => {
 									id={publication.id.toString()}
 									title={publication.title}
 									author={`User-${publication.userId}`}
-									date={new Date(publication.CreatedAt).toLocaleDateString('fr-FR')}
-									// date={new Date().toLocaleDateString('fr-FR')}
+									// date={new Date(publication.CreatedAt).toLocaleDateString('fr-FR')}
+									date={new Date().toLocaleDateString('fr-FR')}
 									topic="Topic"
 									content={publication.content}
 									actions={[

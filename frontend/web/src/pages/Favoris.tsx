@@ -106,8 +106,8 @@ const Favoris = (): JSX.Element => {
 									id={article.id.toString()}
 									title={article.title}
 									author={`User-${article.userId}`}
-									date={new Date(article.CreatedAt).toLocaleDateString('fr-FR')}
-									// date={new Date().toLocaleDateString('fr-FR')}
+									// date={new Date(article.CreatedAt).toLocaleDateString('fr-FR')}
+									date={new Date().toLocaleDateString('fr-FR')}
 									topic="Topic"
 									content={article.content}
 									actions={[
