@@ -9,8 +9,8 @@ import (
 )
 
 type TitleArticle struct {
-	Id    int32
-	Title string
+	Id    int32  `json:"id"`
+	Title string `json:"title"`
 }
 
 func addIfNotPresent(arr pq.Int32Array, key int32) pq.Int32Array {
@@ -40,6 +40,13 @@ func AddBookmark(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "bookmark must have a title"})
 		return
 	}
+
+	var existingBookmark Bookmark
+	if db.Where("title = ? AND user_id = ?", bookmark.Title, userId).First(&existingBookmark).Error == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Bookmark with the same title already exists"})
+		return
+	}
+
 	bookmark.UserId = userId
 	bookmark.Articles = pq.Int32Array{}
 

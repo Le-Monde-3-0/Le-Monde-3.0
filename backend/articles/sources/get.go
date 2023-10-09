@@ -10,7 +10,7 @@ import (
 )
 
 type LikesResponse struct {
-	Amount   int
+	Amount   int           `json:"amount"`
 	Accounts pq.Int32Array `gorm:"type:integer[]"`
 }
 

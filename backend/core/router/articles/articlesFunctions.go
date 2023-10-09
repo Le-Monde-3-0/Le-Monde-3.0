@@ -12,16 +12,16 @@ type ArticleInput struct {
 }
 
 type Article struct {
-	Id      int32
-	UserId  int32
-	Title   string
-	Content string
-	Likes   []int32
+	Id      int32   `json:"id"`
+	UserId  int32   `json:"userId"`
+	Title   string  `json:"title"`
+	Content string  `json:"content"`
+	Likes   []int32 `json:"likes"`
 }
 
 type LikesResponse struct {
-	Amount   int
-	Accounts []int32
+	Amount   int     `json:"amount"`
+	Accounts []int32 `json:"accounts"`
 }
 
 type DeletedResponse struct {

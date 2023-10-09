@@ -2,14 +2,22 @@ package sources
 
 import (
 	"errors"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
-	"github.com/lib/pq"
-	"gorm.io/gorm"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
+
+type Article struct {
+	Id      int32         `json:"id"`
+	UserId  int32         `json:"userId"`
+	Title   string        `json:"title"`
+	Content string        `json:"content"`
+	Likes   pq.Int32Array `json:"likes" gorm:"type:integer[]"`
+}
 
 func getUserId(c *gin.Context) (int32, error) {
 
@@ -36,13 +44,4 @@ func getUserId(c *gin.Context) (int32, error) {
 	} else {
 		return 0, errors.New("invalid token")
 	}
-}
-
-type Article struct {
-	gorm.Model
-	Id      int32
-	UserId  int32
-	Title   string
-	Content string
-	Likes   pq.Int32Array `gorm:"type:integer[]"`
 }

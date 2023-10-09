@@ -25,7 +25,7 @@ const NouvelArticle = (): JSX.Element => {
 				duration: 9000,
 				isClosable: true,
 			});
-			navigate(`/articles/${res.data.Id}`);
+			navigate(`/articles/${res.data.id}`);
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {

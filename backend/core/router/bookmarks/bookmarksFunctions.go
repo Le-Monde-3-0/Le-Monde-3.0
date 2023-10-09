@@ -7,11 +7,11 @@ import (
 )
 
 type Article struct {
-	Id      int32
-	UserId  int32
-	Title   string
-	Content string
-	Likes   []int32
+	Id      int32   `json:"id"`
+	UserId  int32   `json:"userId"`
+	Title   string  `json:"title"`
+	Content string  `json:"content"`
+	Likes   []int32 `json:"likes"`
 }
 
 type BookmarkInput struct {
@@ -19,10 +19,10 @@ type BookmarkInput struct {
 }
 
 type Bookmark struct {
-	Id       int32
-	UserId   int32
-	Title    string
-	Articles []int32
+	Id       int32   `json:"id"`
+	UserId   int32   `json:"userId"`
+	Title    string  `json:"title"`
+	Articles []int32 `json:"articles"`
 }
 
 type DeletedResponse struct {

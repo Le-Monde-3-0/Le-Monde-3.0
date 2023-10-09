@@ -8,13 +8,14 @@ import services from 'services';
 import { useAuthContext } from 'contexts/auth';
 import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
+import { Article } from 'types/article';
 
 const Favoris = (): JSX.Element => {
 	const toast = useToast();
 	const { auth } = useAuthContext();
 	const [search, setSearch] = useState('');
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const [articles, setArticles] = useState<any[] | undefined>(undefined);
+	const [articles, setArticles] = useState<Article[] | undefined>(undefined);
+	const [reload, setReload] = useState(1);
 
 	const getArticles = async () => {
 		try {
@@ -40,11 +41,11 @@ const Favoris = (): JSX.Element => {
 		}
 	};
 
-	const unlike = async (articleId: string) => {
+	const unlike = async (articleId: number) => {
 		try {
 			const res = await services.articles.unlike({ token: auth.accessToken!, articleId });
 			console.log(res.data);
-			setArticles({ ...articles!.filter((a) => a.Id !== articleId) });
+			setReload(reload + 1);
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -70,6 +71,12 @@ const Favoris = (): JSX.Element => {
 		}
 	}, [auth]);
 
+	useEffect(() => {
+		if (reload > 1) {
+			getArticles();
+		}
+	}, [reload]);
+
 	if (!articles) {
 		return (
 			<>
@@ -92,18 +99,19 @@ const Favoris = (): JSX.Element => {
 				/>
 				<Grid templateColumns="repeat(3, 1fr)" gap={6} w="100%">
 					{articles
-						.filter((a) => (search !== '' ? a.Title.includes(search) : true))
+						.filter((a) => (search !== '' ? a.title.includes(search) : true))
 						.map((article, index) => (
-							<GridItem key={`${index.toString}-${article.Id}`}>
+							<GridItem key={`${index.toString}-${article.id}`}>
 								<ArticleCard
-									id={article.Id}
-									title={article.Title}
-									author={`User-${article.UserId}`}
-									date={new Date(article.CreatedAt).toLocaleDateString('fr-FR')}
+									id={article.id.toString()}
+									title={article.title}
+									author={`User-${article.userId}`}
+									// date={new Date(article.CreatedAt).toLocaleDateString('fr-FR')}
+									date={new Date().toLocaleDateString('fr-FR')}
 									topic="Topic"
-									content={article.Content}
+									content={article.content}
 									actions={[
-										<HStack onClick={() => unlike(article.Id)}>
+										<HStack onClick={() => unlike(article.id)}>
 											<CloseIcon />
 											<Text variant="h6">Retirer des favoris</Text>
 										</HStack>,

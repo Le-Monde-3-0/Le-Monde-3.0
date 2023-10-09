@@ -23,15 +23,22 @@ func AddArticle(c *gin.Context, db *gorm.DB) {
 	}
 
 	if article.Content == "" || article.Title == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "article must have a content and a title"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "article must have content and a title"})
 		return
 	}
+
+	var existingArticle Article
+	if db.Where("title = ? AND user_id = ?", article.Title, userId).First(&existingArticle).Error == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Article with the same title already exists"})
+		return
+	}
+
 	article.UserId = userId
 	article.Likes = pq.Int32Array{}
 
 	result := db.Create(&article)
 	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": result.Error})
+		c.JSON(http.StatusBadRequest, gin.H{"error": result.Error.Error()})
 		return
 	}
 	c.JSON(http.StatusCreated, article)

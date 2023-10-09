@@ -8,17 +8,18 @@ import services from 'services';
 import { useAuthContext } from 'contexts/auth';
 import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
+import { Article } from 'types/article';
 
 const Publication = (): JSX.Element => {
 	const [search, setSearch] = useState('');
 	const toast = useToast();
 	const { auth } = useAuthContext();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const [publications, setPublications] = useState<any[] | undefined>(undefined);
+	const [publications, setPublications] = useState<Article[] | undefined>(undefined);
 
 	const me = async () => {
 		try {
 			const res = await services.articles.me({ token: auth.accessToken! });
+			console.log(res.data);
 			setPublications(res.data);
 		} catch (error) {
 			console.log(error);
@@ -39,11 +40,11 @@ const Publication = (): JSX.Element => {
 		}
 	};
 
-	const hardDelete = async (articleId: string) => {
+	const hardDelete = async (articleId: number) => {
 		try {
 			const res = await services.articles.delete({ token: auth.accessToken!, articleId });
 			console.log(res.data);
-			setPublications({ ...publications!.filter((p) => p.Id !== articleId) });
+			setPublications({ ...publications!.filter((p) => p.id !== articleId) });
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -91,28 +92,29 @@ const Publication = (): JSX.Element => {
 				/>
 				<Grid templateColumns="repeat(3, 1fr)" gap={6} w="100%">
 					{publications
-						.filter((p) => (search !== '' ? p.Title.includes(search) : true))
+						.filter((p) => (search !== '' ? p.title.includes(search) : true))
 						.map((publication, index) => (
-							<GridItem key={`${index.toString}-${publication.Id}`}>
+							<GridItem key={`${index.toString}-${publication.id}`}>
 								<ArticleCard
-									id={publication.Id}
-									title={publication.Title}
-									author={`User-${publication.UserId}`}
-									date={new Date(publication.CreatedAt).toLocaleDateString('fr-FR')}
+									id={publication.id.toString()}
+									title={publication.title}
+									author={`User-${publication.userId}`}
+									// date={new Date(publication.CreatedAt).toLocaleDateString('fr-FR')}
+									date={new Date().toLocaleDateString('fr-FR')}
 									topic="Topic"
-									content={publication.Content}
+									content={publication.content}
 									actions={[
 										<HStack>
 											<ViewOffIcon />
 											<Text variant="h6">Archiver dans les brouillons</Text>
 										</HStack>,
-										<HStack onClick={() => hardDelete(publication.Id)}>
+										<HStack onClick={() => hardDelete(publication.id)}>
 											<DeleteIcon />
 											<Text variant="h6">Supprimer définitivement</Text>
 										</HStack>,
 									]}
 									view="publisher"
-									likes={+publication.Likes.length}
+									likes={+publication.likes.length}
 								/>
 							</GridItem>
 						))}
