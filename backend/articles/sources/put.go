@@ -10,6 +10,7 @@ import (
 type EditedArticle struct {
 	Title   string `json:"title"`
 	Content string `json:"content"`
+	Topic string `json:"topic"`
 }
 
 func EditArticle(c *gin.Context, db *gorm.DB) {
@@ -41,8 +42,15 @@ func EditArticle(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "article not found or was not created by the current user"})
 		return
 	}
-	article.Content = editedArticle.Content
-	article.Title = editedArticle.Title
+	if (editedArticle.Content != "") {
+		article.Content = editedArticle.Content
+	}
+	if (editedArticle.Title != "") {
+		article.Title = editedArticle.Title
+	}
+	if (editedArticle.Topic != "") {
+		article.Topic = editedArticle.Topic	
+	}
 
 	db.Save(&article)
 	c.JSON(http.StatusOK, article)

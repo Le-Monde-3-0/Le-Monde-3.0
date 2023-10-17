@@ -44,5 +44,6 @@ type Article struct {
 	UserId  int32
 	Title   string
 	Content string
+	Topic string
 	Likes   pq.Int32Array `gorm:"type:integer[]"`
 }

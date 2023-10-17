@@ -76,6 +76,7 @@ const docTemplate = `{
                     {
                         "description": "Params to edit an article",
                         "name": "ArticleInput",
+                        "topic":"New Topic"
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -416,6 +417,20 @@ const docTemplate = `{
                         }
                     }
                 }
+            }
+        },
+        "/articles/:topic/topic": {
+            "get" : {
+                "description": "Retrieve the articles by topics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "topic"
+                ],
             }
         },
         "/bookmarks": {
@@ -1009,6 +1024,9 @@ const docTemplate = `{
                     }
                 },
                 "title": {
+                    "type": "string"
+                },
+                "topic": {
                     "type": "string"
                 },
                 "userId": {

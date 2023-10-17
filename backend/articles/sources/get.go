@@ -122,3 +122,21 @@ func GetLikesInfo(c *gin.Context, db *gorm.DB) {
 
 	c.JSON(http.StatusOK, LikesResponse{len(article.Likes), article.Likes})
 }
+
+func GetArticlesByTopic(c *gin.Context, db *gorm.DB) {
+	articles := new([]Article)
+
+	topic := c.Param("topic")
+
+	if (topic == "") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No Topic Given"})
+	}
+
+	result := db.Where(Article{Topic: topic}).Find(&articles)
+
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+		return
+	}
+	c.JSON(http.StatusOK, articles)
+}

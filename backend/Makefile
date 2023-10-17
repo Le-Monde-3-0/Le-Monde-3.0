@@ -9,8 +9,8 @@ build:
 
 tests:
 	cd admin ; go test -cover ./router
-	cd articles ; go test -cover ./router
 	cd bookmarks ; go test -cover ./router
+	cd articles ; go test -cover ./router
 
 coverages:
 	cd admin ; go test -coverprofile=coverage.out ./... ;  go tool cover -html=coverage.out

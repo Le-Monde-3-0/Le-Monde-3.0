@@ -12,7 +12,7 @@ func Router(db *gorm.DB) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:8080"},
+		AllowOrigins:     []string{"http://localhost:8080", "https://dreamy-lollipop-80bc15.netlify.app/"},
 		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST"},
 		AllowHeaders:     []string{"*"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
@@ -45,6 +45,10 @@ func Router(db *gorm.DB) *gin.Engine {
 
 	r.GET("/articles/:id/likes", func(c *gin.Context) {
 		src.GetLikesInfo(c, db)
+	})
+
+	r.GET("/articles/topic/:topic", func(c *gin.Context) {
+		src.GetArticlesByTopic(c, db)
 	})
 
 	r.PUT("/articles/:id", func(c *gin.Context) {

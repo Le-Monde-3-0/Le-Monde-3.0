@@ -56,6 +56,7 @@ func setUp() {
 		Id:      2,
 		Title:   "TestTitle",
 		Content: "TestContent",
+		Topic: "TestTopic",
 		UserId:  1,
 		Likes:   pq.Int32Array{7},
 	}
@@ -242,7 +243,7 @@ func TestEditArticle(t *testing.T) {
 	if result.Error != nil {
 		panic(result.Error)
 	}
-	articleJSON, _ := json.Marshal(src.EditedArticle{Title: "EditedTitle", Content: "EditedContent"})
+	articleJSON, _ := json.Marshal(src.EditedArticle{Title: "EditedTitle", Content: "EditedContent", Topic: "EditedTopic"})
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("PUT", "/articles/2", bytes.NewReader(articleJSON))
 	if err != nil {
@@ -263,6 +264,33 @@ func TestEditArticle(t *testing.T) {
 	}
 	assert.Equal(t, "EditedTitle", responseArticle.Title)
 	assert.Equal(t, "EditedContent", responseArticle.Content)
+	assert.Equal(t, "EditedTopic", responseArticle.Topic)
+}
+
+func TestGetArticlesByTopic(t *testing.T) {
+	result := db.Create(&fakeArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/articles/topic/TestTopic", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 200, w.Code)
+
+	var responseArticle []src.Article
+	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+	assert.Equal(t, []src.Article{fakeArticle}, responseArticle)
 }
 
 func TestDeleteAllArticles(t *testing.T) {
