@@ -122,3 +122,13 @@ func GetLikesInfo(c *gin.Context, db *gorm.DB) {
 
 	c.JSON(http.StatusOK, LikesResponse{len(article.Likes), article.Likes})
 }
+
+// * string topic as parameter, fetch the db -> 404 if no article with this topic -> 400 no args -> 200 lists of articles with given topic
+func GetArticlesByTopic(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, "list of articles")
+}
+
+// * ID as parameter fetch in db chek draft value -> true 200 OK / false 422 Uprocess entity
+func IsArticleDraft(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, "article is a draft")
+}

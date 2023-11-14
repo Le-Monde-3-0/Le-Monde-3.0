@@ -56,6 +56,7 @@ func setUp() {
 		Id:       1,
 		Title:    "TestTitle",
 		UserId:   1,
+		Description: "TestDescription",
 		Articles: pq.Int32Array{},
 	}
 	router = Router(db)
@@ -85,6 +86,7 @@ func TestAddBookmark(t *testing.T) {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
 	assert.Equal(t, "TestTitle", responseBookmark.Title)
+	assert.Equal(t, "TestDescription", responseBookmark.Description)
 }
 
 func TestAddArticleInBookmark(t *testing.T) {

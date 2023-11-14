@@ -99,3 +99,15 @@ func DeleteUser(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusOK, gin.H{"delete": "User deleted successfully"})
 	}
 }
+
+func ChangeUserPassword(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusCreated, "User password changed")
+}
+
+func ChangeUsername(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusCreated, "User name changed")
+}
+
+func ChangeUserMail(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusCreated, "User mail changed")
+}

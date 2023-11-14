@@ -46,6 +46,14 @@ func Router(db *gorm.DB) *gin.Engine {
 	r.GET("/articles/:id/likes", func(c *gin.Context) {
 		src.GetLikesInfo(c, db)
 	})
+	
+	r.GET("/articles/topic", func(c *gin.Context) {
+		src.GetArticlesByTopic(c, db)
+	})
+
+	r.GET("/article/:id/draft", func(c *gin.Context) {
+		src.IsArticleDraft(c, db)
+	})
 
 	r.PUT("/articles/:id", func(c *gin.Context) {
 		src.EditArticle(c, db)

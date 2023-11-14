@@ -9,7 +9,9 @@ import (
 
 type EditedArticle struct {
 	Title   string `json:"title"`
+	Subtitle string `json:"subtitle"`
 	Content string `json:"content"`
+	Topic string `json:"topic"`
 }
 
 func EditArticle(c *gin.Context, db *gorm.DB) {
@@ -43,6 +45,9 @@ func EditArticle(c *gin.Context, db *gorm.DB) {
 	}
 	article.Content = editedArticle.Content
 	article.Title = editedArticle.Title
+	// TODO : cases when the user wish to juste delete the subtitle or topic ? add routes delete topic delete subtitle ?
+	article.Subtitle = editedArticle.Subtitle
+	article.Topic = editedArticle.Topic
 
 	db.Save(&article)
 	c.JSON(http.StatusOK, article)

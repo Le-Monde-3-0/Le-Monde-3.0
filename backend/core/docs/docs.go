@@ -74,6 +74,7 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
+                        "subtitle": "Params to edit the subtitle",
                         "description": "Params to edit an article",
                         "name": "ArticleInput",
                         "in": "body",
@@ -117,6 +118,7 @@ const docTemplate = `{
                 ],
                 "parameters": [
                     {
+                        "subtitle: Params to create an article",
                         "description": "Params to create an article",
                         "name": "ArticleInput",
                         "in": "body",
@@ -468,6 +470,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "Params to create a bookmark",
+                        "bookmark_description": "Params to create a bookmark",
                         "name": "BookmarkInput",
                         "in": "body",
                         "required": true,
@@ -565,6 +568,7 @@ const docTemplate = `{
             },
             "put": {
                 "description": "Edit a bookmark",
+                "bookmark_descritpion" : "Edit a bookmark description",
                 "consumes": [
                     "application/json"
                 ],
@@ -996,6 +1000,9 @@ const docTemplate = `{
         "main_router_articles.Article": {
             "type": "object",
             "properties": {
+                "subtitle" : {
+                    "type": "string"
+                },
                 "content": {
                     "type": "string"
                 },
@@ -1029,6 +1036,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "content": {
+                    "type": "string"
+                },
+                "description": {
                     "type": "string"
                 },
                 "id": {

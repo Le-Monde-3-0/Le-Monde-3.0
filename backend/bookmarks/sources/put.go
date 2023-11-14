@@ -10,6 +10,7 @@ import (
 
 type EditedBookmark struct {
 	Title string `json:"title"`
+	Desccription string `json:"description"`
 }
 
 func EditBookmark(c *gin.Context, db *gorm.DB) {
@@ -42,7 +43,13 @@ func EditBookmark(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return
 	}
-	bookmark.Title = editedBookmark.Title
+	// TODO unsure , if a user want to delete his descritpion maybe this has to change
+	if (editedBookmark.Title != "") {
+		bookmark.Title = editedBookmark.Title
+	}
+	if (editedBookmark.Desccription != "") {
+		bookmark.Description = editedBookmark.Desccription
+	}
 
 	db.Save(&bookmark)
 	c.JSON(http.StatusOK, bookmark)
