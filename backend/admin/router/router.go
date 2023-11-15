@@ -12,7 +12,7 @@ func Router(db *gorm.DB) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
+		AllowOrigins:     []string{"*", "https://dreamy-lollipop-80bc15.netlify.app/"},
 		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST"},
 		AllowHeaders:     []string{"*"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
