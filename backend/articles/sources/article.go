@@ -19,7 +19,7 @@ func getUserId(c *gin.Context) (int32, error) {
 	if len(strings.Split(bearerToken, " ")) == 2 {
 		tokenString = strings.Split(bearerToken, " ")[1]
 	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid token format"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid token format"})
 	}
 
 	tokenPure, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
@@ -34,8 +34,23 @@ func getUserId(c *gin.Context) (int32, error) {
 		userID, _ := claims["user_id"].(float64)
 		return int32(userID), nil
 	} else {
-		return 0, errors.New("invalid token")
+		return 0, errors.New("Invalid token")
 	}
+}
+
+type UserInformation struct {
+	Email    string
+	Username string
+}
+
+// * fetch database with userId get from the function above, return a different object with the Author name and Email
+func getUserInformation() UserInformation{
+	var userInfo UserInformation;
+
+	userInfo.Email = "";
+	userInfo.Username = "";
+
+	return userInfo;
 }
 
 type Article struct {

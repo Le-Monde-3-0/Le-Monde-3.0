@@ -25,13 +25,13 @@ func EditArticle(c *gin.Context, db *gorm.DB) {
 
 	editedArticle := EditedArticle{}
 	if err := c.ShouldBindJSON(&editedArticle); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"error": "Invalid arguments"})
 		return
 	}
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"put": "article id could not be retrieved"})
+		c.JSON(http.StatusBadRequest, gin.H{"put": "Article id could not be retrieved"})
 		return
 	}
 
@@ -40,10 +40,10 @@ func EditArticle(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return
 	} else if article.Title == "" {
-		c.JSON(http.StatusNotFound, gin.H{"error": "article not found or was not created by the current user"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Article not found or was not created by the current user"})
 		return
 	}
-	article.Content = editedArticle.Content
+	article.Content = editedArticle.Content	
 	article.Title = editedArticle.Title
 	// TODO : cases when the user wish to juste delete the subtitle or topic ? add routes delete topic delete subtitle ?
 	article.Subtitle = editedArticle.Subtitle

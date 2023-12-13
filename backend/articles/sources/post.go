@@ -18,12 +18,12 @@ func AddArticle(c *gin.Context, db *gorm.DB) {
 	}
 
 	if err := c.Bind(&article); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Create article parameter Incorect"})
 		return
 	}
 
 	if article.Content == "" || article.Title == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "article must have a content and a title"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Article must have a content and a title"})
 		return
 	}
 	article.UserId = userId
@@ -31,7 +31,7 @@ func AddArticle(c *gin.Context, db *gorm.DB) {
 
 	result := db.Create(&article)
 	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": result.Error})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while creating article"})
 		return
 	}
 	c.JSON(http.StatusCreated, article)
@@ -53,10 +53,10 @@ func AddLike(c *gin.Context, db *gorm.DB) {
 
 	result := db.Where(Article{Id: int32(id)}).Find(&article)
 	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
 		return
 	} else if article.Title == "" {
-		c.JSON(http.StatusNotFound, gin.H{"error": "article not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
 		return
 	}
 	article.Likes = addIfNotPresent(article.Likes, userId)
