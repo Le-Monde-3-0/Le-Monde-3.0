@@ -33,6 +33,7 @@ func MakeHTTPRequest(c *gin.Context, method string, url string, requestBody inte
 
 	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
+
 		return nil, http.StatusInternalServerError, err
 	}
 

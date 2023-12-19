@@ -143,6 +143,11 @@ func TestGetAllArticles(t *testing.T) {
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
+	currentTime := time.Now()
+	responseArticle[0].CreatedAt = currentTime
+	responseArticle[0].UpdatedAt = currentTime
+	fakeArticle.CreatedAt = currentTime
+	fakeArticle.UpdatedAt = currentTime
 	assert.Equal(t, []src.Article{fakeArticle}, responseArticle)
 }
 
@@ -171,6 +176,11 @@ func TestGetArticle(t *testing.T) {
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
+	currentTime := time.Now()
+	responseArticle.CreatedAt = currentTime
+	responseArticle.UpdatedAt = currentTime
+	fakeArticle.CreatedAt = currentTime
+	fakeArticle.UpdatedAt = currentTime
 	assert.Equal(t, fakeArticle, responseArticle)
 }
 
@@ -204,6 +214,11 @@ func TestGetMyArticles(t *testing.T) {
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
+	currentTime := time.Now()
+	responseArticle[0].CreatedAt = currentTime
+	responseArticle[0].UpdatedAt = currentTime
+	fakeArticle.CreatedAt = currentTime
+	fakeArticle.UpdatedAt = currentTime
 	assert.Equal(t, []src.Article{fakeArticle}, responseArticle)
 }
 

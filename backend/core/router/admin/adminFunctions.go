@@ -2,6 +2,7 @@ package articles
 
 import (
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	req "main/http"
 	"net/http"
 )
@@ -30,16 +31,18 @@ type LoginInput struct {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /register [post]
-func Register(c *gin.Context) {
+func Register(c *gin.Context, logger *zap.Logger) {
 
 	var registerParams RegisterInput
 
 	if err := c.ShouldBindJSON(&registerParams); err != nil {
+		logger.Error(err.Error())
 		req.NewError(c, http.StatusBadRequest, err)
 		return
 	}
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodPost, "http://admin-lemonde3-0:8081/register", registerParams)
 	if err != nil {
+		logger.Error(err.Error())
 		req.NewError(c, statusCode, err)
 		return
 	}
@@ -57,15 +60,17 @@ func Register(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /login [post]
-func Login(c *gin.Context) {
+func Login(c *gin.Context, logger *zap.Logger) {
 	var loginParams LoginInput
 
 	if err := c.ShouldBindJSON(&loginParams); err != nil {
+		logger.Error("Invalid request body")
 		c.String(http.StatusBadRequest, "Invalid request body")
 		return
 	}
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodPost, "http://admin-lemonde3-0:8081/login", loginParams)
 	if err != nil {
+		logger.Error(err.Error())
 		c.String(statusCode, "Error making the request")
 		return
 	}

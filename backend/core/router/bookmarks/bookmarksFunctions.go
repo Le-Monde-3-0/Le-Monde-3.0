@@ -2,6 +2,7 @@ package articles
 
 import (
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	req "main/http"
 	"net/http"
 )
@@ -40,7 +41,7 @@ type DeletedResponse struct {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /bookmarks [post]
-func AddBookmark(c *gin.Context) {
+func AddBookmark(c *gin.Context, logger *zap.Logger) {
 	var bookmarksParams BookmarkInput
 
 	if err := c.ShouldBindJSON(&bookmarksParams); err != nil {
@@ -50,6 +51,7 @@ func AddBookmark(c *gin.Context) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodPost, "http://bookmarks-lemonde3-0:8084/bookmarks", bookmarksParams)
 	if err != nil {
+		logger.Error(err.Error())
 		c.String(statusCode, "Error making the request")
 		return
 	}
@@ -67,10 +69,11 @@ func AddBookmark(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /bookmarks/:id/articles/:id-article [post]
-func AddArticleInBookmark(c *gin.Context) {
+func AddArticleInBookmark(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodPost, "http://bookmarks-lemonde3-0:8084/bookmarks/"+c.Param("id")+"/articles/"+c.Param("id-article"), nil)
 	if err != nil {
+		logger.Error(err.Error())
 		c.String(statusCode, "Error making the request")
 		return
 	}
@@ -88,10 +91,11 @@ func AddArticleInBookmark(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /bookmarks [get]
-func GetAllBookmarks(c *gin.Context) {
+func GetAllBookmarks(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://bookmarks-lemonde3-0:8084/bookmarks", nil)
 	if err != nil {
+		logger.Error(err.Error())
 		c.String(statusCode, "Error making the request")
 		return
 	}
@@ -109,10 +113,11 @@ func GetAllBookmarks(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /bookmarks/:id [get]
-func GetBookmark(c *gin.Context) {
+func GetBookmark(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://bookmarks-lemonde3-0:8084/bookmarks/"+c.Param("id"), nil)
 	if err != nil {
+		logger.Error(err.Error())
 		c.String(statusCode, "Error making the request")
 		return
 	}
@@ -130,10 +135,11 @@ func GetBookmark(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /bookmarks/:id/articles [get]
-func GetAllArticlesBookmark(c *gin.Context) {
+func GetAllArticlesBookmark(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://bookmarks-lemonde3-0:8084/bookmarks/"+c.Param("id")+"/articles", nil)
 	if err != nil {
+		logger.Error(err.Error())
 		c.String(statusCode, "Error making the request")
 		return
 	}
@@ -152,16 +158,18 @@ func GetAllArticlesBookmark(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /bookmarks/:id [put]
-func EditBookmark(c *gin.Context) {
+func EditBookmark(c *gin.Context, logger *zap.Logger) {
 	var bookmarksParams BookmarkInput
 
 	if err := c.ShouldBindJSON(&bookmarksParams); err != nil {
+		logger.Error(err.Error())
 		c.String(http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodPut, "http://bookmarks-lemonde3-0:8084/bookmarks/"+c.Param("id"), bookmarksParams)
 	if err != nil {
+		logger.Error(err.Error())
 		c.String(statusCode, "Error making the request")
 		return
 	}
@@ -179,11 +187,12 @@ func EditBookmark(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /bookmarks [delete]
-func DeleteAllBookmarks(c *gin.Context) {
+func DeleteAllBookmarks(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodDelete, "http://bookmarks-lemonde3-0:8084/bookmarks", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
+		logger.Error(err.Error())
 		return
 	}
 
@@ -200,11 +209,12 @@ func DeleteAllBookmarks(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /bookmarks/:id [delete]
-func DeleteBookmark(c *gin.Context) {
+func DeleteBookmark(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodDelete, "http://bookmarks-lemonde3-0:8084/bookmarks/"+c.Param("id"), nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
+		logger.Error(err.Error())
 		return
 	}
 
@@ -221,11 +231,12 @@ func DeleteBookmark(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /bookmarks/:id/articles [delete]
-func DeleteAllArticlesBookmark(c *gin.Context) {
+func DeleteAllArticlesBookmark(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodDelete, "http://bookmarks-lemonde3-0:8084/bookmarks/"+c.Param("id")+"/articles", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
+		logger.Error(err.Error())
 		return
 	}
 
@@ -242,11 +253,12 @@ func DeleteAllArticlesBookmark(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /bookmarks/:id/articles/id-article [delete]
-func DeleteArticleBookmark(c *gin.Context) {
+func DeleteArticleBookmark(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodDelete, "http://bookmarks-lemonde3-0:8084/bookmarks/"+c.Param("id")+"/"+c.Param("id-article"), nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
+		logger.Error(err.Error())
 		return
 	}
 

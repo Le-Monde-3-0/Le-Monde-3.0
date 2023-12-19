@@ -2,6 +2,7 @@ package articles
 
 import (
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	req "main/http"
 	"net/http"
 )
@@ -39,7 +40,7 @@ type DeletedResponse struct {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /articles [post]
-func AddArticle(c *gin.Context) {
+func AddArticle(c *gin.Context, logger *zap.Logger) {
 	var articlesParams ArticleInput
 
 	if err := c.ShouldBindJSON(&articlesParams); err != nil {
@@ -65,7 +66,7 @@ func AddArticle(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /articles/:id/likes [post]
-func AddLike(c *gin.Context) {
+func AddLike(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodPost, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/likes", nil)
 	if err != nil {
@@ -85,7 +86,7 @@ func AddLike(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /articles [get]
-func GetAllArticles(c *gin.Context) {
+func GetAllArticles(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles", nil)
 	if err != nil {
@@ -105,7 +106,7 @@ func GetAllArticles(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /articles/:id [get]
-func GetArticle(c *gin.Context) {
+func GetArticle(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/"+c.Param("id"), nil)
 	if err != nil {
@@ -125,7 +126,7 @@ func GetArticle(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /articles/me [get]
-func GetMyArticles(c *gin.Context) {
+func GetMyArticles(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/me", nil)
 	if err != nil {
@@ -145,7 +146,7 @@ func GetMyArticles(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /articles/liked [get]
-func GetLikedArticles(c *gin.Context) {
+func GetLikedArticles(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/liked", nil)
 	if err != nil {
@@ -165,11 +166,12 @@ func GetLikedArticles(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /articles/:id/likes [get]
-func GetLikesInfo(c *gin.Context) {
+func GetLikesInfo(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/likes", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
+		logger.Error(err.Error())
 		return
 	}
 	c.Data(statusCode, "application/json", responseBody)
@@ -186,17 +188,19 @@ func GetLikesInfo(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /articles [put]
-func EditArticle(c *gin.Context) {
+func EditArticle(c *gin.Context, logger *zap.Logger) {
 	var articlesParams ArticleInput
 
 	if err := c.ShouldBindJSON(&articlesParams); err != nil {
 		c.String(http.StatusBadRequest, "Invalid request body")
+		logger.Error(err.Error())
 		return
 	}
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodPut, "http://articles-lemonde3-0:8082/articles/"+c.Param("id"), articlesParams)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
+		logger.Error(err.Error())
 		return
 	}
 	c.Data(statusCode, "application/json", responseBody)
@@ -212,11 +216,12 @@ func EditArticle(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /articles [delete]
-func DeleteAllArticles(c *gin.Context) {
+func DeleteAllArticles(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodDelete, "http://articles-lemonde3-0:8082/articles/me", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
+		logger.Error(err.Error())
 		return
 	}
 	c.Data(statusCode, "application/json", responseBody)
@@ -232,11 +237,12 @@ func DeleteAllArticles(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /articles/:id [delete]
-func DeleteArticle(c *gin.Context) {
+func DeleteArticle(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodDelete, "http://articles-lemonde3-0:8082/articles/"+c.Param("id"), nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
+		logger.Error(err.Error())
 		return
 	}
 	c.Data(statusCode, "application/json", responseBody)
@@ -252,11 +258,12 @@ func DeleteArticle(c *gin.Context) {
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /articles/:id/likes [delete]
-func RemoveLike(c *gin.Context) {
+func RemoveLike(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodDelete, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/likes", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
+		logger.Error(err.Error())
 		return
 	}
 	c.Data(statusCode, "application/json", responseBody)

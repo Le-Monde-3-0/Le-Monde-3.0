@@ -5,13 +5,14 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/zap"
 	mw "main/middlewares"
 	adm "main/router/admin"
 	art "main/router/articles"
 	bkm "main/router/bookmarks"
 )
 
-func Router() *gin.Engine {
+func Router(logger *zap.Logger) *gin.Engine {
 
 	r := gin.New()
 
@@ -29,9 +30,9 @@ func Router() *gin.Engine {
 
 	protected.Use(mw.JwtAuthMiddleware())
 
-	adm.ApplyAdminRoutes(public)
-	art.ApplyArticlesRoutes(protected)
-	bkm.ApplyBookmarksRoutes(protected)
+	adm.ApplyAdminRoutes(public, logger)
+	art.ApplyArticlesRoutes(protected, logger)
+	bkm.ApplyBookmarksRoutes(protected, logger)
 
 	return r
 }

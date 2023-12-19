@@ -2,22 +2,45 @@ package articles
 
 import (
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
-func ApplyArticlesRoutes(protected *gin.RouterGroup) {
+func ApplyArticlesRoutes(protected *gin.RouterGroup, logger *zap.Logger) {
 
-	protected.POST("/articles", AddArticle)
-	protected.POST("/articles/:id/likes", AddLike)
+	protected.POST("/articles", func(c *gin.Context) {
+		AddArticle(c, logger)
+	})
+	protected.POST("/articles/:id/likes", func(c *gin.Context) {
+		AddLike(c, logger)
+	})
 
-	protected.GET("/articles", GetAllArticles)
-	protected.GET("/articles/:id", GetArticle)
-	protected.GET("/articles/me", GetMyArticles)
-	protected.GET("/articles/liked", GetLikedArticles)
-	protected.GET("/articles/:id/likes", GetLikesInfo)
+	protected.GET("/articles", func(c *gin.Context) {
+		GetAllArticles(c, logger)
+	})
+	protected.GET("/articles/:id", func(c *gin.Context) {
+		GetArticle(c, logger)
+	})
+	protected.GET("/articles/me", func(c *gin.Context) {
+		GetMyArticles(c, logger)
+	})
+	protected.GET("/articles/liked", func(c *gin.Context) {
+		GetLikedArticles(c, logger)
+	})
+	protected.GET("/articles/:id/likes", func(c *gin.Context) {
+		GetLikesInfo(c, logger)
+	})
 
-	protected.PUT("/articles/:id", EditArticle)
+	protected.PUT("/articles/:id", func(c *gin.Context) {
+		EditArticle(c, logger)
+	})
 
-	protected.DELETE("/articles", DeleteAllArticles)
-	protected.DELETE("/articles/id", DeleteArticle)
-	protected.DELETE("/articles/:id/likes", RemoveLike)
+	protected.DELETE("/articles", func(c *gin.Context) {
+		DeleteAllArticles(c, logger)
+	})
+	protected.DELETE("/articles/id", func(c *gin.Context) {
+		DeleteArticle(c, logger)
+	})
+	protected.DELETE("/articles/:id/likes", func(c *gin.Context) {
+		RemoveLike(c, logger)
+	})
 }

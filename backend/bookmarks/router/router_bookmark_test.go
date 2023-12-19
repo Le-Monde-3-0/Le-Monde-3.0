@@ -142,6 +142,11 @@ func TestGetAllBookmarks(t *testing.T) {
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
+	currentTime := time.Now()
+	responseBookmarks[0].CreatedAt = currentTime
+	responseBookmarks[0].UpdatedAt = currentTime
+	fakeBookmark.CreatedAt = currentTime
+	fakeBookmark.UpdatedAt = currentTime
 	assert.Equal(t, []src.Bookmark{fakeBookmark}, responseBookmarks)
 }
 
