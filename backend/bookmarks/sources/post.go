@@ -1,4 +1,4 @@
-package sources
+package bookmarks
 
 import (
 	"github.com/gin-gonic/gin"

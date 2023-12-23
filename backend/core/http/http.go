@@ -1,11 +1,11 @@
-package http
+package core
 
 import (
 	"bytes"
+	mw "core/middlewares"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
-	mw "main/middlewares"
 	"net/http"
 )
 

@@ -1,4 +1,4 @@
-package router
+package bookmarks
 
 import (
 	"github.com/gin-contrib/cors"

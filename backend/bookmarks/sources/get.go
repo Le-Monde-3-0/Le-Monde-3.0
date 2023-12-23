@@ -1,21 +1,13 @@
-package sources
+package bookmarks
 
 import (
 	"errors"
+	adtos "github.com/Le-Monde-3-0/articles_dtos/sources"
 	"github.com/gin-gonic/gin"
-	"github.com/lib/pq"
 	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 )
-
-type Article struct {
-	Id      int32
-	UserId  int32
-	Title   string
-	Content string
-	Likes   pq.Int32Array `gorm:"type:integer[]"`
-}
 
 func GetBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
@@ -69,7 +61,7 @@ func GetAllBookmarks(c *gin.Context, db *gorm.DB) {
 
 func GetAllArticlesBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
-	var articlesBookmark []Article
+	var articlesBookmark []adtos.ArticleResponse
 
 	userId, err := getUserId(c)
 	if err != nil {

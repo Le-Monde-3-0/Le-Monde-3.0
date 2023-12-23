@@ -1,10 +1,10 @@
-package database
+package admin
 
 import (
-	"log"
-	"gorm.io/gorm"
+	src "admin/sources"
 	"gorm.io/driver/sqlite"
-	src "main/sources"
+	"gorm.io/gorm"
+	"log"
 )
 
 func DatabaseInit() *gorm.DB {
@@ -15,5 +15,5 @@ func DatabaseInit() *gorm.DB {
 
 	db.AutoMigrate(&src.User{})
 
-	return db;
+	return db
 }

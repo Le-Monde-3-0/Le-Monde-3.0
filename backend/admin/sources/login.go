@@ -1,4 +1,4 @@
-package sources
+package admin
 
 import (
 	"github.com/dgrijalva/jwt-go"

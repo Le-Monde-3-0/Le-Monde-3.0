@@ -1,4 +1,4 @@
-package sources
+package articles
 
 import (
 	"github.com/gin-gonic/gin"

@@ -6,8 +6,8 @@ COPY . .
 
 RUN go mod download
 
-RUN go build . 
+RUN go build -o bookmarks .
 
 EXPOSE 8084
 
-CMD ["./main"]
+CMD ["./bookmarks"]

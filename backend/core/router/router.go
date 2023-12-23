@@ -1,15 +1,15 @@
 package router
 
 import (
+	mw "core/middlewares"
+	adm "core/router/admin"
+	art "core/router/articles"
+	bkm "core/router/bookmarks"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
-	mw "main/middlewares"
-	adm "main/router/admin"
-	art "main/router/articles"
-	bkm "main/router/bookmarks"
 )
 
 func Router(logger *zap.Logger) *gin.Engine {

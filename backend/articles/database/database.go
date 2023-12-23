@@ -1,4 +1,4 @@
-package database
+package articles
 
 import (
 	"gorm.io/driver/sqlite"

@@ -1,4 +1,4 @@
-package database
+package bookmarks
 
 import (
 	"gorm.io/driver/sqlite"

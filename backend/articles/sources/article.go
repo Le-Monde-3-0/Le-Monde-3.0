@@ -1,4 +1,4 @@
-package sources
+package articles
 
 import (
 	"errors"

@@ -1,9 +1,9 @@
-package articles
+package core
 
 import (
+	req "core/http"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	req "main/http"
 	"net/http"
 )
 

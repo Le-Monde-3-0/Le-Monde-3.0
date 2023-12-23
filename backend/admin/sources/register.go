@@ -1,4 +1,4 @@
-package sources
+package admin
 
 import (
 	"github.com/gin-gonic/gin"
@@ -7,7 +7,7 @@ import (
 )
 
 type RegisterInput struct {
-	Email string `json:"email" binding:"required"`
+	Email    string `json:"email" binding:"required"`
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }

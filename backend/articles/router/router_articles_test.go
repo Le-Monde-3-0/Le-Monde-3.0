@@ -1,4 +1,4 @@
-package router
+package articles
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
-	src "main/sources"
+	articles "main/sources"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -30,14 +30,14 @@ func fakeDB() *gorm.DB {
 		log.Fatal("failed to connect database:", err)
 	}
 
-	db.AutoMigrate(&src.Article{})
+	db.AutoMigrate(&articles.Article{})
 
 	return db
 }
 
 var db *gorm.DB
 var token string
-var fakeArticle src.Article
+var fakeArticle articles.Article
 var router *gin.Engine
 
 func generateFakeToken() (string, error) {
@@ -52,7 +52,7 @@ func generateFakeToken() (string, error) {
 func setUp() {
 	db = fakeDB()
 	token, _ = generateFakeToken()
-	fakeArticle = src.Article{
+	fakeArticle = articles.Article{
 		Id:      2,
 		Title:   "TestTitle",
 		Content: "TestContent",
@@ -80,7 +80,7 @@ func TestAddArticle(t *testing.T) {
 
 	assert.Equal(t, 201, w.Code)
 
-	var responseArticle src.Article
+	var responseArticle articles.Article
 	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
@@ -109,7 +109,7 @@ func TestAddLike(t *testing.T) {
 
 	assert.Equal(t, 200, w.Code)
 
-	var responseArticle src.Article
+	var responseArticle articles.Article
 	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
@@ -138,7 +138,7 @@ func TestGetAllArticles(t *testing.T) {
 
 	assert.Equal(t, 200, w.Code)
 
-	var responseArticle []src.Article
+	var responseArticle []articles.Article
 	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
@@ -148,7 +148,7 @@ func TestGetAllArticles(t *testing.T) {
 	responseArticle[0].UpdatedAt = currentTime
 	fakeArticle.CreatedAt = currentTime
 	fakeArticle.UpdatedAt = currentTime
-	assert.Equal(t, []src.Article{fakeArticle}, responseArticle)
+	assert.Equal(t, []articles.Article{fakeArticle}, responseArticle)
 }
 
 func TestGetArticle(t *testing.T) {
@@ -171,7 +171,7 @@ func TestGetArticle(t *testing.T) {
 
 	assert.Equal(t, 200, w.Code)
 
-	var responseArticle src.Article
+	var responseArticle articles.Article
 	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
@@ -192,7 +192,7 @@ func TestGetMyArticles(t *testing.T) {
 		panic(result.Error)
 	}
 
-	result = db.Create(&src.Article{Title: "TestTitle2", Content: "TestContent2", UserId: 2})
+	result = db.Create(&articles.Article{Title: "TestTitle2", Content: "TestContent2", UserId: 2})
 	if result.Error != nil {
 		panic(result.Error)
 	}
@@ -209,7 +209,7 @@ func TestGetMyArticles(t *testing.T) {
 
 	assert.Equal(t, 200, w.Code)
 
-	var responseArticle []src.Article
+	var responseArticle []articles.Article
 	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
@@ -219,7 +219,7 @@ func TestGetMyArticles(t *testing.T) {
 	responseArticle[0].UpdatedAt = currentTime
 	fakeArticle.CreatedAt = currentTime
 	fakeArticle.UpdatedAt = currentTime
-	assert.Equal(t, []src.Article{fakeArticle}, responseArticle)
+	assert.Equal(t, []articles.Article{fakeArticle}, responseArticle)
 }
 
 func TestGetLikesInfo(t *testing.T) {
@@ -242,12 +242,12 @@ func TestGetLikesInfo(t *testing.T) {
 
 	assert.Equal(t, 200, w.Code)
 
-	var likesResponse src.LikesResponse
+	var likesResponse articles.LikesResponse
 	err = json.Unmarshal([]byte(w.Body.String()), &likesResponse)
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
-	assert.Equal(t, src.LikesResponse{Amount: 1, Accounts: pq.Int32Array{7}}, likesResponse)
+	assert.Equal(t, articles.LikesResponse{Amount: 1, Accounts: pq.Int32Array{7}}, likesResponse)
 }
 
 func TestEditArticle(t *testing.T) {
@@ -257,7 +257,7 @@ func TestEditArticle(t *testing.T) {
 	if result.Error != nil {
 		panic(result.Error)
 	}
-	articleJSON, _ := json.Marshal(src.EditedArticle{Title: "EditedTitle", Content: "EditedContent"})
+	articleJSON, _ := json.Marshal(articles.EditedArticle{Title: "EditedTitle", Content: "EditedContent"})
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("PUT", "/articles/2", bytes.NewReader(articleJSON))
 	if err != nil {
@@ -271,7 +271,7 @@ func TestEditArticle(t *testing.T) {
 
 	assert.Equal(t, 200, w.Code)
 
-	var responseArticle src.Article
+	var responseArticle articles.Article
 	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
@@ -288,7 +288,7 @@ func TestDeleteAllArticles(t *testing.T) {
 		panic(result.Error)
 	}
 
-	result = db.Create(&src.Article{Title: "TestTitle2", Content: "TestContent2", UserId: 2})
+	result = db.Create(&articles.Article{Title: "TestTitle2", Content: "TestContent2", UserId: 2})
 	if result.Error != nil {
 		panic(result.Error)
 	}
@@ -363,7 +363,7 @@ func TestRemoveLike(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 
-	var responseArticle src.Article
+	var responseArticle articles.Article
 	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)

@@ -1,10 +1,10 @@
-package router
+package admin
 
 import (
+	src "admin/sources"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	src "main/sources"
 )
 
 func Router(db *gorm.DB) *gin.Engine {

@@ -1,6 +1,7 @@
-package router
+package admin
 
 import (
+	src "admin/sources"
 	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
@@ -8,7 +9,6 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
-	src "main/sources"
 	"net/http"
 	"net/http/httptest"
 	"os"

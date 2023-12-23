@@ -1,9 +1,10 @@
-package sources
+package bookmarks
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	adtos "github.com/Le-Monde-3-0/articles_dtos/sources"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
@@ -98,8 +99,8 @@ func getArticleId(c *gin.Context, articleName string) (int32, error) {
 	return titleArticle.Id, nil
 }
 
-func getArticlesFromBookmark(c *gin.Context, articlesId []int32) ([]Article, error) {
-	var articlesBookmark []Article
+func getArticlesFromBookmark(c *gin.Context, articlesId []int32) ([]adtos.ArticleResponse, error) {
+	var articlesBookmark []adtos.ArticleResponse
 
 	for i := 0; i < len(articlesId); i++ {
 		article, err := getArticleById(c, articlesId[i])
@@ -120,63 +121,63 @@ func isArticleInBookmark(articlesBookmark []int32, articleId int32) bool {
 	return false
 }
 
-func getArticleByTitle(c *gin.Context, titleArticle string) (Article, error) {
-	var article Article
+func getArticleByTitle(c *gin.Context, titleArticle string) (adtos.ArticleResponse, error) {
+	var article adtos.ArticleResponse
 	responseBody, _, err := MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/"+titleArticle, nil)
 	if err != nil {
-		return Article{}, err
+		return adtos.ArticleResponse{}, err
 	}
 	err = json.Unmarshal(responseBody, &article)
 	if err != nil {
-		return Article{}, err
+		return adtos.ArticleResponse{}, err
 	}
 	return article, nil
 }
 
-func getArticleFromBookmark(c *gin.Context, db *gorm.DB, titleBookmark string, titleArticle string) (Article, error) {
+func getArticleFromBookmark(c *gin.Context, db *gorm.DB, titleBookmark string, titleArticle string) (adtos.ArticleResponse, error) {
 
 	bookmark := new(Bookmark)
-	article := Article{}
+	article := adtos.ArticleResponse{}
 
 	userId, err := getUserId(c)
 	if err != nil {
-		return Article{}, err
+		return adtos.ArticleResponse{}, err
 	}
 
 	result := db.Where(Bookmark{UserId: userId, Title: titleBookmark}).Find(&bookmark)
 	if result.Error != nil {
-		return Article{}, result.Error
+		return adtos.ArticleResponse{}, result.Error
 	} else if bookmark.Title == "" {
-		return Article{}, errors.New("bookmark not found")
+		return adtos.ArticleResponse{}, errors.New("bookmark not found")
 	}
 
 	articleId, err := getArticleId(c, titleArticle)
 	if err != nil {
-		return Article{}, err
+		return adtos.ArticleResponse{}, err
 	}
 
 	if !(isArticleInBookmark(bookmark.Articles, articleId)) {
-		return Article{}, errors.New("no article with the provided name was found in the bookmark")
+		return adtos.ArticleResponse{}, errors.New("no article with the provided name was found in the bookmark")
 	}
 
 	article, err = getArticleByTitle(c, titleArticle)
 	if err != nil {
-		return Article{}, err
+		return adtos.ArticleResponse{}, err
 	}
 
 	return article, nil
 }
 
-func getArticleById(c *gin.Context, articleId int32) (Article, error) {
-	var article Article
+func getArticleById(c *gin.Context, articleId int32) (adtos.ArticleResponse, error) {
+	var article adtos.ArticleResponse
 	strArticleId := strconv.Itoa(int(articleId))
 	responseBody, _, err := MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/"+strArticleId, nil)
 	if err != nil {
-		return Article{}, err
+		return adtos.ArticleResponse{}, err
 	}
 	err = json.Unmarshal(responseBody, &article)
 	if err != nil {
-		return Article{}, err
+		return adtos.ArticleResponse{}, err
 	}
 	return article, nil
 }
