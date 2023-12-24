@@ -1,7 +1,7 @@
 package core
 
 import (
-	req "core/http"
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
@@ -48,7 +48,7 @@ func AddArticle(c *gin.Context, logger *zap.Logger) {
 		return
 	}
 
-	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodPost, "http://articles-lemonde3-0:8082/articles", articlesParams)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPost, "http://articles-lemonde3-0:8082/articles", articlesParams)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		return
@@ -68,7 +68,7 @@ func AddArticle(c *gin.Context, logger *zap.Logger) {
 // @Router /articles/:id/likes [post]
 func AddLike(c *gin.Context, logger *zap.Logger) {
 
-	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodPost, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/likes", nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPost, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/likes", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		return
@@ -88,7 +88,7 @@ func AddLike(c *gin.Context, logger *zap.Logger) {
 // @Router /articles [get]
 func GetAllArticles(c *gin.Context, logger *zap.Logger) {
 
-	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles", nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		return
@@ -108,7 +108,7 @@ func GetAllArticles(c *gin.Context, logger *zap.Logger) {
 // @Router /articles/:id [get]
 func GetArticle(c *gin.Context, logger *zap.Logger) {
 
-	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/"+c.Param("id"), nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/"+c.Param("id"), nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		return
@@ -128,7 +128,7 @@ func GetArticle(c *gin.Context, logger *zap.Logger) {
 // @Router /articles/me [get]
 func GetMyArticles(c *gin.Context, logger *zap.Logger) {
 
-	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/me", nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/me", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		return
@@ -148,7 +148,7 @@ func GetMyArticles(c *gin.Context, logger *zap.Logger) {
 // @Router /articles/liked [get]
 func GetLikedArticles(c *gin.Context, logger *zap.Logger) {
 
-	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/liked", nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/liked", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		return
@@ -168,7 +168,7 @@ func GetLikedArticles(c *gin.Context, logger *zap.Logger) {
 // @Router /articles/:id/likes [get]
 func GetLikesInfo(c *gin.Context, logger *zap.Logger) {
 
-	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/likes", nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/likes", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		logger.Error(err.Error())
@@ -197,7 +197,7 @@ func EditArticle(c *gin.Context, logger *zap.Logger) {
 		return
 	}
 
-	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodPut, "http://articles-lemonde3-0:8082/articles/"+c.Param("id"), articlesParams)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPut, "http://articles-lemonde3-0:8082/articles/"+c.Param("id"), articlesParams)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		logger.Error(err.Error())
@@ -218,7 +218,7 @@ func EditArticle(c *gin.Context, logger *zap.Logger) {
 // @Router /articles [delete]
 func DeleteAllArticles(c *gin.Context, logger *zap.Logger) {
 
-	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodDelete, "http://articles-lemonde3-0:8082/articles/me", nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodDelete, "http://articles-lemonde3-0:8082/articles/me", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		logger.Error(err.Error())
@@ -239,7 +239,7 @@ func DeleteAllArticles(c *gin.Context, logger *zap.Logger) {
 // @Router /articles/:id [delete]
 func DeleteArticle(c *gin.Context, logger *zap.Logger) {
 
-	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodDelete, "http://articles-lemonde3-0:8082/articles/"+c.Param("id"), nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodDelete, "http://articles-lemonde3-0:8082/articles/"+c.Param("id"), nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		logger.Error(err.Error())
@@ -260,7 +260,7 @@ func DeleteArticle(c *gin.Context, logger *zap.Logger) {
 // @Router /articles/:id/likes [delete]
 func RemoveLike(c *gin.Context, logger *zap.Logger) {
 
-	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodDelete, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/likes", nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodDelete, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/likes", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		logger.Error(err.Error())

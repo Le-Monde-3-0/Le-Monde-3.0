@@ -1,10 +1,10 @@
 package router
 
 import (
-	mw "core/middlewares"
 	adm "core/router/admin"
 	art "core/router/articles"
 	bkm "core/router/bookmarks"
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -28,7 +28,7 @@ func Router(logger *zap.Logger) *gin.Engine {
 	public := r.Group("/")
 	protected := r.Group("/")
 
-	protected.Use(mw.JwtAuthMiddleware())
+	protected.Use(utils.JwtAuthMiddleware())
 
 	adm.ApplyAdminRoutes(public, logger)
 	art.ApplyArticlesRoutes(protected, logger)

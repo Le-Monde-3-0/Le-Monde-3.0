@@ -1,7 +1,7 @@
 package core
 
 import (
-	req "core/http"
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
@@ -37,13 +37,13 @@ func Register(c *gin.Context, logger *zap.Logger) {
 
 	if err := c.ShouldBindJSON(&registerParams); err != nil {
 		logger.Error(err.Error())
-		req.NewError(c, http.StatusBadRequest, err)
+		utils.NewError(c, http.StatusBadRequest, err)
 		return
 	}
-	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodPost, "http://admin-lemonde3-0:8081/register", registerParams)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPost, "http://admin-lemonde3-0:8081/register", registerParams)
 	if err != nil {
 		logger.Error(err.Error())
-		req.NewError(c, statusCode, err)
+		utils.NewError(c, statusCode, err)
 		return
 	}
 	c.Data(statusCode, "application/json", responseBody)
@@ -68,7 +68,7 @@ func Login(c *gin.Context, logger *zap.Logger) {
 		c.String(http.StatusBadRequest, "Invalid request body")
 		return
 	}
-	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodPost, "http://admin-lemonde3-0:8081/login", loginParams)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPost, "http://admin-lemonde3-0:8081/login", loginParams)
 	if err != nil {
 		logger.Error(err.Error())
 		c.String(statusCode, "Error making the request")
