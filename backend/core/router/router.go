@@ -1,8 +1,8 @@
 package router
 
 import (
-	adm "core/router/admin"
 	art "core/router/articles"
+	adm "core/router/auth"
 	bkm "core/router/bookmarks"
 	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-contrib/cors"
@@ -33,7 +33,7 @@ func Router(logger *zap.Logger) *gin.Engine {
 
 	protected.Use(utils.JwtAuthMiddleware())
 
-	adm.ApplyAdminRoutes(public, logger)
+	adm.ApplyAuthRoutes(public, logger)
 	art.ApplyArticlesRoutes(protected, logger)
 	bkm.ApplyBookmarksRoutes(protected, logger)
 
