@@ -12,6 +12,9 @@ type EditedBookmark struct {
 	Title string `json:"title"`
 }
 
+/*
+EditBookmark edits a bookmark
+*/
 func EditBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
 

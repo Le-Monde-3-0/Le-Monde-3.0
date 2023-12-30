@@ -5,6 +5,9 @@ import (
 	"go.uber.org/zap"
 )
 
+/*
+ApplyAdminRoutes implements the routes of the microservice Admin
+*/
 func ApplyAdminRoutes(public *gin.RouterGroup, logger *zap.Logger) {
 
 	public.POST("/register", func(c *gin.Context) {

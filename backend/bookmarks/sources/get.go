@@ -9,6 +9,9 @@ import (
 	"strconv"
 )
 
+/*
+GetBookmark retrieves a bookmark of the connected user
+*/
 func GetBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
 
@@ -39,6 +42,9 @@ func GetBookmark(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, bookmark)
 }
 
+/*
+GetAllBookmarks retrieves every bookmark of the connected user
+*/
 func GetAllBookmarks(c *gin.Context, db *gorm.DB) {
 	bookmarks := new([]Bookmark)
 
@@ -59,6 +65,9 @@ func GetAllBookmarks(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, bookmarks)
 }
 
+/*
+GetAllArticlesBookmark retrieves all the articles of a bookmark
+*/
 func GetAllArticlesBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
 	var articlesBookmark []adtos.ArticleResponse

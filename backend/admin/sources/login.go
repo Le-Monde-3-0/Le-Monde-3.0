@@ -15,6 +15,9 @@ type LoginInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+/*
+Login is the function which checks that the given parameters are correct and generates a token for the user
+*/
 func Login(c *gin.Context, db *gorm.DB) {
 	var input LoginInput
 
@@ -38,6 +41,9 @@ func Login(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
+/*
+GenerateToken generates the required token
+*/
 func GenerateToken(user_id int32) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
@@ -48,6 +54,9 @@ func GenerateToken(user_id int32) (string, error) {
 	return token.SignedString([]byte(os.Getenv("secret_key")))
 }
 
+/*
+LoginCheck is called in Login to check if the parameters are correct
+*/
 func LoginCheck(username string, password string, db *gorm.DB) (string, error) {
 
 	var err error
@@ -76,6 +85,9 @@ func LoginCheck(username string, password string, db *gorm.DB) (string, error) {
 
 }
 
+/*
+VerifyPassword checks that the given password corresponds to the one in database
+*/
 func VerifyPassword(password, hashedPassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }

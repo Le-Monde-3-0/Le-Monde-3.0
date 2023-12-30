@@ -7,6 +7,9 @@ import (
 	src "main/sources"
 )
 
+/*
+DatabaseInit initializes the database for the microservice
+*/
 func DatabaseInit() *gorm.DB {
 	db, err := gorm.Open(sqlite.Open("database/bookmarks.db"), &gorm.Config{})
 	if err != nil {

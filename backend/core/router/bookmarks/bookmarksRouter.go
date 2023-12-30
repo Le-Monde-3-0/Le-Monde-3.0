@@ -5,6 +5,9 @@ import (
 	"go.uber.org/zap"
 )
 
+/*
+ApplyBookmarksRoutes implements the routes of the microservice Bookmarks
+*/
 func ApplyBookmarksRoutes(protected *gin.RouterGroup, logger *zap.Logger) {
 
 	protected.POST("/bookmarks", func(c *gin.Context) {

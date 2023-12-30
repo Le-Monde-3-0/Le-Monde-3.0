@@ -12,6 +12,9 @@ type RegisterInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+/*
+Register is the function which allow a new user to register
+*/
 func Register(c *gin.Context, db *gorm.DB) {
 
 	var input RegisterInput

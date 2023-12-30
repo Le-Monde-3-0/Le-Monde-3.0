@@ -12,6 +12,9 @@ type EditedArticle struct {
 	Content string `json:"content"`
 }
 
+/*
+EditArticle allows a user to edit one of its article
+*/
 func EditArticle(c *gin.Context, db *gorm.DB) {
 	article := new(Article)
 

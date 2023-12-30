@@ -12,6 +12,9 @@ import (
 	"go.uber.org/zap"
 )
 
+/*
+Router implements the routes of the microservice
+*/
 func Router(logger *zap.Logger) *gin.Engine {
 
 	r := gin.New()

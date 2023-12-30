@@ -8,6 +8,9 @@ import (
 	"strconv"
 )
 
+/*
+AddArticle creates a new article
+*/
 func AddArticle(c *gin.Context, db *gorm.DB) {
 	article := new(Article)
 
@@ -37,6 +40,9 @@ func AddArticle(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusCreated, article)
 }
 
+/*
+AddLike adds a like to a given article
+*/
 func AddLike(c *gin.Context, db *gorm.DB) {
 	article := new(Article)
 

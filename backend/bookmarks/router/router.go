@@ -7,6 +7,9 @@ import (
 	src "main/sources"
 )
 
+/*
+Router implements the routes of the microservice
+*/
 func Router(db *gorm.DB) *gin.Engine {
 
 	r := gin.Default()

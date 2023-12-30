@@ -9,6 +9,9 @@ import (
 	"strconv"
 )
 
+/*
+DeleteBookmark delete a bookmark of the connected user
+*/
 func DeleteBookmark(c *gin.Context, db *gorm.DB) {
 	userId, err := getUserId(c)
 	if err != nil {
@@ -32,6 +35,9 @@ func DeleteBookmark(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{"delete": "bookmark has been deleted successfully"})
 }
 
+/*
+DeleteAllBookmarks deletes all the bookmark of the connected user
+*/
 func DeleteAllBookmarks(c *gin.Context, db *gorm.DB) {
 	userId, err := getUserId(c)
 	if err != nil {
@@ -45,6 +51,9 @@ func DeleteAllBookmarks(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{"delete": "all bookmarks have been successfully deleted"})
 }
 
+/*
+DeleteAllArticlesBookmark deletes all the articles of a bookmark
+*/
 func DeleteAllArticlesBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
 
@@ -73,6 +82,9 @@ func DeleteAllArticlesBookmark(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, bookmark)
 }
 
+/*
+rmIfNotPresent removes an article from a bookmark but checks first that it is indeed contained in it
+*/
 func rmIfNotPresent(slice pq.Int32Array, key int32) pq.Int32Array {
 	found := false
 	for _, value := range slice {
@@ -95,6 +107,9 @@ func rmIfNotPresent(slice pq.Int32Array, key int32) pq.Int32Array {
 	return result
 }
 
+/*
+DeleteArticleBookmark remove an article from a bookmark
+*/
 func DeleteArticleBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
 

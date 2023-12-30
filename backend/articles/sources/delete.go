@@ -7,6 +7,9 @@ import (
 	"strconv"
 )
 
+/*
+DeleteAllArticles deletes all the articles of the connected user
+*/
 func DeleteAllArticles(c *gin.Context, db *gorm.DB) {
 
 	userId, err := getUserId(c)
@@ -23,6 +26,9 @@ func DeleteAllArticles(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{"delete": "all articles have been successfully deleted"})
 }
 
+/*
+DeleteArticle deletes one of the articles of the connected user
+*/
 func DeleteArticle(c *gin.Context, db *gorm.DB) {
 	userId, err := getUserId(c)
 	if err != nil {
@@ -47,6 +53,9 @@ func DeleteArticle(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{"delete": "article has been successfully deleted"})
 }
 
+/*
+RemoveLike removes the like of a given post from the connected user
+*/
 func RemoveLike(c *gin.Context, db *gorm.DB) {
 	article := new(Article)
 	i := 0

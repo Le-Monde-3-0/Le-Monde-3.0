@@ -7,6 +7,9 @@ import (
 	"log"
 )
 
+/*
+DatabaseInit initializes the database for the microservice
+*/
 func DatabaseInit() *gorm.DB {
 	db, err := gorm.Open(sqlite.Open("database/admin.db"), &gorm.Config{})
 	if err != nil {

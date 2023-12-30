@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -22,6 +21,9 @@ type ReceiveUser struct {
 	Email string `json:"email"`
 }
 
+/*
+AddUser adds a new User object in the database
+*/
 func AddUser(email string, username string, password string, c *gin.Context, db *gorm.DB) {
 	user := new(User)
 
@@ -41,61 +43,5 @@ func AddUser(email string, username string, password string, c *gin.Context, db 
 		c.JSON(http.StatusBadRequest, gin.H{"error": result.Error})
 	} else {
 		c.JSON(http.StatusCreated, gin.H{"created": "User created successfully"})
-	}
-}
-
-func GetUser(c *gin.Context, db *gorm.DB) {
-	user := new(User)
-
-	if err := c.Bind(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	email := c.Query("email")
-	result := db.Where(User{Email: email}).Find(&user)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": result.Error})
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
-	} else if user.Id == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
-	} else {
-		c.JSON(http.StatusOK, user)
-	}
-}
-
-func DeleteUser(c *gin.Context, db *gorm.DB) {
-	user := new(User)
-
-	if err := c.Bind(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	email := c.Query("email")
-	res := db.Where(User{Email: email}).Find(&user)
-	if res.Error != nil {
-		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": res.Error})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": res.Error})
-		return
-	}
-	if user.Id == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
-		return
-	}
-
-	id := user.Id
-	condition := User{Id: id}
-
-	result := db.Delete(&condition)
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
-	} else {
-		c.JSON(http.StatusOK, gin.H{"delete": "User deleted successfully"})
 	}
 }

@@ -5,6 +5,9 @@ import (
 	"go.uber.org/zap"
 )
 
+/*
+ApplyArticlesRoutes implements the routes of the microservice Articles
+*/
 func ApplyArticlesRoutes(protected *gin.RouterGroup, logger *zap.Logger) {
 
 	protected.POST("/articles", func(c *gin.Context) {
