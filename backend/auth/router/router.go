@@ -16,7 +16,7 @@ func Router(db *gorm.DB) *gin.Engine {
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST"},
+		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST", "DELETE"},
 		AllowHeaders:     []string{"*"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
 		AllowCredentials: true,
@@ -28,6 +28,10 @@ func Router(db *gorm.DB) *gin.Engine {
 
 	r.POST("/register", func(c *gin.Context) {
 		src.Register(c, db)
+	})
+
+	r.GET("/me", func(c *gin.Context) {
+		src.GetMyInfo(c, db)
 	})
 
 	return r

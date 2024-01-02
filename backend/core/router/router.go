@@ -21,7 +21,7 @@ func Router(logger *zap.Logger) *gin.Engine {
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST"},
+		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST", "DELETE"},
 		AllowHeaders:     []string{"*"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
 		AllowCredentials: true,
@@ -33,7 +33,7 @@ func Router(logger *zap.Logger) *gin.Engine {
 
 	protected.Use(utils.JwtAuthMiddleware())
 
-	adm.ApplyAuthRoutes(public, logger)
+	adm.ApplyAuthRoutes(public, protected, logger)
 	art.ApplyArticlesRoutes(protected, logger)
 	bkm.ApplyBookmarksRoutes(protected, logger)
 

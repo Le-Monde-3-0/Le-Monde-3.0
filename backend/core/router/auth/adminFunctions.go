@@ -18,6 +18,13 @@ type LoginInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type User struct {
+	Id       int32
+	Email    string
+	Username string
+	Password string
+}
+
 // @BasePath /api/v1
 
 // Register godoc
@@ -71,6 +78,25 @@ func Login(c *gin.Context, logger *zap.Logger) {
 	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPost, "http://auth-lemonde3-0:8081/login", loginParams)
 	if err != nil {
 		logger.Error(err.Error())
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
+// GetMyInfo godoc
+// @Schemes
+// @Description Return the connected user's information
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Success 200 {object} User
+// @Failure      400  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /me [get]
+func GetMyInfo(c *gin.Context, logger *zap.Logger) {
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://auth-lemonde3-0:8082/me", nil)
+	if err != nil {
 		c.String(statusCode, "Error making the request")
 		return
 	}
