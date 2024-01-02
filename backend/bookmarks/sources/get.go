@@ -15,19 +15,13 @@ GetBookmark retrieves a bookmark of the connected user
 func GetBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
 
-	userId, err := getUserId(c)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
 	bookmarkId, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"get": "bookmark id could not be retrieved"})
 		return
 	}
 
-	result := db.Where(Bookmark{Id: int32(bookmarkId), UserId: userId}).Find(&bookmark)
+	result := db.Where(Bookmark{Id: int32(bookmarkId), Public: true}).Find(&bookmark)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": result.Error})
