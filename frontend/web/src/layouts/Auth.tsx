@@ -10,7 +10,7 @@ const Auth = ({ children }: AuthProps): JSX.Element => (
 				Le Monde 3.0
 			</Text>
 			<Text id="app-description" variant="h5" textAlign="center">
-				Le journal décentralisé luttant contre la censure. (version beta)
+				Le journal décentralisé luttant contre la censure. (version BETA)
 			</Text>
 		</VStack>
 		<VStack w="496px" pb="64px">
