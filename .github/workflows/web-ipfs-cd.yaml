@@ -16,7 +16,7 @@ jobs:
 
       - name: Run IPFS script
         working-directory: ./frontend/web/ipfs
-        run: ./publish > script-results
+        run: ./publish.sh > script-results
 
       - name: Get script results
         uses: actions/upload-artifact@v1
