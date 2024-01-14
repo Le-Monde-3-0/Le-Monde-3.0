@@ -65,7 +65,7 @@ echo ""
 
 # 5. Get Scaleway pins
 echo "[Step 5]. Get Scalway pins"
-sudo curl -f -X GET \
+curl -f -X GET \
     -H "Content-Type: application/json" \
     -H "X-Auth-Token: $SCALEWAY_AUTH_TOKEN" \
     "https://api.scaleway.com/ipfs/v1alpha1/regions/$SCALEWAY_REGION_ID/pins?order_by=created_at_asc&volume_id=$SCALEWAY_VOLUME_ID" \
