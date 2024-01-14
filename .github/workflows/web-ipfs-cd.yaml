@@ -1,0 +1,25 @@
+name: IPFS deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run IPFS script
+        working-directory: ./frontend/web/ipfs
+        run: ./publish > script-results
+
+      - name: Get script results
+        uses: actions/upload-artifact@v1
+        with:
+          name: web-ipfs-deployment-results
+          path: ./frontend/web/script-results
