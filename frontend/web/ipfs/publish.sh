@@ -9,7 +9,6 @@ SCALEWAY_VOLUME_ID="80c8d0e5-539a-4bed-af4a-77c0d767684a"
 SCALEWAY_NAME_ID="2e839d89-8294-4eab-87c1-f2156a67cac4"
 SCALEWAY_NAME_VALUE="k51qzi5uqu5dho5qg1jmfx7n8sptx7xwhb6kogg4vzto2lpz2gxcooz0ajl3sz"
 SCALEWAY_PIN_NAME="Le Monde 3.0 (frontend)"
-SCALEWAY_AUTH_TOKEN="f8b6f9a8-41d5-4b4d-b118-7017b57fe611"
 
 exit_if_failure() {
     exit_status=$?
