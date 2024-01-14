@@ -23,7 +23,8 @@ jobs:
 
       - name: Run IPFS script
         working-directory: ./frontend/web/ipfs
-        run: bash ./publish.sh > script-results
+        run: ./publish.sh > script-results
+        shell: bash
         env:
           SCALEWAY_AUTH_TOKEN: ${{secrets.SCALEWAY_AUTH_TOKEN}}
 
