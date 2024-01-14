@@ -27,6 +27,9 @@ WORKDIR=$(pwd)
 cd ./ipfs
 export ipfs_staging=$WORKDIR
 export ipfs_data="$WORKDIR/ipfs"
+touch $SCALEWAY_GET_PINS_OUTPUT
+touch $SCALEWAY_POST_PIN_OUTPUT
+touch $SCALEWAY_GET_PIN_OUTPUT
 docker pull ipfs/kubo
 exit_if_failure "Failed to pull IPFS docker image."
 echo ""
