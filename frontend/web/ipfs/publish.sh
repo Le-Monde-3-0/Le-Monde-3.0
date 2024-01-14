@@ -1,9 +1,6 @@
 #!/bin/bash
 
 IPFS_HOST="ipfs_host"
-SCALEWAY_GET_PINS_OUTPUT="scaleway_get_pins.txt"
-SCALEWAY_POST_PIN_OUTPUT="scaleway_post_pin.txt"
-SCALEWAY_GET_PIN_OUTPUT="scaleway_get_pin.txt"
 SCALEWAY_REGION_ID="fr-par"
 SCALEWAY_VOLUME_ID="80c8d0e5-539a-4bed-af4a-77c0d767684a"
 SCALEWAY_NAME_ID="2e839d89-8294-4eab-87c1-f2156a67cac4"
@@ -27,9 +24,6 @@ WORKDIR=$(pwd)
 cd ./ipfs
 export ipfs_staging=$WORKDIR
 export ipfs_data="$WORKDIR/ipfs"
-touch $SCALEWAY_GET_PINS_OUTPUT
-touch $SCALEWAY_POST_PIN_OUTPUT
-touch $SCALEWAY_GET_PIN_OUTPUT
 docker pull ipfs/kubo
 exit_if_failure "Failed to pull IPFS docker image."
 echo ""
@@ -68,19 +62,17 @@ echo ""
 
 # 5. Get Scaleway pins
 echo "[Step 5]. Get Scalway pins"
-curl -f -X GET \
+SCALEWAY_GET_PINS_OUTPUT=$(curl -f -X GET \
     -H "Content-Type: application/json" \
     -H "X-Auth-Token: $SCALEWAY_AUTH_TOKEN" \
-    "https://api.scaleway.com/ipfs/v1alpha1/regions/$SCALEWAY_REGION_ID/pins?order_by=created_at_asc&volume_id=$SCALEWAY_VOLUME_ID" \
-    >$SCALEWAY_GET_PINS_OUTPUT
+    "https://api.scaleway.com/ipfs/v1alpha1/regions/$SCALEWAY_REGION_ID/pins?order_by=created_at_asc&volume_id=$SCALEWAY_VOLUME_ID")
 exit_if_failure "Failed to get Scaleway pins."
-cat $SCALEWAY_GET_PINS_OUTPUT
-echo ""
+echo $SCALEWAY_GET_PINS_OUTPUT
 echo ""
 
 # 6. Delete Scaleway pins
 echo "[Step 6]. Delete Scaleway pins"
-PINS=$(jq -r '.pins[] | .pin_id' $SCALEWAY_GET_PINS_OUTPUT)
+PINS=$(jq -r '.pins[] | .pin_id' <<< "$SCALEWAY_GET_PINS_OUTPUT")
 for pin in $PINS; do
     curl -f -X DELETE \
         -H "Content-Type: application/json" \
@@ -89,12 +81,11 @@ for pin in $PINS; do
     exit_if_failure "Failed to delete Scaleway pin $pin."
     echo "- pin $pin deleted."
 done
-rm -f $SCALEWAY_GET_PINS_OUTPUT
 echo ""
 
 # 7. Pin CID
 echo "[Step 7]. Pin new CID using Scaleway"
-curl -f -X POST \
+SCALEWAY_POST_PIN_OUTPUT=$(curl -f -X POST \
     -H "X-Auth-Token: $SCALEWAY_AUTH_TOKEN" \
     -H "Content-Type: application/json" \
     -d '{
@@ -102,32 +93,27 @@ curl -f -X POST \
         "name": "'"$SCALEWAY_PIN_NAME"'",
         "volume_id": "'"$SCALEWAY_VOLUME_ID"'"
     }' \
-    "https://api.scaleway.com/ipfs/v1alpha1/regions/$SCALEWAY_REGION_ID/pins/create-by-cid" \
-    >$SCALEWAY_POST_PIN_OUTPUT
+    "https://api.scaleway.com/ipfs/v1alpha1/regions/$SCALEWAY_REGION_ID/pins/create-by-cid")
 exit_if_failure "Failed to pin new CID."
-cat $SCALEWAY_POST_PIN_OUTPUT
-echo ""
+echo $SCALEWAY_POST_PIN_OUTPUT
 echo ""
 
 # 8. Wait for pin
 echo "[Step 8]. Wait for new PIN to have status 'pinned'"
-NEW_PIN_ID=$(jq -r '.pin_id' $SCALEWAY_POST_PIN_OUTPUT)
+NEW_PIN_ID=$(jq -r '.pin_id' <<< "$SCALEWAY_POST_PIN_OUTPUT")
 PINNED=false
 while [ "$PINNED" = "false" ]; do
     sleep 1
-    curl -f -X GET \
+    SCALEWAY_GET_PIN_OUTPUT=$(curl -f -X GET \
         -H "X-Auth-Token: $SCALEWAY_AUTH_TOKEN" \
-        "https://api.scaleway.com/ipfs/v1alpha1/regions/$SCALEWAY_REGION_ID/pins/$NEW_PIN_ID?volume_id=$SCALEWAY_VOLUME_ID" \
-        >$SCALEWAY_GET_PIN_OUTPUT
+        "https://api.scaleway.com/ipfs/v1alpha1/regions/$SCALEWAY_REGION_ID/pins/$NEW_PIN_ID?volume_id=$SCALEWAY_VOLUME_ID")
     exit_if_failure "Failed to get new pin $NEW_PIN_ID information."
-    STATUS=$(jq -r '.status' $SCALEWAY_GET_PIN_OUTPUT)
+    STATUS=$(jq -r '.status' <<< "$SCALEWAY_GET_PIN_OUTPUT")
     echo ". pin $NEW_PIN_ID status is $STATUS"
     if [ "$STATUS" = "pinned" ]; then
         PINNED=true
     fi
 done
-rm -f $SCALEWAY_GET_PIN_OUTPUT
-rm -f $SCALEWAY_POST_PIN_OUTPUT
 echo ""
 
 # 9. Cleaning
