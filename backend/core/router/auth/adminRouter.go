@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 )
 
@@ -21,4 +22,6 @@ func ApplyAuthRoutes(public *gin.RouterGroup, protected *gin.RouterGroup, logger
 	protected.GET("/me", func(c *gin.Context) {
 		GetMyInfo(c, logger)
 	})
+
+	public.GET("/metrics", gin.WrapH(promhttp.Handler()))
 }

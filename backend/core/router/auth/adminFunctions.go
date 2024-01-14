@@ -3,6 +3,7 @@ package core
 import (
 	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -23,6 +24,20 @@ type User struct {
 	Email    string
 	Username string
 	Password string
+}
+
+var (
+	requestsTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "http_requests_total",
+			Help: "Total number of HTTP requests.",
+		},
+		[]string{"method"},
+	)
+)
+
+func init() {
+	prometheus.MustRegister(requestsTotal)
 }
 
 // @BasePath /api/v1
@@ -54,6 +69,7 @@ func Register(c *gin.Context, logger *zap.Logger) {
 		return
 	}
 	c.Data(statusCode, "application/json", responseBody)
+	requestsTotal.WithLabelValues("GET").Inc()
 }
 
 // Login godoc
