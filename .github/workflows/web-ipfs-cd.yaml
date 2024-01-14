@@ -20,6 +20,7 @@ jobs:
 
       - name: Get script results
         uses: actions/upload-artifact@v1
+        if: always()
         with:
           name: web-ipfs-deployment-results
           path: ./frontend/web/script-results
