@@ -29,7 +29,7 @@ jobs:
           SCALEWAY_AUTH_TOKEN: ${{secrets.SCALEWAY_AUTH_TOKEN}}
           REACT_APP_HOST: localhost
           REACT_APP_PORT: 3000
-          REACT_APP_BACKEND_URL: "http://34.155.215.13:8080"
+          REACT_APP_BACKEND_URL: "https://lemonde-3-0.com"
 
       - name: Get script results
         uses: actions/upload-artifact@v1
