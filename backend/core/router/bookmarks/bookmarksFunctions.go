@@ -16,12 +16,14 @@ type Article struct {
 
 type BookmarkInput struct {
 	Title string `json:"title" binding:"required"`
+	Description string `json:"description" bingind:"required"`
 }
 
 type Bookmark struct {
 	Id       int32
 	UserId   int32
 	Title    string
+	Description string
 	Articles []int32
 }
 

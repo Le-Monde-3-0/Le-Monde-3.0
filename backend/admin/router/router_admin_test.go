@@ -48,8 +48,7 @@ func setUp() {
 	router = Router(db)
 }
 
-func TestLoginAdmin(t *testing.T) {
-
+func TestLogin(t *testing.T) {
 	setUp()
 
 	result := db.Create(&user)
@@ -73,8 +72,7 @@ func TestLoginAdmin(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 }
 
-func TestRegisterAdmin(t *testing.T) {
-
+func TestRegister(t *testing.T) {
 	setUp()
 
 	requestBody := src.RegisterInput{
@@ -96,4 +94,95 @@ func TestRegisterAdmin(t *testing.T) {
 
 	assert.Equal(t, 201, w.Code)
 	assert.Equal(t, "{\"created\":\"User created successfully\"}", w.Body.String())
+}
+
+func TestChangeUserUsername(t *testing.T) {
+	setUp()
+
+	result := db.Create(&user)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	requestBody := src.UserChangeUsername {
+		Email:    "test@test.com",
+		Password: "pass",
+		NewUsername: "Boby",
+	}
+
+	jsonBody, err := json.Marshal(requestBody)
+	if err != nil {
+		t.Fatalf("Failed to marshal request body: %s", err)
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("PUT", "/username", bytes.NewBuffer(jsonBody))
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 201, w.Code)
+	// assert.Equal(t, "{\"error\":\"Email or Password is incorrect.\"}",  w.Body.String())
+	assert.Equal(t, "{\"created\":\"User name changed\"}", w.Body.String())
+}
+
+func TestChangeUserMail(t *testing.T) {
+	setUp()
+
+	result := db.Create(&user)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	requestBody := src.UserChangeUserMail {
+		Email:    "test@test.com",
+		Password: "pass",
+		NewEmail: "testtest@test.com",
+	}
+
+	jsonBody, err := json.Marshal(requestBody)
+	if err != nil {
+		t.Fatalf("Failed to marshal request body: %s", err)
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("PUT", "/mail", bytes.NewBuffer(jsonBody))
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 201, w.Code)
+	assert.Equal(t, "{\"created\":\"User mail changed\"}", w.Body.String())
+}
+
+func ChangeUserPassword(t *testing.T) {
+	setUp()
+
+	result := db.Create(&user)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	requestBody := src.UserChangePassword {
+		Email:    "test@test.com",
+		Password: "pass",
+		NewPassword: "thisispassword",
+	}
+
+	jsonBody, err := json.Marshal(requestBody)
+	if err != nil {
+		t.Fatalf("Failed to marshal request body: %s", err)
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("PUT", "/password", bytes.NewBuffer(jsonBody))
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 201, w.Code)
+	assert.Equal(t, "{\"created\":\"User password changed\"}", w.Body.String())
 }

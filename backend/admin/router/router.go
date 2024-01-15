@@ -27,5 +27,20 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.Register(c, db)
 	})
 
+	r.PUT("/mail", func(c *gin.Context) {
+		src.ChangeUserMail(c, db)
+	})
+
+	r.PUT("/username", func(c *gin.Context) {
+		src.ChangeUsername(c, db)
+	})
+
+	r.PUT("/password", func(c *gin.Context) {
+		src.ChangeUserPassword(c, db)
+	})
+
+	// r.GET("/getUser/:id", func(c *gin.Context) {
+	// 	src.GetUserFromId(c, db)
+	// })
 	return r
 }

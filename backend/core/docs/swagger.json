@@ -68,11 +68,11 @@
                 "parameters": [
                     {
                         "description": "Params to edit an article",
-                        "name": "ArticleInput",
+                        "name": "EditArticleInput",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/articles.ArticleInput"
+                            "$ref": "#/definitions/articles.EditArticleInput"
                         }
                     }
                 ],
@@ -239,6 +239,78 @@
                 }
             }
         },
+        "/articles/:id/draft": {
+            "get": {
+                "description": "Check if the given article is a Draft",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/articles.IsArticleDraftResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Change the state of a draft",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main_router_articles.Article"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/articles/:id/likes": {
             "get": {
                 "description": "Retrieve likes information related to an article",
@@ -377,6 +449,43 @@
         "/articles/me": {
             "get": {
                 "description": "Retrieve connected user articles",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main_router_articles.Article"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/topic": {
+            "get": {
+                "description": "Get all articles by topic",
                 "consumes": [
                     "application/json"
                 ],
@@ -814,6 +923,96 @@
                 }
             }
         },
+        "/mail": {
+            "put": {
+                "description": "Change the mail of a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "parameters": [
+                    {
+                        "description": "Params to change user mail",
+                        "name": "ChangeUserMailInput",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/articles.ChangeUserMailInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/articles.ChangeUserMailResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/password": {
+            "put": {
+                "description": "Change the password of a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "parameters": [
+                    {
+                        "description": "Params to change user password",
+                        "name": "ChangeUserPasswordInput",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/articles.ChangeUserPasswordInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/articles.ChangeUserPasswordResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/register": {
             "post": {
                 "description": "Create a user",
@@ -858,20 +1057,79 @@
                     }
                 }
             }
+        },
+        "/username": {
+            "put": {
+                "description": "Change the name of a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "parameters": [
+                    {
+                        "description": "Params to change user name",
+                        "name": "ChangeUsernameInput",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/articles.ChangeUsernameInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/articles.ChangeUserNameResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
         "articles.ArticleInput": {
             "type": "object",
             "required": [
+                "authorname",
                 "content",
+                "subtitle",
                 "title"
             ],
             "properties": {
+                "authorname": {
+                    "type": "string"
+                },
                 "content": {
                     "type": "string"
                 },
+                "draft": {
+                    "type": "boolean"
+                },
+                "subtitle": {
+                    "type": "string"
+                },
                 "title": {
+                    "type": "string"
+                },
+                "topic": {
                     "type": "string"
                 }
             }
@@ -884,6 +1142,9 @@
                     "items": {
                         "type": "integer"
                     }
+                },
+                "description": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -902,8 +1163,111 @@
                 "title"
             ],
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "articles.ChangeUserMailInput": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "newemail": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "articles.ChangeUserMailResponse": {
+            "type": "object",
+            "properties": {
+                "created": {
+                    "type": "string",
+                    "example": "User email changed"
+                }
+            }
+        },
+        "articles.ChangeUserNameResponse": {
+            "type": "object",
+            "properties": {
+                "created": {
+                    "type": "string",
+                    "example": "User name changed"
+                }
+            }
+        },
+        "articles.ChangeUserPasswordInput": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "newpassword": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "articles.ChangeUserPasswordResponse": {
+            "type": "object",
+            "properties": {
+                "created": {
+                    "type": "string",
+                    "example": "User password changed"
+                }
+            }
+        },
+        "articles.ChangeUsernameInput": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "newusername": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "articles.EditArticleInput": {
+            "type": "object",
+            "required": [
+                "content",
+                "subtitle",
+                "title"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "subtitle": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "topic": {
+                    "type": "string"
+                }
+            }
+        },
+        "articles.IsArticleDraftResponse": {
+            "type": "object",
+            "properties": {
+                "true": {
+                    "type": "string",
+                    "example": "Article is draft"
                 }
             }
         },
@@ -989,8 +1353,14 @@
         "main_router_articles.Article": {
             "type": "object",
             "properties": {
+                "authorName": {
+                    "type": "string"
+                },
                 "content": {
                     "type": "string"
+                },
+                "draft": {
+                    "type": "boolean"
                 },
                 "id": {
                     "type": "integer"
@@ -1001,7 +1371,13 @@
                         "type": "integer"
                     }
                 },
+                "subtitle": {
+                    "type": "string"
+                },
                 "title": {
+                    "type": "string"
+                },
+                "topic": {
                     "type": "string"
                 },
                 "userId": {

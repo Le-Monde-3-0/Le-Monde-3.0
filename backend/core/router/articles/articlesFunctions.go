@@ -7,15 +7,34 @@ import (
 )
 
 type ArticleInput struct {
+	AuthorName string `json:"authorname" binding:"required"`
 	Title   string `json:"title" binding:"required"`
+	SubTitle string `json:"subtitle" binding:"required"`
 	Content string `json:"content" binding:"required"`
+	Topic string `json:"topic" binging:"required"`
+	Draft bool `json:"draft" binging:"required"`
+}
+
+type EditArticleInput struct {
+	Title   string `json:"title" binding:"required"`
+	SubTitle string `json:"subtitle" binding:"required"`
+	Content string `json:"content" binding:"required"`
+	Topic string `json:"topic" binging:"required"`
+}
+
+type DraftStateInput struct {
+	Draft bool `json:"draft" binding:"required"`
 }
 
 type Article struct {
 	Id      int32
 	UserId  int32
+	AuthorName string
 	Title   string
+	Subtitle string
 	Content string
+	Topic string
+	Draft bool
 	Likes   []int32
 }
 
@@ -181,7 +200,7 @@ func GetLikesInfo(c *gin.Context) {
 // @Tags articles
 // @Accept json
 // @Produce json
-// @Param ArticleInput body ArticleInput true "Params to edit an article"
+// @Param EditArticleInput body EditArticleInput true "Params to edit an article"
 // @Success 200 {object} Article
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
@@ -260,4 +279,92 @@ func RemoveLike(c *gin.Context) {
 		return
 	}
 	c.Data(statusCode, "application/json", responseBody)
+}
+
+// GetArticlesByTopic godoc
+// @Schemes
+// @Description Get all articles by topic
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} []Article
+// @Failure      400  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /articles/topic [get]
+func GetArticlesByTopic(c *gin.Context) {
+
+	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/topic", nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
+// GetAllTopics godoc
+// @Schemes
+// @Description Get all articles by topic
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} []Article
+// @Failure      400  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /articles/topic [get]
+func GetAllTopics(c *gin.Context) {
+
+	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/topics", nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
+// GetArticlesByTopic godoc
+// @Schemes
+// @Description Get all topics
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} IsArticleDraftResponse
+// @Failure      500  {object}  req.HTTPError
+// @Router /articles/topics [get]
+func IsArticleDraft(c *gin.Context) {
+	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/draft", nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
+// ChangeDraftState godoc
+// @Schemes
+// @Description Change the state of a draft
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} Article
+// @Failure      404  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /articles/:id/draft [put]
+func ChangeDraftState(c *gin.Context) {
+	var changeDraftStateParams DraftStateInput
+
+	if err := c.ShouldBindJSON(&changeDraftStateParams); err != nil {
+		c.String(http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodPut, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/draft", changeDraftStateParams)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
+type IsArticleDraftResponse struct {
+	Ok string `json:"true" example:"Article is draft"`
 }
