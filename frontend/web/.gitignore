@@ -24,3 +24,14 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# IPFS
+/ipfs/blocks
+/ipfs/datastore
+/ipfs/keystore
+/ipfs/api
+/ipfs/config
+/ipfs/datastore_spec
+/ipfs/gateway
+/ipfs/repo.lock
+/ipfs/version
