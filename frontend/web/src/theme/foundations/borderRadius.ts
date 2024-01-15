@@ -1,8 +1,9 @@
 const borderRadius = {
 	radii: {
+		xsm: '4px',
 		sm: '8px',
-		md: '16px',
-		lg: '24px',
+		md: '12px',
+		lg: '16px',
 	},
 };
 

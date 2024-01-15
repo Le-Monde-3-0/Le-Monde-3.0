@@ -94,7 +94,7 @@ const Favoris = (): JSX.Element => {
 					{articles
 						.filter((a) => (search !== '' ? a.Title.includes(search) : true))
 						.map((article, index) => (
-							<GridItem key={`${index.toString}-${article.Id}`}>
+							<GridItem key={`${index.toString()}`}>
 								<ArticleCard
 									id={article.Id}
 									title={article.Title}

@@ -18,20 +18,20 @@ const PwdInput = ({
 	return (
 		<InputGroup size="md">
 			<VStack w="100%" spacing="0px" align="left">
-				<Input
-					id={inputId}
-					border={isError ? '1px solid red' : undefined}
-					{...props}
-					type={show ? 'text' : 'password'}
-				/>
+				<Input id={inputId} {...props} type={show ? 'text' : 'password'} />
 				{isError && (
-					<Text variant="h6" color="red">
+					<Text variant="p" color="red !important">
 						{errorMessage}
 					</Text>
 				)}
 			</VStack>
 			<InputRightElement w="5rem">
-				<Button h="1.75rem" size="sm" onClick={handleClick}>
+				<Button
+					h="1.75rem"
+					size="sm"
+					_focus={{ outline: 'solid 3px', outlineColor: 'yellow', outlineOffset: '0px' }}
+					onClick={handleClick}
+				>
 					{show ? 'Cacher' : 'Voir'}
 				</Button>
 			</InputRightElement>

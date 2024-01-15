@@ -5,12 +5,12 @@ import { Link as RouteLink } from 'react-router-dom';
 const Home = (): JSX.Element => (
 	<>
 		<Link as={RouteLink} to="/connexion" w="100%">
-			<Button id="home-connexion-btn" variant="primary-1">
+			<Button id="home-connexion-btn" variant="primary-yellow">
 				Connexion
 			</Button>
 		</Link>
 		<Link as={RouteLink} to="/inscription" w="100%">
-			<Button id="home-inscription-btn" variant="primary-4">
+			<Button id="home-inscription-btn" variant="primary-white">
 				Inscription
 			</Button>
 		</Link>

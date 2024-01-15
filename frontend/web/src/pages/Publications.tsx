@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { CircularProgress, Grid, GridItem, HStack, Text, VStack, useToast } from '@chakra-ui/react';
+import { CircularProgress, Grid, GridItem, HStack, Tag, Tooltip, VStack, useToast } from '@chakra-ui/react';
 import { DeleteIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { AxiosError } from 'axios';
 
@@ -81,19 +81,37 @@ const Publication = (): JSX.Element => {
 
 	return (
 		<>
-			<VStack w="100%" spacing="48px" py="48px">
+			<VStack w="100%" spacing={{ base: '16px', md: '24px' }} align="start">
 				<SearchInput
 					value={search}
 					inputId="publications-search-input"
-					maxW="640px"
+					w={{ base: '100%', xl: '640px' }}
 					placeholder="Cherchez parmis vos articles publiés"
 					onChange={(e) => setSearch(e.target.value)}
+					variant="primary-1"
 				/>
+				<HStack>
+					<Tag bg="yellow">
+						{publications.filter((p) => (search !== '' ? p.Title.includes(search) : true)).length} publication
+						{publications.length !== 1 && 's'}
+					</Tag>
+					<Tag bg="blue">
+						{publications
+							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
+							.map((p) => p.Likes)
+							.reduce((a, v) => a + v, 0)}{' '}
+						like
+						{publications
+							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
+							.map((p) => p.Likes)
+							.reduce((a, v) => a + v, 0) !== 1 && 's'}
+					</Tag>
+				</HStack>
 				<Grid templateColumns="repeat(3, 1fr)" gap={6} w="100%">
 					{publications
 						.filter((p) => (search !== '' ? p.Title.includes(search) : true))
 						.map((publication, index) => (
-							<GridItem key={`${index.toString}-${publication.Id}`}>
+							<GridItem key={`${index.toString()}`}>
 								<ArticleCard
 									id={publication.Id}
 									title={publication.Title}
@@ -102,14 +120,16 @@ const Publication = (): JSX.Element => {
 									topic="Topic"
 									content={publication.Content}
 									actions={[
-										<HStack>
-											<ViewOffIcon />
-											<Text variant="h6">Archiver dans les brouillons</Text>
-										</HStack>,
-										<HStack onClick={() => hardDelete(publication.Id)}>
-											<DeleteIcon />
-											<Text variant="h6">Supprimer définitivement</Text>
-										</HStack>,
+										<Tooltip label="Archiver dans les brouillons">
+											<span>
+												<ViewOffIcon color="black" />
+											</span>
+										</Tooltip>,
+										<Tooltip label="Supprimer définitivement">
+											<span>
+												<DeleteIcon onClick={() => hardDelete(publication.Id)} color="black" />
+											</span>
+										</Tooltip>,
 									]}
 									view="publisher"
 									likes={+publication.Likes.length}

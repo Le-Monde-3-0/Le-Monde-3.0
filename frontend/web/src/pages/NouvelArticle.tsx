@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { Button, HStack, Input, Textarea, VStack, useToast } from '@chakra-ui/react';
+import { Button, HStack, Input, Stack, Textarea, VStack, useToast } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 
 import services from 'services';
@@ -54,8 +54,8 @@ const NouvelArticle = (): JSX.Element => {
 	};
 
 	return (
-		<VStack w="100%" h="100vh" py="48px" spacing="16px">
-			<HStack w="100%" spacing="16px">
+		<VStack w="100%" h="100%" spacing="8px">
+			<HStack w="100%">
 				<Input
 					id="nouvel-article-title-input"
 					variant="primary-1"
@@ -75,19 +75,25 @@ const NouvelArticle = (): JSX.Element => {
 				variant="primary-1"
 				placeholder="Contenu du nouvel article"
 				flexGrow="2"
+				minH="240px"
 				onChange={(e) => setContent(e.target.value)}
 			/>
-			<Button id="nouvel-article-publish-btn" variant="primary-1" onClick={() => createArticle()}>
+			<Button
+				id="nouvel-article-publish-btn"
+				variant="primary-yellow"
+				onClick={() => createArticle()}
+				isDisabled={title === '' || content === ''}
+			>
 				Publier
 			</Button>
-			<HStack w="100%" spacing="16px">
-				<Button id="nouvel-article-pre-visualize-btn" variant="secondary-4" isDisabled>
+			<Stack w="100%" direction={{ base: 'column', md: 'row' }}>
+				<Button id="nouvel-article-pre-visualize-btn" variant="primary-blue" isDisabled>
 					Pré-visualisez votre article
 				</Button>
-				<Button id="nouvel-article-save-draft-btn" variant="secondary-1" isDisabled>
+				<Button id="nouvel-article-save-draft-btn" variant="primary-purple" isDisabled>
 					Enregistrer dans les brouillons
 				</Button>
-			</HStack>
+			</Stack>
 		</VStack>
 	);
 };

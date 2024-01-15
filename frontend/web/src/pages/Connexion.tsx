@@ -68,11 +68,11 @@ const Connexion = (): JSX.Element => {
 				placeholder="mot de passe"
 				onChange={(e) => setPwd(e.target.value)}
 			/>
-			<Button id="connexion-connexion-btn" variant="primary-1" isDisabled={!validation} onClick={connexion}>
+			<Button id="connexion-connexion-btn" variant="primary-yellow" isDisabled={!validation} onClick={connexion}>
 				Connexion
 			</Button>
 			<Link as={RouteLink} to="/inscription" w="100%">
-				<Button id="connexion-inscription-btn" variant="secondary-4">
+				<Button id="connexion-inscription-btn" variant="primary-white">
 					Inscription
 				</Button>
 			</Link>

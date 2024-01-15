@@ -13,9 +13,9 @@ const SearchInput = ({
 	return (
 		<InputGroup size="md">
 			<InputLeftElement pointerEvents="none">
-				<SearchIcon />
+				<SearchIcon color="white" />
 			</InputLeftElement>
-			<Input id={inputId} value={value} {...props} borderRadius="4px" />
+			<Input id={inputId} value={value} {...props} pl="40px" />
 		</InputGroup>
 	);
 };
