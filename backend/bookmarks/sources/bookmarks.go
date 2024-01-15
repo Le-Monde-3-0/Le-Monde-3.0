@@ -186,5 +186,6 @@ type Bookmark struct {
 	Id       int32
 	UserId   int32
 	Title    string
+	Description string
 	Articles pq.Int32Array `gorm:"type:integer[]"`
 }

@@ -55,7 +55,11 @@ func setUp() {
 	fakeArticle = src.Article{
 		Id:      2,
 		Title:   "TestTitle",
+		Subtitle:	"TestSubTitle",
+		Topic:	"TestTopic",
+		AuthorName:	"TestAuthorName",
 		Content: "TestContent",
+		Draft:	true,
 		UserId:  1,
 		Likes:   pq.Int32Array{7},
 	}
@@ -235,6 +239,135 @@ func TestGetLikesInfo(t *testing.T) {
 	assert.Equal(t, src.LikesResponse{Amount: 1, Accounts: pq.Int32Array{7}}, likesResponse)
 }
 
+type Response struct {
+	Articles []src.Article `json:"articles"`
+}
+
+func TestGetGetArticlesByTopic(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	topicJSON, _ := json.Marshal(src.ArticlesbyTopicInput{Topic: "TestTopic"})
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/articles/topic", bytes.NewReader(topicJSON))
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 200, w.Code)
+
+	var response Response
+	err = json.Unmarshal([]byte(w.Body.String()), &response)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+	assert.Equal(t, []src.Article{fakeArticle}, response.Articles)
+}
+
+func TestGetAllTopics(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/articles/topics", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 200, w.Code)
+
+	var response []string
+    err = json.Unmarshal([]byte(w.Body.String()), &response)
+    if err != nil {
+        log.Fatalf("error unmarshaling response: %s", err)
+    }
+	
+	found := false
+    for _, topic := range response {
+        if topic == "TestTopic" {
+            found = true
+            break
+        }
+    }
+
+    if !found {
+        t.Error("Expected topic 'TestTopic' not found in the response")
+    }
+}
+
+func TestIsArticleDraft(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/articles/2/draft", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 200, w.Code)
+	var body map[string]string
+	err = json.Unmarshal([]byte(w.Body.String()), &body)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+	assert.Equal(t, "Article is a draft", body["true"])
+}
+
+func TestChangeDraftState(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+	draftJSON, _ := json.Marshal(src.ChangeDraftStateObject{Draft: false})
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("PUT", "/articles/2/draft", bytes.NewReader(draftJSON))
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 200, w.Code)
+	var responseArticle src.Article
+	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+	assert.Equal(t, false, responseArticle.Draft)
+}
+
 func TestEditArticle(t *testing.T) {
 	setUp()
 
@@ -242,7 +375,7 @@ func TestEditArticle(t *testing.T) {
 	if result.Error != nil {
 		panic(result.Error)
 	}
-	articleJSON, _ := json.Marshal(src.EditedArticle{Title: "EditedTitle", Content: "EditedContent"})
+	articleJSON, _ := json.Marshal(src.EditedArticle{Title: "EditedTitle", Content: "EditedContent", Topic: "EditedTopic", Subtitle: "EditedSubtitle"})
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("PUT", "/articles/2", bytes.NewReader(articleJSON))
 	if err != nil {
@@ -263,6 +396,8 @@ func TestEditArticle(t *testing.T) {
 	}
 	assert.Equal(t, "EditedTitle", responseArticle.Title)
 	assert.Equal(t, "EditedContent", responseArticle.Content)
+	assert.Equal(t, "EditedTopic", responseArticle.Topic)
+	assert.Equal(t, "EditedSubtitle", responseArticle.Subtitle)
 }
 
 func TestDeleteAllArticles(t *testing.T) {
@@ -295,7 +430,7 @@ func TestDeleteAllArticles(t *testing.T) {
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
-	assert.Equal(t, "all articles have been successfully deleted", body["delete"])
+	assert.Equal(t, "All articles have been successfully deleted", body["delete"])
 }
 
 func TestDeleteArticle(t *testing.T) {
@@ -324,7 +459,7 @@ func TestDeleteArticle(t *testing.T) {
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
-	assert.Equal(t, "article has been successfully deleted", body["delete"])
+	assert.Equal(t, "Article has been successfully deleted", body["delete"])
 }
 
 func TestRemoveLike(t *testing.T) {

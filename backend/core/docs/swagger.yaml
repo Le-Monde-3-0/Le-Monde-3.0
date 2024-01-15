@@ -2,12 +2,22 @@ basePath: /api/v1
 definitions:
   articles.ArticleInput:
     properties:
+      authorname:
+        type: string
       content:
+        type: string
+      draft:
+        type: boolean
+      subtitle:
         type: string
       title:
         type: string
+      topic:
+        type: string
     required:
+    - authorname
     - content
+    - subtitle
     - title
     type: object
   articles.Bookmark:
@@ -16,6 +26,8 @@ definitions:
         items:
           type: integer
         type: array
+      description:
+        type: string
       id:
         type: integer
       title:
@@ -25,10 +37,78 @@ definitions:
     type: object
   articles.BookmarkInput:
     properties:
+      description:
+        type: string
       title:
         type: string
     required:
     - title
+    type: object
+  articles.ChangeUserMailInput:
+    properties:
+      email:
+        type: string
+      newemail:
+        type: string
+      password:
+        type: string
+    type: object
+  articles.ChangeUserMailResponse:
+    properties:
+      created:
+        example: User email changed
+        type: string
+    type: object
+  articles.ChangeUserNameResponse:
+    properties:
+      created:
+        example: User name changed
+        type: string
+    type: object
+  articles.ChangeUserPasswordInput:
+    properties:
+      email:
+        type: string
+      newpassword:
+        type: string
+      password:
+        type: string
+    type: object
+  articles.ChangeUserPasswordResponse:
+    properties:
+      created:
+        example: User password changed
+        type: string
+    type: object
+  articles.ChangeUsernameInput:
+    properties:
+      email:
+        type: string
+      newusername:
+        type: string
+      password:
+        type: string
+    type: object
+  articles.EditArticleInput:
+    properties:
+      content:
+        type: string
+      subtitle:
+        type: string
+      title:
+        type: string
+      topic:
+        type: string
+    required:
+    - content
+    - subtitle
+    - title
+    type: object
+  articles.IsArticleDraftResponse:
+    properties:
+      "true":
+        example: Article is draft
+        type: string
     type: object
   articles.LikesResponse:
     properties:
@@ -85,15 +165,23 @@ definitions:
     type: object
   main_router_articles.Article:
     properties:
+      authorName:
+        type: string
       content:
         type: string
+      draft:
+        type: boolean
       id:
         type: integer
       likes:
         items:
           type: integer
         type: array
+      subtitle:
+        type: string
       title:
+        type: string
+      topic:
         type: string
       userId:
         type: integer
@@ -222,10 +310,10 @@ paths:
       parameters:
       - description: Params to edit an article
         in: body
-        name: ArticleInput
+        name: EditArticleInput
         required: true
         schema:
-          $ref: '#/definitions/articles.ArticleInput'
+          $ref: '#/definitions/articles.EditArticleInput'
       produces:
       - application/json
       responses:
@@ -278,6 +366,53 @@ paths:
             $ref: '#/definitions/main_router_articles.Article'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      tags:
+      - articles
+  /articles/:id/draft:
+    get:
+      consumes:
+      - application/json
+      description: Check if the given article is a Draft
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/articles.IsArticleDraftResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      tags:
+      - articles
+    put:
+      consumes:
+      - application/json
+      description: Change the state of a draft
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main_router_articles.Article'
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/http.HTTPError'
         "500":
@@ -379,6 +514,30 @@ paths:
       consumes:
       - application/json
       description: Retrieve connected user articles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main_router_articles.Article'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      tags:
+      - articles
+  /articles/topic:
+    get:
+      consumes:
+      - application/json
+      description: Get all articles by topic
       produces:
       - application/json
       responses:
@@ -660,6 +819,64 @@ paths:
             $ref: '#/definitions/http.HTTPError'
       tags:
       - authentication
+  /mail:
+    put:
+      consumes:
+      - application/json
+      description: Change the mail of a user
+      parameters:
+      - description: Params to change user mail
+        in: body
+        name: ChangeUserMailInput
+        required: true
+        schema:
+          $ref: '#/definitions/articles.ChangeUserMailInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/articles.ChangeUserMailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      tags:
+      - authentication
+  /password:
+    put:
+      consumes:
+      - application/json
+      description: Change the password of a user
+      parameters:
+      - description: Params to change user password
+        in: body
+        name: ChangeUserPasswordInput
+        required: true
+        schema:
+          $ref: '#/definitions/articles.ChangeUserPasswordInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/articles.ChangeUserPasswordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      tags:
+      - authentication
   /register:
     post:
       consumes:
@@ -679,6 +896,35 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/articles.RegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      tags:
+      - authentication
+  /username:
+    put:
+      consumes:
+      - application/json
+      description: Change the name of a user
+      parameters:
+      - description: Params to change user name
+        in: body
+        name: ChangeUsernameInput
+        required: true
+        schema:
+          $ref: '#/definitions/articles.ChangeUsernameInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/articles.ChangeUserNameResponse'
         "400":
           description: Bad Request
           schema:
