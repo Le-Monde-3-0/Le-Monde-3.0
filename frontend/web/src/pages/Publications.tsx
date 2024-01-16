@@ -8,18 +8,20 @@ import services from 'services';
 import { useAuthContext } from 'contexts/auth';
 import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
+import { Article } from 'types/article';
 
-const Publication = (): JSX.Element => {
+const Publications = (): JSX.Element => {
 	const [search, setSearch] = useState('');
 	const toast = useToast();
 	const { auth } = useAuthContext();
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const [publications, setPublications] = useState<any[] | undefined>(undefined);
+	const [publications, setPublications] = useState<Article[] | undefined>(undefined);
 
 	const me = async () => {
 		try {
 			const res = await services.articles.me({ token: auth.accessToken! });
-			setPublications(res.data);
+			console.log(res.data);
+			setPublications(res.data.filter((a) => a.Draft === false));
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -39,10 +41,10 @@ const Publication = (): JSX.Element => {
 		}
 	};
 
-	const hardDelete = async (articleId: string) => {
+	const hardDelete = async (articleId: number) => {
 		try {
 			const res = await services.articles.delete({ token: auth.accessToken!, articleId });
-			console.log(res.data);
+			console.log(res);
 			setPublications({ ...publications!.filter((p) => p.Id !== articleId) });
 		} catch (error) {
 			console.log(error);
@@ -73,7 +75,7 @@ const Publication = (): JSX.Element => {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
-					<CircularProgress size="120px" isIndeterminate color="primary.1" />
+					<CircularProgress size="120px" isIndeterminate color="black" />
 				</VStack>
 			</>
 		);
@@ -81,7 +83,7 @@ const Publication = (): JSX.Element => {
 
 	return (
 		<>
-			<VStack w="100%" spacing={{ base: '16px', md: '24px' }} align="start">
+			<VStack w="100%" spacing={{ base: '8px', md: '12px', lg: '16px' }} align="start">
 				<SearchInput
 					value={search}
 					inputId="publications-search-input"
@@ -98,16 +100,20 @@ const Publication = (): JSX.Element => {
 					<Tag bg="blue">
 						{publications
 							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
-							.map((p) => p.Likes)
+							.map((p) => p.Likes.length)
 							.reduce((a, v) => a + v, 0)}{' '}
 						like
 						{publications
 							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
-							.map((p) => p.Likes)
+							.map((p) => p.Likes.length)
 							.reduce((a, v) => a + v, 0) !== 1 && 's'}
 					</Tag>
 				</HStack>
-				<Grid templateColumns="repeat(3, 1fr)" gap={6} w="100%">
+				<Grid
+					templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
+					gap={{ base: 2, lg: 4 }}
+					w="100%"
+				>
 					{publications
 						.filter((p) => (search !== '' ? p.Title.includes(search) : true))
 						.map((publication, index) => (
@@ -115,9 +121,9 @@ const Publication = (): JSX.Element => {
 								<ArticleCard
 									id={publication.Id}
 									title={publication.Title}
-									author={`User-${publication.UserId}`}
-									date={new Date(publication.CreatedAt).toLocaleDateString('fr-FR')}
-									topic="Topic"
+									author={publication.AuthorName}
+									date={new Date().toLocaleDateString('fr-FR')}
+									topic={publication.Topic}
 									content={publication.Content}
 									actions={[
 										<Tooltip label="Archiver dans les brouillons">
@@ -131,8 +137,8 @@ const Publication = (): JSX.Element => {
 											</span>
 										</Tooltip>,
 									]}
+									likes={publication.Likes.length}
 									view="publisher"
-									likes={+publication.Likes.length}
 								/>
 							</GridItem>
 						))}
@@ -142,4 +148,4 @@ const Publication = (): JSX.Element => {
 	);
 };
 
-export default Publication;
+export default Publications;

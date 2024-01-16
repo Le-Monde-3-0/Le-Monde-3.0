@@ -10,18 +10,18 @@ const ArticleCard = ({
 	topic,
 	content,
 	actions,
-	view = 'reader',
 	likes,
+	view = 'reader',
 }: {
-	id: string;
+	id: number;
 	title: string;
 	author: string;
 	date: string;
 	topic: string;
 	content: string;
 	actions: JSX.Element[];
+	likes: number;
 	view?: 'publisher' | 'reader';
-	likes?: number;
 }): JSX.Element => {
 	const navigate = useNavigate();
 
@@ -30,8 +30,8 @@ const ArticleCard = ({
 			w="100%"
 			h="100%"
 			p={{ base: '8px', xl: '16px' }}
-			bg="gray.300"
-			borderRadius="lg"
+			bg="gray.200"
+			borderRadius="sm"
 			justify="space-between"
 			spacing="16px"
 		>
@@ -66,14 +66,19 @@ const ArticleCard = ({
 						<Text variant="h5">{author}</Text>
 					</HStack>
 				)}
-				<VStack w="100%" align="left" spacing="8px">
-					<Text variant="p" noOfLines={3} color="black !important">
+				<VStack id="testest" w="100%" align="left" spacing="8px" inlineSize="100%" maxInlineSize="calc(100vw - 32px);">
+					<Text variant="p" noOfLines={3} color="black !important" maxW="100% !important">
 						{content}
 					</Text>
 				</VStack>
 			</VStack>
 			<Flex direction="row-reverse" w="100%">
-				<Text variant="link" cursor="pointer" color="black !important" onClick={() => navigate(`/articles/${id}`)}>
+				<Text
+					variant="link"
+					cursor="pointer"
+					color="black !important"
+					onClick={() => navigate(`/articles/${id.toString()}`)}
+				>
 					Lire la suite
 				</Text>
 			</Flex>

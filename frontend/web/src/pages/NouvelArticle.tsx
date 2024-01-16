@@ -12,12 +12,13 @@ const NouvelArticle = (): JSX.Element => {
 	const navigate = useNavigate();
 	const { auth } = useAuthContext();
 	const [title, setTitle] = useState('');
+	const [topic, setTopic] = useState('');
 	const [content, setContent] = useState('');
 
 	const createArticle = async () => {
 		try {
-			const res = await services.articles.publish({ token: auth.accessToken!, title, content });
-			console.log(res);
+			const res = await services.articles.publish({ token: auth.accessToken!, title, topic, content });
+			console.log(res.data);
 			toast({
 				title: 'Votre article a été publié !',
 				description: 'Nous vous avons redirigé vers votre nouvelle publication.',
@@ -26,6 +27,45 @@ const NouvelArticle = (): JSX.Element => {
 				isClosable: true,
 			});
 			navigate(`/articles/${res.data.Id}`);
+		} catch (error) {
+			console.log(error);
+			if (error instanceof AxiosError) {
+				if (error.response && error.response.status !== 500) {
+					const status = error.response!.status;
+					if (status === 400) {
+						toast({
+							title: 'Paramètres invalides.',
+							description: 'Veuillez en renseigner de nouveaux.',
+							status: 'error',
+							duration: 9000,
+							isClosable: true,
+						});
+					}
+				} else {
+					toast({
+						title: 'Erreur du service interne.',
+						description: 'Veuillez réessayer ultérieurement.',
+						status: 'error',
+						duration: 9000,
+						isClosable: true,
+					});
+				}
+			}
+		}
+	};
+
+	const createDraftArticle = async () => {
+		try {
+			const res = await services.articles.publish({ token: auth.accessToken!, title, topic, content, draft: true });
+			console.log(res.data);
+			toast({
+				title: 'Votre article a été sauvegardé !',
+				description: 'Nous vous avons redirigé vers vos brouillons.',
+				status: 'success',
+				duration: 9000,
+				isClosable: true,
+			});
+			navigate(`/brouillons`);
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -67,7 +107,7 @@ const NouvelArticle = (): JSX.Element => {
 					id="nouvel-article-topic-input"
 					variant="primary-1"
 					placeholder="Sujet du nouvel article"
-					disabled
+					onChange={(e) => setTopic(e.target.value)}
 				/>
 			</HStack>
 			<Textarea
@@ -82,7 +122,7 @@ const NouvelArticle = (): JSX.Element => {
 				id="nouvel-article-publish-btn"
 				variant="primary-yellow"
 				onClick={() => createArticle()}
-				isDisabled={title === '' || content === ''}
+				isDisabled={title === '' || topic === '' || content === ''}
 			>
 				Publier
 			</Button>
@@ -90,7 +130,12 @@ const NouvelArticle = (): JSX.Element => {
 				<Button id="nouvel-article-pre-visualize-btn" variant="primary-blue" isDisabled>
 					Pré-visualisez votre article
 				</Button>
-				<Button id="nouvel-article-save-draft-btn" variant="primary-purple" isDisabled>
+				<Button
+					id="nouvel-article-save-draft-btn"
+					variant="primary-purple"
+					onClick={() => createDraftArticle()}
+					isDisabled={title === '' || topic === '' || content === ''}
+				>
 					Enregistrer dans les brouillons
 				</Button>
 			</Stack>
