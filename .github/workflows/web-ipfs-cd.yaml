@@ -1,0 +1,39 @@
+name: IPFS deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: './frontend/web'
+
+      - name: Run IPFS script
+        working-directory: ./frontend/web/ipfs
+        run: ./publish.sh > script-results
+        shell: bash
+        env:
+          SCALEWAY_AUTH_TOKEN: ${{secrets.SCALEWAY_AUTH_TOKEN}}
+          REACT_APP_HOST: localhost
+          REACT_APP_PORT: 3000
+          REACT_APP_BACKEND_URL: "https://lemonde-3-0.com"
+
+      - name: Get script results
+        uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: web-ipfs-deployment-results
+          path: ./frontend/web/ipfs/script-results
