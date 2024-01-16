@@ -47,7 +47,7 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.GetLikesInfo(c, db)
 	})
 	
-	r.GET("/articles/topic", func(c *gin.Context) {
+	r.GET("/articles/topic/:topic", func(c *gin.Context) {
 		src.GetArticlesByTopic(c, db)
 	})
 
