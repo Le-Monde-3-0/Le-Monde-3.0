@@ -207,6 +207,40 @@ func TestGetMyArticles(t *testing.T) {
 	assert.Equal(t, []src.Article{fakeArticle}, responseArticle)
 }
 
+func TestGetTopArticles(t *testing.T) {
+	
+	db := setupTestDB()
+	defer db.Close()
+
+	router := gin.Default()
+	router.GET("/articles/top-articles", func(c *gin.Context) {
+		GetTopArticles(c, db)
+	})
+
+	// Créez une requête HTTP de test
+	req, err := http.NewRequest("GET", "/articles/top-articles", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp := httptest.NewRecorder()
+
+
+	router.ServeHTTP(resp, req)
+
+
+	if status := resp.Code; status != http.StatusOK {
+		t.Errorf("Code de statut incorrect. Attendu %v mais obtenu %v", http.StatusOK, status)
+	}
+
+	// Vérifiez le corps de la réponse (ajustez selon vos besoins)
+	expected := `[{"ID":1,"Title":"Article 1","Content":"Contenu de l'article 1","UserID":1,"Likes":[1,2,3]},{"ID":2,"Title":"Article 2","Content":"Contenu de l'article 2","UserID":1,"Likes":[4,5,6]},...]`
+	if resp.Body.String() != expected {
+		t.Errorf("Réponse incorrecte. Attendu %v mais obtenu %v", expected, resp.Body.String())
+	}
+}
+
+
 func TestGetLikesInfo(t *testing.T) {
 	setUp()
 
