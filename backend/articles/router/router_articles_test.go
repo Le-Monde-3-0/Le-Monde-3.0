@@ -251,9 +251,8 @@ func TestGetGetArticlesByTopic(t *testing.T) {
 		panic(result.Error)
 	}
 
-	topicJSON, _ := json.Marshal(src.ArticlesbyTopicInput{Topic: "TestTopic"})
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", "/articles/topic", bytes.NewReader(topicJSON))
+	req, err := http.NewRequest("GET", "/articles/topic/TestTopic", nil)
 	if err != nil {
 		log.Fatalf("impossible to build request: %s", err)
 	}
