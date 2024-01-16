@@ -63,5 +63,9 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.RemoveLike(c, db)
 	})
 
+	r.GET("/articles/top-articles", func(c *gin.Context) {
+		GetTopArticles(c, db) 
+	})
+
 	return r
 }
