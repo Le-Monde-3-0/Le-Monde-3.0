@@ -55,7 +55,7 @@ type DeletedResponse struct {
 // @Produce json
 // @Param ArticleInput body ArticleInput true "Params to create an article"
 // @Success 200 {object} Article
-// @Failure      400  {object}  req.HTTPError
+// @Failure      404  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /articles [post]
 func AddArticle(c *gin.Context) {
@@ -289,8 +289,9 @@ func RemoveLike(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} []Article
 // @Failure      400  {object}  req.HTTPError
+// @Failure      404  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
-// @Router /articles/topic [get]
+// @Router /articles/topic/:topic [get]
 func GetArticlesByTopic(c *gin.Context) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/topic", nil)
@@ -310,7 +311,7 @@ func GetArticlesByTopic(c *gin.Context) {
 // @Success 200 {object} []Article
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
-// @Router /articles/topic [get]
+// @Router /articles/topics [get]
 func GetAllTopics(c *gin.Context) {
 
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/topics", nil)
@@ -328,8 +329,9 @@ func GetAllTopics(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} IsArticleDraftResponse
+// @Failure 422 {object} req.HTTPError
 // @Failure      500  {object}  req.HTTPError
-// @Router /articles/topics [get]
+// @Router /articles/:id/draft [get]
 func IsArticleDraft(c *gin.Context) {
 	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/draft", nil)
 	if err != nil {

@@ -123,29 +123,20 @@ func GetLikesInfo(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, LikesResponse{len(article.Likes), article.Likes})
 }
 
-type ArticlesbyTopicInput struct {
-	Topic string `json:"topic" binding:"required"`
-}
-
 // * string topic as parameter, fetch the db -> 404 if no article with this topic -> 400 no args -> 200 lists of articles with given topic
 func GetArticlesByTopic(c *gin.Context, db *gorm.DB) {
 	var articles []Article
-	var input ArticlesbyTopicInput
 	
-	// Bind JSON payload to input struct
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	var topic = c.Param("topic")
 
 	// Check if the required parameters are missing
-	if input.Topic == "" {
+	if topic == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing 'topic' parameter"})
 		return
 	}
 
 	// Fetch articles from the database based on the topic
-	result := db.Where("Topic = ?", input.Topic).Find(&articles)
+	result := db.Where("Topic = ?", topic).Find(&articles)
 
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
