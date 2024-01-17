@@ -37,6 +37,7 @@ func AddArticle(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": result.Error})
 		return
 	}
+	AddInIPFS(article)
 	c.JSON(http.StatusCreated, article)
 }
 
