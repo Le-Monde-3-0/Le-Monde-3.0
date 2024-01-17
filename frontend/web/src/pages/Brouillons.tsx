@@ -41,11 +41,39 @@ const Brouillons = (): JSX.Element => {
 		}
 	};
 
-	const hardDelete = async (articleId: number) => {
+	const hardDelete = async (draftId: number) => {
 		try {
-			const res = await services.articles.delete({ token: auth.accessToken!, articleId });
+			const res = await services.articles.delete({ token: auth.accessToken!, articleId: draftId });
 			console.log(res);
-			setBrouillons({ ...brouillons!.filter((b) => b.Id !== articleId) });
+			setBrouillons([...brouillons!.filter((b) => b.Id !== draftId)]);
+		} catch (error) {
+			console.log(error);
+			if (error instanceof AxiosError) {
+				if (error.response && error.response.status !== 500) {
+					const status = error.response!.status;
+					console.log(status);
+				} else {
+					toast({
+						title: 'Erreur du service interne.',
+						description: 'Veuillez réessayer ultérieurement.',
+						status: 'error',
+						duration: 9000,
+						isClosable: true,
+					});
+				}
+			}
+		}
+	};
+
+	const publishDraft = async (draftId: number) => {
+		try {
+			const res = await services.articles.changeDraftState({
+				token: auth.accessToken!,
+				articleId: draftId,
+				state: false,
+			});
+			console.log(res);
+			setBrouillons([...brouillons!.filter((b) => b.Id !== draftId)]);
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -94,7 +122,7 @@ const Brouillons = (): JSX.Element => {
 				/>
 				<HStack>
 					<Tag bg="yellow">
-						{brouillons.filter((p) => (search !== '' ? p.Title.includes(search) : true)).length} publication
+						{brouillons.filter((p) => (search !== '' ? p.Title.includes(search) : true)).length} brouillon
 						{brouillons.length !== 1 && 's'}
 					</Tag>
 					<Tag bg="blue">
@@ -116,29 +144,29 @@ const Brouillons = (): JSX.Element => {
 				>
 					{brouillons
 						.filter((p) => (search !== '' ? p.Title.includes(search) : true))
-						.map((publication, index) => (
+						.map((brouillon, index) => (
 							<GridItem key={`${index.toString()}`}>
 								<ArticleCard
-									id={publication.Id}
-									title={publication.Title}
-									author={publication.AuthorName}
+									id={brouillon.Id}
+									title={brouillon.Title}
+									author={brouillon.AuthorName}
 									date={new Date().toLocaleDateString('fr-FR')}
-									topic={publication.Topic}
-									content={publication.Content}
+									topic={brouillon.Topic}
+									content={brouillon.Content}
 									actions={[
 										<Tooltip label="Publier l'article">
 											<span>
-												<ViewIcon color="black" />
+												<ViewIcon onClick={() => publishDraft(brouillon.Id)} color="black" />
 											</span>
 										</Tooltip>,
 										<Tooltip label="Supprimer définitivement">
 											<span>
-												<DeleteIcon onClick={() => hardDelete(publication.Id)} color="black" />
+												<DeleteIcon onClick={() => hardDelete(brouillon.Id)} color="black" />
 											</span>
 										</Tooltip>,
 									]}
 									view="publisher"
-									likes={+publication.Likes.length}
+									likes={+brouillon.Likes.length}
 								/>
 							</GridItem>
 						))}

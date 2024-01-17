@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { CircularProgress, Grid, GridItem, HStack, Text, VStack, useToast } from '@chakra-ui/react';
+import { CircularProgress, Grid, GridItem, HStack, Tooltip, VStack, useToast } from '@chakra-ui/react';
 import { AddIcon, CloseIcon } from '@chakra-ui/icons';
 import { AxiosError } from 'axios';
 
@@ -8,15 +8,16 @@ import services from 'services';
 import { useAuthContext } from 'contexts/auth';
 import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
+import { Article } from 'types/article';
 
 const Nouveautes = (): JSX.Element => {
 	const toast = useToast();
 	const { auth } = useAuthContext();
 	const [search, setSearch] = useState('');
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const [newArticles, setNewArticles] = useState<any[] | undefined>(undefined);
+	const [newArticles, setNewArticles] = useState<Article[] | undefined>(undefined);
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const [likedArticles, setLikedArticles] = useState<any[] | undefined>(undefined);
+	const [likedArticles, setLikedArticles] = useState<Article[] | undefined>(undefined);
 	const [reload, setReload] = useState(1);
 
 	const getNewArticles = async () => {
@@ -65,7 +66,7 @@ const Nouveautes = (): JSX.Element => {
 		}
 	};
 
-	const like = async (articleId: string) => {
+	const like = async (articleId: number) => {
 		try {
 			const res = await services.articles.like({ token: auth.accessToken!, articleId });
 			console.log(res);
@@ -89,7 +90,7 @@ const Nouveautes = (): JSX.Element => {
 		}
 	};
 
-	const unlike = async (articleId: string) => {
+	const unlike = async (articleId: number) => {
 		try {
 			const res = await services.articles.unlike({ token: auth.accessToken!, articleId });
 			console.log(res);
@@ -113,9 +114,9 @@ const Nouveautes = (): JSX.Element => {
 		}
 	};
 
-	const isLiked = (articleId: string) => {
+	const isLiked = (articleId: number) => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		if (likedArticles!.find((a: any) => +a.Id === +articleId!)) {
+		if (likedArticles!.find((a) => a.Id === articleId)) {
 			return true;
 		}
 		return false;
@@ -173,10 +174,16 @@ const Nouveautes = (): JSX.Element => {
 									topic={article.Topic}
 									content={article.Content}
 									actions={[
-										<HStack onClick={() => (isLiked(article.Id) ? unlike(article.Id) : like(article.Id))}>
-											{isLiked(article.Id) ? <CloseIcon /> : <AddIcon />}
-											<Text variant="h6">{isLiked(article.Id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}</Text>
-										</HStack>,
+										<Tooltip label="Ajouter à un marque-page">
+											<span>
+												<AddIcon onClick={() => {}} color="black" />
+											</span>
+										</Tooltip>,
+										<Tooltip label={isLiked(article.Id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}>
+											<HStack onClick={() => (isLiked(article.Id) ? unlike(article.Id) : like(article.Id))}>
+												<span>{isLiked(article.Id) ? <CloseIcon color="black" /> : <AddIcon color="black" />}</span>
+											</HStack>
+										</Tooltip>,
 									]}
 									likes={article.Likes.length}
 								/>

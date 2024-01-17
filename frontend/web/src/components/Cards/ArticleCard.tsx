@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Badge, Box, Flex, HStack, Text, VStack } from '@chakra-ui/react';
+import { Badge, Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react';
 
 const ArticleCard = ({
 	id,
@@ -35,7 +35,7 @@ const ArticleCard = ({
 			justify="space-between"
 			spacing="16px"
 		>
-			<VStack w="100%" spacing="8px">
+			<VStack w="100%" spacing={{ base: '8px', lg: '16px' }}>
 				<HStack w="100%" alignItems="center" justifyContent="space-between">
 					<HStack>
 						<Badge colorScheme="red" borderRadius="xsm">
@@ -62,8 +62,18 @@ const ArticleCard = ({
 					</Text>
 				</VStack>
 				{view === 'reader' && (
-					<HStack w="100%">
-						<Text variant="h5">{author}</Text>
+					<HStack w="100%" justifyContent="space-between">
+						<VStack align="start" spacing="0px">
+							<Text variant="info" color="black !important">
+								Publié par
+							</Text>
+							<Text variant="link" color="black !important">
+								{author}
+							</Text>
+						</VStack>
+						<Button variant="primary-orange" w="fit-content" isDisabled>
+							Suivre
+						</Button>
 					</HStack>
 				)}
 				<VStack id="testest" w="100%" align="left" spacing="8px" inlineSize="100%" maxInlineSize="calc(100vw - 32px);">

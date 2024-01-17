@@ -45,7 +45,31 @@ const Publications = (): JSX.Element => {
 		try {
 			const res = await services.articles.delete({ token: auth.accessToken!, articleId });
 			console.log(res);
-			setPublications({ ...publications!.filter((p) => p.Id !== articleId) });
+			setPublications([...publications!.filter((p) => p.Id !== articleId)]);
+		} catch (error) {
+			console.log(error);
+			if (error instanceof AxiosError) {
+				if (error.response && error.response.status !== 500) {
+					const status = error.response!.status;
+					console.log(status);
+				} else {
+					toast({
+						title: 'Erreur du service interne.',
+						description: 'Veuillez réessayer ultérieurement.',
+						status: 'error',
+						duration: 9000,
+						isClosable: true,
+					});
+				}
+			}
+		}
+	};
+
+	const publishDraft = async (articleId: number) => {
+		try {
+			const res = await services.articles.changeDraftState({ token: auth.accessToken!, articleId, state: true });
+			console.log(res);
+			setPublications([...publications!.filter((p) => p.Id !== articleId)]);
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -128,7 +152,7 @@ const Publications = (): JSX.Element => {
 									actions={[
 										<Tooltip label="Archiver dans les brouillons">
 											<span>
-												<ViewOffIcon color="black" />
+												<ViewOffIcon onClick={() => publishDraft(publication.Id)} color="black" />
 											</span>
 										</Tooltip>,
 										<Tooltip label="Supprimer définitivement">

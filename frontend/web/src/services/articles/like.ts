@@ -1,7 +1,7 @@
 import { servicesURL } from 'services';
 import { Article } from 'types/article';
 
-const like = async ({ token, articleId }: { token: string; articleId: string }) =>
+const like = async ({ token, articleId }: { token: string; articleId: number }) =>
 	servicesURL.post<Article>(
 		`/articles/${articleId}/likes`,
 		{},

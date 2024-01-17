@@ -7,14 +7,15 @@ import { AxiosError } from 'axios';
 
 import services from 'services';
 import { useAuthContext } from 'contexts/auth';
+import { Article } from 'types/article';
 
-const Article = (): JSX.Element => {
+const ArticlePage = (): JSX.Element => {
 	const toast = useToast();
 	const navigate = useNavigate();
 	const { articleId } = useParams();
 	const { auth } = useAuthContext();
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const [article, setArticle] = useState<any | undefined>(undefined);
+	const [article, setArticle] = useState<Article | undefined>(undefined);
 	const [isLiked, setIsLiked] = useState(false);
 
 	const frenchDate = (date: Date) => {
@@ -108,7 +109,7 @@ const Article = (): JSX.Element => {
 			console.log(res.data);
 			setIsLiked(true);
 			// C'est pourri ça mais il faut l'id du user pour faire mieux
-			setArticle({ ...article, Likes: [...article.Likes, 'new'] });
+			setArticle({ ...article!, Likes: [...article!.Likes, 1] });
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -134,7 +135,7 @@ const Article = (): JSX.Element => {
 			console.log(res.data);
 			setIsLiked(false);
 			// C'est pourri ça mais il faut l'id du user pour faire mieux
-			setArticle({ ...article, Likes: [...article.Likes.lenght.slice(1)] });
+			setArticle({ ...article!, Likes: [...article!.Likes.slice(1)] });
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -212,4 +213,4 @@ const Article = (): JSX.Element => {
 	);
 };
 
-export default Article;
+export default ArticlePage;

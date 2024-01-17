@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { CircularProgress, Grid, GridItem, HStack, Text, VStack, useToast } from '@chakra-ui/react';
-import { CloseIcon } from '@chakra-ui/icons';
+import { CircularProgress, Grid, GridItem, Tooltip, VStack, useToast } from '@chakra-ui/react';
+import { AddIcon, CloseIcon } from '@chakra-ui/icons';
 import { AxiosError } from 'axios';
 
 import services from 'services';
@@ -39,11 +39,11 @@ const Favoris = (): JSX.Element => {
 		}
 	};
 
-	const unlike = async (articleId: string) => {
+	const unlike = async (articleId: number) => {
 		try {
 			const res = await services.articles.unlike({ token: auth.accessToken!, articleId });
 			console.log(res);
-			setArticles({ ...articles!.filter((a) => a.Id !== articleId) });
+			setArticles([...articles!.filter((a) => a.Id !== articleId)]);
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -81,7 +81,7 @@ const Favoris = (): JSX.Element => {
 
 	return (
 		<>
-			<VStack w="100%" spacing="48px" py="48px">
+			<VStack w="100%" spacing={{ base: '8px', md: '12px', lg: '16px' }} align="start">
 				<SearchInput
 					value={search}
 					inputId="favoris-search-input"
@@ -104,13 +104,19 @@ const Favoris = (): JSX.Element => {
 									title={article.Title}
 									author={article.AuthorName}
 									date={new Date(article.CreatedAt).toLocaleDateString('fr-FR')}
-									topic={article.topic}
+									topic={article.Topic}
 									content={article.Content}
 									actions={[
-										<HStack onClick={() => unlike(article.Id)}>
-											<CloseIcon />
-											<Text variant="h6">Retirer des favoris</Text>
-										</HStack>,
+										<Tooltip label="Ajouter à un marque-page">
+											<span>
+												<AddIcon onClick={() => {}} color="black" />
+											</span>
+										</Tooltip>,
+										<Tooltip label="Supprimer des favoris">
+											<span>
+												<CloseIcon onClick={() => unlike(article.Id)} color="black" />
+											</span>
+										</Tooltip>,
 									]}
 									likes={article.Likes.length}
 								/>
