@@ -113,7 +113,7 @@ while [ "$PINNED" = "false" ]; do
     echo ". pin $NEW_PIN_ID status is $STATUS"
     if [ "$STATUS" = "pinned" ]; then
         PINNED=true
-    else if [ "$STATUS" = "failed" ]; then
+    elif [ "$STATUS" = "failed" ]; then
         echo "Pin status is failed."
         docker stop $IPFS_HOST
         docker remove $IPFS_HOST
