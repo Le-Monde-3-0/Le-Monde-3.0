@@ -68,7 +68,7 @@ const ArticleCard = ({
 								Publié par
 							</Text>
 							<Text variant="link" color="black !important">
-								{author}
+								@{author}
 							</Text>
 						</VStack>
 						<Button variant="primary-orange" w="fit-content" isDisabled>
