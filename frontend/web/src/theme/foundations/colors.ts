@@ -1,16 +1,10 @@
 const colors = {
-	primary: {
-		1: '#AD8B73',
-		2: '#CEAB93',
-		3: '#E3CAA5',
-		4: '#FFFBE9',
-	},
-	secondary: {
-		1: '#7395AD',
-		2: '#93B6CE',
-		3: '#A5BEE3',
-		4: '#E9EDFF',
-	},
+	black: '#111111',
+	white: '#FFFFFF',
+	yellow: '#FFF2C5',
+	blue: '#E0F1FF',
+	purple: '#EBE4FE',
+	orange: '#FBE4E1',
 	gray: {
 		100: '#F8F9FA',
 		200: '#E9ECEF',

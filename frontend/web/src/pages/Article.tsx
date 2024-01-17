@@ -1,21 +1,21 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CircularProgress, HStack, Text, VStack, useToast } from '@chakra-ui/react';
-import { AddIcon, CloseIcon } from '@chakra-ui/icons';
+import { Badge, CircularProgress, HStack, Text, VStack, useToast } from '@chakra-ui/react';
+import { AddIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons';
 import { AxiosError } from 'axios';
 
 import services from 'services';
 import { useAuthContext } from 'contexts/auth';
-import ArticleTrigger from 'components/Triggers/ArticleTrigger';
+import { Article } from 'types/article';
 
-const Article = (): JSX.Element => {
+const ArticlePage = (): JSX.Element => {
 	const toast = useToast();
 	const navigate = useNavigate();
 	const { articleId } = useParams();
 	const { auth } = useAuthContext();
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const [article, setArticle] = useState<any | undefined>(undefined);
+	const [article, setArticle] = useState<Article | undefined>(undefined);
 	const [isLiked, setIsLiked] = useState(false);
 
 	const frenchDate = (date: Date) => {
@@ -45,7 +45,7 @@ const Article = (): JSX.Element => {
 
 	const read = async () => {
 		try {
-			const res = await services.articles.read({ token: auth.accessToken!, articleId: articleId! });
+			const res = await services.articles.read({ token: auth.accessToken!, articleId: +articleId! });
 			console.log(res.data);
 			setArticle(res.data);
 		} catch (error) {
@@ -105,11 +105,11 @@ const Article = (): JSX.Element => {
 
 	const like = async () => {
 		try {
-			const res = await services.articles.like({ token: auth.accessToken!, articleId: articleId! });
+			const res = await services.articles.like({ token: auth.accessToken!, articleId: +articleId! });
 			console.log(res.data);
 			setIsLiked(true);
 			// C'est pourri ça mais il faut l'id du user pour faire mieux
-			setArticle({ ...article, Likes: [...article.Likes, 'new'] });
+			setArticle({ ...article!, Likes: [...article!.Likes, 1] });
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -131,11 +131,11 @@ const Article = (): JSX.Element => {
 
 	const unlike = async () => {
 		try {
-			const res = await services.articles.unlike({ token: auth.accessToken!, articleId: articleId! });
+			const res = await services.articles.unlike({ token: auth.accessToken!, articleId: +articleId! });
 			console.log(res.data);
 			setIsLiked(false);
 			// C'est pourri ça mais il faut l'id du user pour faire mieux
-			setArticle({ ...article, Likes: [...article.Likes.lenght.slice(1)] });
+			setArticle({ ...article!, Likes: [...article!.Likes.slice(1)] });
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -166,41 +166,51 @@ const Article = (): JSX.Element => {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
-					<CircularProgress size="120px" isIndeterminate color="primary.1" />
+					<CircularProgress size="120px" isIndeterminate color="black" />
 				</VStack>
 			</>
 		);
 	}
 
 	return (
-		<>
-			<ArticleTrigger
-				top="4px"
-				right="4px"
-				actions={[
-					<HStack onClick={() => (isLiked ? unlike() : like())}>
-						{isLiked ? <CloseIcon /> : <AddIcon />}
-						<Text variant="h6">{isLiked ? 'Retirer des favoris' : 'Ajouter aux favoris'}</Text>
-					</HStack>,
-				]}
-			/>
-			<VStack align="left" spacing="64px" w="100%" py="48px">
+		<VStack w="100%" spacing={{ base: '24px', md: '32px', lg: '40px' }} align="start">
+			<VStack w="100%" spacing={{ base: '8px', md: '12px', lg: '16px' }} align="start">
+				<HStack>
+					<Badge
+						colorScheme="pink"
+						variant={isLiked ? 'solid' : 'outline'}
+						fontSize={{ base: 'small', lg: 'md' }}
+						cursor="pointer"
+						borderRadius="xsm"
+						onClick={() => (isLiked ? unlike() : like())}
+					>
+						{isLiked ? <CheckIcon /> : <CloseIcon />} Favoris
+					</Badge>
+					<Badge fontSize={{ base: 'small', lg: 'md' }} cursor="pointer" borderRadius="xsm">
+						<AddIcon /> Marque-page
+					</Badge>
+				</HStack>
 				<VStack align="left" spacing="0px" w="100%">
 					<Text variant="h3">{article.Title}</Text>
-					<Text variant="h6">
-						Topic - {article.Likes.length} j'aime{article.Likes.length !== 1 && 's'}
-					</Text>
+					<HStack>
+						<Badge colorScheme="red" fontSize={{ base: 'small', lg: 'md' }} borderRadius="xsm">
+							{article.Topic}
+						</Badge>
+						<Badge colorScheme="green" fontSize={{ base: 'small', lg: 'md' }} borderRadius="xsm">
+							{article.Likes.length} like{article.Likes.length !== 1 && 's'}
+						</Badge>
+					</HStack>
 				</VStack>
 				<Text variant="p" whiteSpace="pre-line">
 					{article.Content}
 				</Text>
-				<VStack align="left" spacing="0px" w="100%">
-					<Text variant="h4">Écrit par @user-{article.UserId}</Text>
-					<Text variant="h5">{frenchDate(new Date(article.CreatedAt))}</Text>
-				</VStack>
 			</VStack>
-		</>
+			<VStack align="left" spacing="0px" w="100%">
+				<Text variant="h6">Écrit par @user-{article.UserId}</Text>
+				<Text variant="p">{frenchDate(new Date(article.CreatedAt))}</Text>
+			</VStack>
+		</VStack>
 	);
 };
 
-export default Article;
+export default ArticlePage;
