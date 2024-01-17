@@ -3,6 +3,7 @@ import axios from 'axios';
 import context from 'context';
 import authService from './auth';
 import articlesService from './articles';
+import bookmarksService from './bookmarks';
 
 const servicesURL = axios.create({
 	baseURL: context.config.env.BACKEND_URL,
@@ -12,6 +13,7 @@ const servicesURL = axios.create({
 const services = {
 	auth: authService,
 	articles: articlesService,
+	bookmarks: bookmarksService,
 };
 
 export { servicesURL };

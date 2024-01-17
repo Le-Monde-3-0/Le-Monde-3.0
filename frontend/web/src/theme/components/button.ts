@@ -40,14 +40,14 @@ const button = {
 			bg: 'orange',
 			...defaultPrimary,
 		},
-		// 'secondary-1': {
-		// 	bg: 'secondary.1',
-		// 	...text.variants.h6,
-		// 	color: 'white',
-		// 	borderRadius: 'sm',
-		// 	padding: '8px 16px',
-		// 	width: '100%',
-		// },
+		'secondary-yellow': {
+			bg: 'black',
+			border: '1px',
+			borderStyle: 'dashed',
+			borderColor: 'yellow',
+			color: 'yellow',
+			px: '24px',
+		},
 		// 'secondary-2': {
 		// 	bg: 'secondary.2',
 		// 	...text.variants.h6,

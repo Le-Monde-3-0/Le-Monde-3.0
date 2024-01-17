@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { CircularProgress, Grid, GridItem, Tooltip, VStack, useToast } from '@chakra-ui/react';
+import { CircularProgress, Grid, GridItem, Tag, Tooltip, VStack, useToast } from '@chakra-ui/react';
 import { AddIcon, CloseIcon } from '@chakra-ui/icons';
 import { AxiosError } from 'axios';
 
@@ -90,6 +90,10 @@ const Favoris = (): JSX.Element => {
 					onChange={(e) => setSearch(e.target.value)}
 					variant="primary-1"
 				/>
+				<Tag bg="yellow">
+					{articles.length} favori
+					{articles.length !== 1 && 's'}
+				</Tag>
 				<Grid
 					templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
 					gap={{ base: 2, lg: 4 }}
