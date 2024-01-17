@@ -45,7 +45,7 @@ const ArticlePage = (): JSX.Element => {
 
 	const read = async () => {
 		try {
-			const res = await services.articles.read({ token: auth.accessToken!, articleId: articleId! });
+			const res = await services.articles.read({ token: auth.accessToken!, articleId: +articleId! });
 			console.log(res.data);
 			setArticle(res.data);
 		} catch (error) {
@@ -105,7 +105,7 @@ const ArticlePage = (): JSX.Element => {
 
 	const like = async () => {
 		try {
-			const res = await services.articles.like({ token: auth.accessToken!, articleId: articleId! });
+			const res = await services.articles.like({ token: auth.accessToken!, articleId: +articleId! });
 			console.log(res.data);
 			setIsLiked(true);
 			// C'est pourri ça mais il faut l'id du user pour faire mieux
@@ -131,7 +131,7 @@ const ArticlePage = (): JSX.Element => {
 
 	const unlike = async () => {
 		try {
-			const res = await services.articles.unlike({ token: auth.accessToken!, articleId: articleId! });
+			const res = await services.articles.unlike({ token: auth.accessToken!, articleId: +articleId! });
 			console.log(res.data);
 			setIsLiked(false);
 			// C'est pourri ça mais il faut l'id du user pour faire mieux
