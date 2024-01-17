@@ -35,6 +35,7 @@ exit_if_failure "Failed to build frontend."
 
 # 2. Run IPFS daemon
 echo "[Step 2]. Run IPFS Daemon"
+rm -f /data/ipfs/repo.lock
 docker run -d --name $IPFS_HOST -v $ipfs_staging:/export -v $ipfs_data:/data/ipfs -p 4001:4001 -p 4001:4001/udp -p 127.0.0.1:8080:8080 -p 127.0.0.1:5001:5001 ipfs/kubo:latest
 exit_if_failure "Failed to run IPFS docker image."
 sleep 3
@@ -112,6 +113,11 @@ while [ "$PINNED" = "false" ]; do
     echo ". pin $NEW_PIN_ID status is $STATUS"
     if [ "$STATUS" = "pinned" ]; then
         PINNED=true
+    else if [ "$STATUS" = "failed" ]; then
+        echo "Pin status is failed."
+        docker stop $IPFS_HOST
+        docker remove $IPFS_HOST
+        exit 1
     fi
 done
 echo ""
