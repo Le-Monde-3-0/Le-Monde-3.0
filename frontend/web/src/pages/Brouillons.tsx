@@ -14,7 +14,6 @@ const Brouillons = (): JSX.Element => {
 	const [search, setSearch] = useState('');
 	const toast = useToast();
 	const { auth } = useAuthContext();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [brouillons, setBrouillons] = useState<Article[] | undefined>(undefined);
 
 	const me = async () => {

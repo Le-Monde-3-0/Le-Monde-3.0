@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
 	Badge,
+	Button,
 	CircularProgress,
 	HStack,
 	Modal,
@@ -12,6 +13,7 @@ import {
 	ModalFooter,
 	ModalHeader,
 	ModalOverlay,
+	Show,
 	Text,
 	VStack,
 	useDisclosure,
@@ -34,6 +36,7 @@ const ArticlePage = (): JSX.Element => {
 	const [article, setArticle] = useState<Article | undefined>(undefined);
 	const [bookmarks, setBookmarks] = useState<Bookmark[] | undefined>(undefined);
 	const [isLiked, setIsLiked] = useState(false);
+	const [isDraft, setIsDraft] = useState(true);
 
 	const frenchDate = (date: Date) => {
 		const mois = [
@@ -286,6 +289,8 @@ const ArticlePage = (): JSX.Element => {
 					<Text variant="h6">Écrit par @user-{article.UserId}</Text>
 					<Text variant="p">{frenchDate(new Date(article.CreatedAt))}</Text>
 				</VStack>
+
+				{isDraft ? <Button>Publier l'article</Button> : null}
 			</VStack>
 
 			<Modal isOpen={isOpen} onClose={onClose}>
