@@ -6,12 +6,12 @@ import '../models/article.dart';
 import '../shared/article_widget.dart';
 
 // Convertissez BrouillonsWidget en StatefulWidget
-class BrouillonsWidget extends StatefulWidget {
+class PublishedWidget extends StatefulWidget {
   @override
-  _BrouillonsWidgetState createState() => _BrouillonsWidgetState();
+  _PublishedWidgetState createState() => _PublishedWidgetState();
 }
 
-class _BrouillonsWidgetState extends State<BrouillonsWidget> {
+class _PublishedWidgetState extends State<PublishedWidget> {
   final ArticleService _articleService = ArticleService();
   late Future<List<ArticleModel>> futureArticles;
 
@@ -27,7 +27,7 @@ class _BrouillonsWidgetState extends State<BrouillonsWidget> {
       Iterable jsonResponse = response;
       List<ArticleModel> articlesList = [];
         for (var article in jsonResponse) {
-          if (article['Draft'] == true) {
+          if (article['Draft'] == false) {
             articlesList.add(ArticleModel.fromJson(article));
           }
       }
@@ -48,36 +48,11 @@ class _BrouillonsWidgetState extends State<BrouillonsWidget> {
       theme: ThemeData.dark(),
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Mes brouillons', style: TextStyle(fontFamily: 'LeMonde', fontSize: 30.0, fontWeight: FontWeight.bold, color: Colors.white)),
+          title: Text('Mes Articles Publiés', style: TextStyle(fontFamily: 'LeMonde', fontSize: 30.0, fontWeight: FontWeight.bold, color: Colors.white)),
         ),
         body: Column(
           children: [
           SizedBox(width: 1106.0),
-            //TDOD ajouter un barre de recherche
-
-          // Container(
-          //     height: 40.0,
-          //     child: ListView(
-          //       scrollDirection: Axis.horizontal,
-          //       children: <Widget>[
-          //         editTopicButton(),
-          //         topicButton('À la Une'),
-          //         Container(
-          //           margin: EdgeInsets.symmetric(horizontal: 8.0),
-          //           child: Text('|', style: TextStyle(color: Colors.white, fontSize: 24)),
-          //         ),
-          //         topicButton('Politique'),
-          //         topicButton('Géo-politique'),
-          //         topicButton('Société'),
-          //         topicButton('Par Pays'),
-          //         topicButton('Économie'),
-          //         topicButton('Culture'),
-          //         topicButton('Sport'),
-          //         topicButton('Science'),
-          //         topicButton('Livres'),
-          //       ],
-          //     ),
-          //   ),
             Expanded(
               child: _buildArticlesList(),
             ),

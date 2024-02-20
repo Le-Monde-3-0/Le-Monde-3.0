@@ -37,7 +37,7 @@ class _WritePageState extends State<WritePage> {
       appBar: AppBar(
         title: Text('Création d\'un Article'),
       ),
-      body: SingleChildScrollView( // Ajout du SingleChildScrollView
+      body: SingleChildScrollView( 
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Form(
@@ -48,52 +48,50 @@ class _WritePageState extends State<WritePage> {
                 TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Titre de l\'article',
-                    labelStyle: TextStyle(color: Colors.blueGrey), // Couleur du texte de l'étiquette
-                    fillColor: Colors.white, // Couleur de fond du champ
-                    filled: true, // Activer la couleur de fond
-                    border: OutlineInputBorder( // Bordure extérieure
+                    labelStyle: TextStyle(color: Colors.blueGrey),
+                    fillColor: Colors.white, 
+                    filled: true,
+                    border: OutlineInputBorder( 
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: BorderSide(color: Colors.blueGrey),
                     ),
-                    focusedBorder: OutlineInputBorder( // Bordure lorsque le champ est sélectionné
+                    focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: BorderSide(color: Colors.blue, width: 2.0),
                     ),
-                    errorBorder: OutlineInputBorder( // Bordure en cas d'erreur
+                    errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: BorderSide(color: Colors.red, width: 2.0),
                     ),
-                    prefixIcon: Icon(Icons.title, color: Colors.blueGrey), // Icône de préfixe
-                    suffixIcon: Icon(Icons.edit, color: Colors.blueGrey), // Icône de suffixe
+                    prefixIcon: Icon(Icons.title, color: Colors.blueGrey), 
+                    suffixIcon: Icon(Icons.edit, color: Colors.blueGrey),
                   ),
                   validator: (value) => value!.isEmpty ? 'Ce champ est obligatoire' : null,
-                  // onSaved: (value) => _articleTitle = value,
                   controller: _articleTitle,
                 ),
                 SizedBox(height: 16.0),
                 TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Theme de l\'article',
-                    labelStyle: TextStyle(color: Colors.blueGrey), // Couleur du texte de l'étiquette
-                    fillColor: Colors.white, // Couleur de fond du champ
-                    filled: true, // Activer la couleur de fond
-                    border: OutlineInputBorder( // Bordure extérieure
+                    labelStyle: TextStyle(color: Colors.blueGrey),
+                    fillColor: Colors.white, 
+                    filled: true,
+                    border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: BorderSide(color: Colors.blueGrey),
                     ),
-                    focusedBorder: OutlineInputBorder( // Bordure lorsque le champ est sélectionné
+                    focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: BorderSide(color: Colors.blue, width: 2.0),
                     ),
-                    errorBorder: OutlineInputBorder( // Bordure en cas d'erreur
+                    errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
                       borderSide: BorderSide(color: Colors.red, width: 2.0),
                     ),
-                    prefixIcon: Icon(Icons.title, color: Colors.blueGrey), // Icône de préfixe
-                    suffixIcon: Icon(Icons.edit, color: Colors.blueGrey), // Icône de suffixe
+                    prefixIcon: Icon(Icons.title, color: Colors.blueGrey),
+                    suffixIcon: Icon(Icons.edit, color: Colors.blueGrey),
                   ),
                   validator: (value) => value!.isEmpty ? 'Ce champ est obligatoire' : null,
-                  // onSaved: (value) => _articleTheme = value,
                   controller: _articleTheme,
 
                 ),
@@ -157,7 +155,7 @@ class _WritePageState extends State<WritePage> {
                   label: const Text('Suivant'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromARGB(255, 112, 243, 121),
-                    foregroundColor: Colors.white, // Texte en blanc
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -168,7 +166,6 @@ class _WritePageState extends State<WritePage> {
                     ),
                   ),
                 ),
-
               ],
             ),
           ),

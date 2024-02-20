@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../router/router.dart';
-import '../screens/brouillons_page.dart';
+import '../screens/draft_page.dart';
+import '../screens/published_page.dart';
 
 class BottomNav extends StatelessWidget {
   const BottomNav(this.child, {super.key});
@@ -60,8 +61,11 @@ class BottomNav extends StatelessWidget {
               leading: Icon(Icons.public),
               title: Text("Mes publications"),
               onTap: () {
-                // Handle "Mes publications" tap
-                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => PublishedWidget(),
+                  ),
+                );
               },
             ),
             ListTile(
