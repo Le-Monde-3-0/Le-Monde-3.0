@@ -2,13 +2,14 @@ package sources
 
 import (
 	"errors"
+	"net/http"
+	"os"
+	"strings"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
-	"net/http"
-	"os"
-	"strings"
 )
 
 func getUserId(c *gin.Context) (int32, error) {
@@ -40,13 +41,13 @@ func getUserId(c *gin.Context) (int32, error) {
 
 type Article struct {
 	gorm.Model
-	Id      int32
-	UserId  int32
+	Id         int32
+	UserId     int32
 	AuthorName string
-	Title   string
-	Subtitle string
-	Content string
-	Topic string
-	Draft bool
-	Likes   pq.Int32Array `gorm:"type:integer[]"`
+	Title      string
+	Subtitle   string
+	Content    string
+	Topic      string
+	Draft      bool
+	Likes      pq.Int32Array `gorm:"type:integer[]"`
 }

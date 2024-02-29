@@ -1,25 +1,31 @@
-name: Deploy Backend to GCP
+name: Deploy to Azure VM
 
 on:
   push:
     branches:
-      - main
+      - main  # Change this to your main branch name
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      working-directory: ./backend
+    environment: DeployBackend
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Google Cloud SDK
-      uses: google-github-actions/setup-gcloud@v0
-      with:
-        project_id: lemonde3-0
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
-        export_default_credentials: true
+      - name: Install sshpass
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y sshpass
 
-    - name: Publish backend directory to GCP Bucket
-      run: |
-        gsutil -m rsync -r ./backend gs://lemonde3-0-bucket
+      - name: Deploy to Azure VM
+        working-directory: ${{ env.working-directory }}
+        run: |
+          rsync -r --progress --delete-after -e "sshpass -p '${{ secrets.AZURE_PASSWORD }}' ssh -o StrictHostKeyChecking=no" ./* ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_PUBLIC_IP }}:./
+
+      - name: Update docker compose
+        run: |
+          sshpass -p "${{ secrets.AZURE_PASSWORD }}" ssh -T ${{ secrets.AZURE_USERNAME }}@${{ secrets.AZURE_PUBLIC_IP }} './script.sh'

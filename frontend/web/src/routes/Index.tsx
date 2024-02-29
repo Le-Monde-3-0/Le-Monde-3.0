@@ -8,6 +8,7 @@ import ConnexionPage from 'pages/Connexion';
 import InscriptionPage from 'pages/Inscription';
 import Favoris from 'pages/Favoris';
 import Article from 'pages/Article';
+// import MarquePage from 'pages/MarquePage';
 import MarquePages from 'pages/MarquePages';
 import Nouveautes from 'pages/Nouveautes';
 import Decouvertes from 'pages/Decouvertes';

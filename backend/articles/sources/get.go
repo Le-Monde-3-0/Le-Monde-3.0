@@ -2,11 +2,12 @@ package sources
 
 import (
 	"errors"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
-	"net/http"
-	"strconv"
 )
 
 type LikesResponse struct {
@@ -126,7 +127,7 @@ func GetLikesInfo(c *gin.Context, db *gorm.DB) {
 // * string topic as parameter, fetch the db -> 404 if no article with this topic -> 400 no args -> 200 lists of articles with given topic
 func GetArticlesByTopic(c *gin.Context, db *gorm.DB) {
 	var articles []Article
-	
+
 	var topic = c.Param("topic")
 
 	// Check if the required parameters are missing
@@ -159,7 +160,7 @@ func IsArticleDraft(c *gin.Context, db *gorm.DB) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		panic(err)
-	}	
+	}
 
 	result := db.Where(Article{Id: int32(id)}).Find(&article)
 
@@ -176,7 +177,7 @@ func IsArticleDraft(c *gin.Context, db *gorm.DB) {
 	} else {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"false": "Article is not a draft"})
 	}
-}	
+}
 
 func GetAllTopics(c *gin.Context, db *gorm.DB) {
 	var topics []string

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
 	Badge,
 	Button,
@@ -29,10 +30,11 @@ import Bookmark from 'types/bookmark';
 import services from 'services';
 import { AxiosError } from 'axios';
 import SearchInput from 'components/Inputs/SearchInput';
-import { DeleteIcon } from '@chakra-ui/icons';
+import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
 const MarquePages = (): JSX.Element => {
 	const toast = useToast();
+	const navigate = useNavigate();
 	const { auth } = useAuthContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [search, setSearch] = useState('');
@@ -40,6 +42,8 @@ const MarquePages = (): JSX.Element => {
 	const [bookmarks, setBookmarks] = useState<Bookmark[] | undefined>(undefined);
 	const [title, setTitle] = useState('');
 	const [description, setDescription] = useState('');
+	const [action, setAction] = useState<'create' | 'update'>('create');
+	const [bookmarkIdToUpdate, setBookmarkIdToUpdate] = useState<number | undefined>(undefined);
 
 	const getBookmarks = async () => {
 		try {
@@ -71,7 +75,6 @@ const MarquePages = (): JSX.Element => {
 			console.log(res.data);
 			toast({
 				title: 'Votre marque-page a été créé !',
-				// description: 'Nous vous avons redirigé vers votre nouvelle publication.',
 				status: 'success',
 				duration: 9000,
 				isClosable: true,
@@ -79,8 +82,7 @@ const MarquePages = (): JSX.Element => {
 			onClose();
 			setTitle('');
 			setDescription('');
-			setBookmarks([...bookmarks!, res.data]);
-			// navigate(`/articles/${res.data.Id}`);
+			setBookmarks([res.data, ...bookmarks!]);
 		} catch (error) {
 			console.log(error);
 			if (error instanceof AxiosError) {
@@ -119,6 +121,49 @@ const MarquePages = (): JSX.Element => {
 				if (error.response && error.response.status !== 500) {
 					const status = error.response!.status;
 					console.log(status);
+				} else {
+					toast({
+						title: 'Erreur du service interne.',
+						description: 'Veuillez réessayer ultérieurement.',
+						status: 'error',
+						duration: 9000,
+						isClosable: true,
+					});
+				}
+			}
+		}
+	};
+
+	const updateBookmark = async (bookmarkId: number) => {
+		try {
+			const res = await services.bookmarks.update({ token: auth.accessToken!, bookmarkId, title, description });
+			console.log(res.data);
+			toast({
+				title: 'Votre marque-page a été modifié !',
+				status: 'success',
+				duration: 9000,
+				isClosable: true,
+			});
+			onClose();
+			setTitle('');
+			setDescription('');
+			setAction('create');
+			setBookmarkIdToUpdate(undefined);
+			setBookmarks([res.data, ...bookmarks!.filter((b) => b.Id !== bookmarkId)]);
+		} catch (error) {
+			console.log(error);
+			if (error instanceof AxiosError) {
+				if (error.response && error.response.status !== 500) {
+					const status = error.response!.status;
+					if (status === 400) {
+						toast({
+							title: 'Paramètres invalides.',
+							description: 'Veuillez en renseigner de nouveaux.',
+							status: 'error',
+							duration: 9000,
+							isClosable: true,
+						});
+					}
 				} else {
 					toast({
 						title: 'Erreur du service interne.',
@@ -194,7 +239,13 @@ const MarquePages = (): JSX.Element => {
 										<Badge colorScheme="green" borderRadius="xsm">
 											{bookmark.Articles.length} article{bookmark.Articles.length !== 1 && 's'}
 										</Badge>
-										<Text variant="h6" color="black !important">
+										<Text
+											variant="h6"
+											color="black !important"
+											cursor="pointer"
+											_hover={{ opacity: '0.8' }}
+											onClick={() => navigate(`/marque-page/${bookmark.Id}`)}
+										>
 											{bookmark.Title}
 										</Text>
 										<Text variant="p" color="black !important">
@@ -202,6 +253,20 @@ const MarquePages = (): JSX.Element => {
 										</Text>
 									</VStack>
 									<HStack>
+										<Tooltip label="Modifier le marque-page">
+											<span>
+												<EditIcon
+													onClick={() => {
+														setTitle(bookmark.Title);
+														setDescription(bookmark.Description);
+														setBookmarkIdToUpdate(bookmark.Id);
+														setAction('update');
+														onOpen();
+													}}
+													color="black"
+												/>
+											</span>
+										</Tooltip>
 										<Tooltip label="Supprimer le marque-page">
 											<span>
 												<DeleteIcon onClick={() => hardDelete(bookmark.Id)} color="black" />
@@ -214,31 +279,53 @@ const MarquePages = (): JSX.Element => {
 				</Grid>
 			</VStack>
 
-			<Modal isOpen={isOpen} onClose={onClose}>
+			<Modal
+				isOpen={isOpen}
+				onClose={() => {
+					setTitle('');
+					setDescription('');
+					setAction('create');
+					setBookmarkIdToUpdate(undefined);
+					onClose();
+				}}
+			>
 				<ModalOverlay />
 				<ModalContent bg="gray.900">
-					<ModalHeader color="white">Nouveau marque-page</ModalHeader>
+					<ModalHeader color="white">
+						{action === 'create' ? 'Nouveau marque-page' : 'Modification du marque-page'}
+					</ModalHeader>
 					<ModalCloseButton color="white" />
 					<ModalBody>
 						<VStack spacing="8px">
 							<Input
 								variant="primary-1"
 								bg="gray.700"
-								placeholder="Titre du nouveau marque-page"
+								placeholder="Titre du marque-page"
 								onChange={(e) => setTitle(e.target.value)}
+								value={title}
 							/>
 							<Input
 								variant="primary-1"
 								bg="gray.700"
-								placeholder="Description du nouveau marque-page"
+								placeholder="Description du marque-page"
 								onChange={(e) => setDescription(e.target.value)}
+								value={description}
 							/>
 						</VStack>
 					</ModalBody>
 
 					<ModalFooter>
-						<Button variant="primary-yellow" onClick={() => createBookmark()}>
-							Créer
+						<Button
+							variant="primary-yellow"
+							onClick={() => {
+								if (action === 'create') {
+									createBookmark();
+								} else {
+									updateBookmark(bookmarkIdToUpdate!);
+								}
+							}}
+						>
+							{action === 'create' ? 'Créer' : 'Modifier'}
 						</Button>
 					</ModalFooter>
 				</ModalContent>
