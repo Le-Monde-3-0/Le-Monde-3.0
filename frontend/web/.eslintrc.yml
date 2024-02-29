@@ -22,5 +22,6 @@ rules:
   no-console: off
   "import/no-extraneous-dependencies": off
   "@typescript-eslint/no-non-null-assertion": off
+  "@typescript-eslint/return-await": off
 
   react-hooks/exhaustive-deps: off

@@ -2,18 +2,16 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Button, Link, useToast } from '@chakra-ui/react';
 import { Link as RouteLink } from 'react-router-dom';
-import { AxiosError } from 'axios';
 
 import { useAuthContext } from 'contexts/auth';
 import FormInput from 'components/Inputs/FormInput';
 import PwdInput from 'components/Inputs/PwdInput';
-import services from 'services';
 
 const Inscription = (): JSX.Element => {
 	const emailRegex = new RegExp(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/);
 
 	const toast = useToast();
-	const { setAccessToken } = useAuthContext();
+	const { register, login } = useAuthContext();
 	const [email, setEmail] = useState('');
 	const [username, setUsername] = useState('');
 	const [pwd, setPwd] = useState('');
@@ -30,33 +28,29 @@ const Inscription = (): JSX.Element => {
 
 	const inscription = async () => {
 		try {
-			await services.auth.register({ email, password: pwd, username });
-			const loginRes = await services.auth.login({ email, password: pwd });
-			setAccessToken(loginRes.data.token);
-		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					if (status === 400) {
-						toast({
-							title: 'Paramètres invalides.',
-							description: 'Veuillez en renseigner de nouveaux.',
-							status: 'error',
-							duration: 9000,
-							isClosable: true,
-						});
-					}
-				} else {
+			const registerRes = await register({ email, password: pwd, username });
+			if (registerRes.status !== 'success') {
+				toast({
+					status: registerRes.status,
+					title: registerRes.message,
+					description: registerRes.subMessage,
+					duration: 5000,
+					isClosable: true,
+				});
+			} else {
+				const loginRes = await login({ email, password: pwd });
+				if (loginRes.status !== 'success') {
 					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
+						status: loginRes.status,
+						title: loginRes.message,
+						description: loginRes.subMessage,
+						duration: 5000,
 						isClosable: true,
 					});
 				}
 			}
+		} catch (error) {
+			console.log(error);
 		}
 	};
 

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
 import AuthContext, { AuthContextType } from 'contexts/auth';
+import services from 'services';
+import handleRequest from 'utils/handleRequest';
 
 const AuthProvider = ({ children }: { children: JSX.Element }) => {
 	const [auth, setAuth] = useState<AuthContextType['auth']>({
@@ -27,6 +29,20 @@ const AuthProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		setAccessToken: (accessToken: string) => setAuth((a) => ({ ...a, accessToken })),
+		login: async ({ email, password }: { email: string; password: string }) =>
+			handleRequest({
+				request: async () => {
+					const res = await services.auth.login({ email, password });
+					authContextValue.setAccessToken(res.data.token);
+					return res;
+				},
+				requestName: 'login',
+			}),
+		register: ({ email, username, password }: { email: string; username: string; password: string }) =>
+			handleRequest({
+				request: async () => await services.auth.register({ email, username, password }),
+				requestName: 'register',
+			}),
 	};
 
 	return <AuthContext.Provider value={authContextValue} children={children} />;

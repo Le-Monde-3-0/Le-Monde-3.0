@@ -1,7 +1,7 @@
 import { servicesURL } from 'services';
 
 const login = async ({ email, password }: { email: string; password: string }) =>
-	servicesURL.post('/login', {
+	servicesURL.post<{ token: string }>('/login', {
 		email,
 		password,
 	});
