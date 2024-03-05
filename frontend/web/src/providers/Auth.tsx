@@ -22,6 +22,7 @@ const AuthProvider = ({ children }: { children: JSX.Element }) => {
 
 	const authContextValue: AuthContextType = {
 		auth,
+
 		clearAuth: () => {
 			localStorage.removeItem('auth');
 			setAuth({
@@ -29,6 +30,7 @@ const AuthProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		setAccessToken: (accessToken: string) => setAuth((a) => ({ ...a, accessToken })),
+
 		login: async ({ email, password }: { email: string; password: string }) =>
 			handleRequest({
 				request: async () => {

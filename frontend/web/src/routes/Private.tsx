@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useToast } from '@chakra-ui/react';
 
+import UserProvider from 'providers/User';
 import PrivateLayout from 'layouts/Private';
 import { useAuthContext } from 'contexts/auth';
 
@@ -25,9 +26,11 @@ const Private = (): JSX.Element => {
 	}, [auth]);
 
 	return (
-		<PrivateLayout>
-			<Outlet />
-		</PrivateLayout>
+		<UserProvider>
+			<PrivateLayout>
+				<Outlet />
+			</PrivateLayout>
+		</UserProvider>
 	);
 };
 

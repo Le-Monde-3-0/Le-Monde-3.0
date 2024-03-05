@@ -2,103 +2,72 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { CircularProgress, Grid, GridItem, HStack, Tag, Tooltip, VStack, useToast } from '@chakra-ui/react';
 import { DeleteIcon, ViewIcon } from '@chakra-ui/icons';
-import { AxiosError } from 'axios';
 
-import services from 'services';
 import { useAuthContext } from 'contexts/auth';
+import { useUserContext } from 'contexts/user';
 import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
-import { Article } from 'types/article';
 
 const Brouillons = (): JSX.Element => {
 	const [search, setSearch] = useState('');
 	const toast = useToast();
 	const { auth } = useAuthContext();
-	const [brouillons, setBrouillons] = useState<Article[] | undefined>(undefined);
+	const { user, deleteArticle, getDraftArticles, switchArticleDraftState } = useUserContext();
 
-	const me = async () => {
+	const uiGetDraftArticles = async () => {
 		try {
-			const res = await services.articles.me({ token: auth.accessToken! });
-			console.log(res.data);
-			setBrouillons(res.data.filter((a) => a.Draft === true));
+			const res = await getDraftArticles();
+			if (res.status !== 'success') {
+				toast({
+					status: res.status,
+					title: res.message,
+					description: res.subMessage,
+					duration: 5000,
+					isClosable: true,
+				});
+			}
 		} catch (error) {
 			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
 		}
 	};
 
-	const hardDelete = async (draftId: number) => {
+	const uiDeleteArticle = async (articleId: number) => {
 		try {
-			const res = await services.articles.delete({ token: auth.accessToken!, articleId: draftId });
-			console.log(res);
-			setBrouillons([...brouillons!.filter((b) => b.Id !== draftId)]);
-		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
-		}
-	};
-
-	const publishDraft = async (draftId: number) => {
-		try {
-			const res = await services.articles.changeDraftState({
-				token: auth.accessToken!,
-				articleId: draftId,
-				state: false,
+			const res = await deleteArticle(articleId);
+			toast({
+				status: res.status,
+				title: res.message,
+				description: res.subMessage,
+				duration: 5000,
+				isClosable: true,
 			});
-			console.log(res);
-			setBrouillons([...brouillons!.filter((b) => b.Id !== draftId)]);
 		} catch (error) {
 			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
+		}
+	};
+
+	const uiSwitchArticleDraftState = async (articleId: number) => {
+		try {
+			const res = await switchArticleDraftState(articleId);
+			toast({
+				status: res.status,
+				title: res.message,
+				description: res.subMessage,
+				duration: 5000,
+				isClosable: true,
+			});
+		} catch (error) {
+			console.log(error);
 		}
 	};
 
 	useEffect(() => {
 		if (auth.accessToken) {
-			me();
+			uiGetDraftArticles();
 		}
 	}, [auth]);
 
-	if (!brouillons) {
+	if (!user.draftArticles) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
@@ -121,16 +90,16 @@ const Brouillons = (): JSX.Element => {
 				/>
 				<HStack>
 					<Tag bg="yellow">
-						{brouillons.filter((p) => (search !== '' ? p.Title.includes(search) : true)).length} brouillon
-						{brouillons.length !== 1 && 's'}
+						{user.draftArticles.filter((p) => (search !== '' ? p.Title.includes(search) : true)).length} brouillon
+						{user.draftArticles.length !== 1 && 's'}
 					</Tag>
 					<Tag bg="blue">
-						{brouillons
+						{user.draftArticles
 							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
 							.map((p) => p.Likes.length)
 							.reduce((a, v) => a + v, 0)}{' '}
 						like
-						{brouillons
+						{user.draftArticles
 							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
 							.map((p) => p.Likes.length)
 							.reduce((a, v) => a + v, 0) !== 1 && 's'}
@@ -141,7 +110,7 @@ const Brouillons = (): JSX.Element => {
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
 				>
-					{brouillons
+					{user.draftArticles
 						.filter((p) => (search !== '' ? p.Title.includes(search) : true))
 						.map((brouillon, index) => (
 							<GridItem key={`${index.toString()}`}>
@@ -155,12 +124,12 @@ const Brouillons = (): JSX.Element => {
 									actions={[
 										<Tooltip label="Publier l'article">
 											<span>
-												<ViewIcon onClick={() => publishDraft(brouillon.Id)} color="black" />
+												<ViewIcon onClick={() => uiSwitchArticleDraftState(brouillon.Id)} color="black" />
 											</span>
 										</Tooltip>,
 										<Tooltip label="Supprimer définitivement">
 											<span>
-												<DeleteIcon onClick={() => hardDelete(brouillon.Id)} color="black" />
+												<DeleteIcon onClick={() => uiDeleteArticle(brouillon.Id)} color="black" />
 											</span>
 										</Tooltip>,
 									]}

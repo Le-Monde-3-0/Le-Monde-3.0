@@ -5,14 +5,14 @@ import { Link as RouteLink } from 'react-router-dom';
 import { useIpfsContext } from 'contexts/ipfs';
 
 const Home = (): JSX.Element => {
-	const { config, setGateway, getFile } = useIpfsContext();
+	const { config, setGateway, getIPFSFile } = useIpfsContext();
 
 	const testIPFS = async () => {
 		console.log('-- TEST IPFS --');
 		// const cid = 'QmSMtVRQMHn2zek3UoH2NWfqxk5NKdfHgcSbTbanLif5FU';
 		const cid = 'QmP8jTG1m9GSDJLCbeWhVSVgEzCPPwXRdCRuJtQ5Tz9Kc9';
 		try {
-			const file = await getFile(cid);
+			const file = await getIPFSFile(cid);
 			console.log(file);
 		} catch (error) {
 			console.error(error);

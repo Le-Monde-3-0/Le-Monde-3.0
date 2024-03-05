@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react';
+import { LoginType, EmptyType } from 'types/services';
 
 import { RequestResponse } from 'utils/handleRequest';
 
@@ -19,7 +20,7 @@ type AuthContextType = {
 	//
 	// Methods to interact with the services
 	//
-	login: ({ email, password }: { email: string; password: string }) => Promise<RequestResponse>;
+	login: ({ email, password }: { email: string; password: string }) => Promise<RequestResponse<LoginType>>;
 	register: ({
 		email,
 		username,
@@ -28,7 +29,7 @@ type AuthContextType = {
 		email: string;
 		username: string;
 		password: string;
-	}) => Promise<RequestResponse>;
+	}) => Promise<RequestResponse<EmptyType>>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

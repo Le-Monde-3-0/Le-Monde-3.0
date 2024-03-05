@@ -15,12 +15,12 @@ const Connexion = (): JSX.Element => {
 
 	const connexion = async () => {
 		try {
-			const loginRes = await login({ email: loginInput, password: pwdInut });
-			if (loginRes.status !== 'success') {
+			const res = await login({ email: loginInput, password: pwdInut });
+			if (res.status !== 'success') {
 				toast({
-					status: loginRes.status,
-					title: loginRes.message,
-					description: loginRes.subMessage,
+					status: res.status,
+					title: res.message,
+					description: res.subMessage,
 					duration: 5000,
 					isClosable: true,
 				});

@@ -2,134 +2,46 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CircularProgress, Tag, VStack, useToast } from '@chakra-ui/react';
-import { AxiosError } from 'axios';
 
-import services from 'services';
 import { useAuthContext } from 'contexts/auth';
+import { useUserContext } from 'contexts/user';
 import SearchInput from 'components/Inputs/SearchInput';
-import Bookmark from 'types/bookmark';
+import { Bookmark } from 'types/bookmark';
 
 const MarquePage = (): JSX.Element => {
 	const toast = useToast();
 	const navigate = useNavigate();
 	const { auth } = useAuthContext();
+	const { getBookmark } = useUserContext();
 	const { bookmarkId } = useParams();
 	const [search, setSearch] = useState('');
 	const [bookmark, setBookmark] = useState<Bookmark | undefined>(undefined);
 
-	const getBookmark = async () => {
+	const uiGetBookmark = async () => {
 		try {
-			console.log(bookmarkId);
-			const res = await services.bookmarks.get({ token: auth.accessToken!, bookmarkId: +bookmarkId! });
-			console.log(res.data);
-			setBookmark(res.data);
+			const res = await getBookmark(+bookmarkId!);
+			if (res.status !== 'success') {
+				toast({
+					status: res.status,
+					title: res.message,
+					description: res.subMessage,
+					duration: 5000,
+					isClosable: true,
+				});
+				if (res.code === 404) {
+					navigate('/marque-pages');
+				}
+			} else {
+				setBookmark(res.data);
+			}
 		} catch (error) {
 			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					if (status === 404) {
-						toast({
-							title: 'Bookmark inconnu.',
-							description: 'Veuillez en renseigner un autre.',
-							status: 'error',
-							duration: 9000,
-							isClosable: true,
-						});
-						navigate('/marque-pages');
-					}
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
-		}
-	};
-
-	const removeArticle = async (articleId: number) => {
-		try {
-			const res = await services.bookmarks.removeArticle({
-				token: auth.accessToken!,
-				bookmarkId: +bookmarkId!,
-				articleId,
-			});
-			console.log(res);
-			// setArticles(...);
-		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
-		}
-	};
-
-	const unlikeArticle = async (articleId: number) => {
-		try {
-			const res = await services.articles.unlike({ token: auth.accessToken!, articleId });
-			console.log(res);
-			// setArticles([...articles!.filter((a) => a.Id !== articleId)]);
-		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
-		}
-	};
-
-	const likeArticle = async (articleId: number) => {
-		try {
-			const res = await services.articles.like({ token: auth.accessToken!, articleId });
-			console.log(res);
-			// setArticles([...articles!.filter((a) => a.Id !== articleId)]);
-		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
 		}
 	};
 
 	useEffect(() => {
 		if (auth.accessToken) {
-			getBookmark();
+			uiGetBookmark();
 		}
 	}, [auth]);
 

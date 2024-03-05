@@ -28,7 +28,7 @@ const IpfsProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		setGateway: (gateway: string) => setConfig((c) => ({ ...c, gateway })),
-		getFile: async (cid: string) => {
+		getIPFSFile: async (cid: string) => {
 			console.log(`getFile(${cid})`);
 			try {
 				const res = await axios.get(`${config.gateway}/ipfs/${cid}`);
