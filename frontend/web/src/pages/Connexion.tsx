@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Link as RouteLink } from 'react-router-dom';
-import { Button, Input, Link, useToast } from '@chakra-ui/react';
+import { Button, Input, Link } from '@chakra-ui/react';
 
 import { useAuthContext } from 'contexts/auth';
+import { useUIContext } from 'contexts/ui';
 import PwdInput from 'components/Inputs/PwdInput';
 
 const Connexion = (): JSX.Element => {
-	const toast = useToast();
 	const { login } = useAuthContext();
+	const { requestResponseToast } = useUIContext();
 	const [loginInput, setLoginInput] = useState('');
 	const [pwdInut, setPwdInut] = useState('');
 	const [validation, setValidation] = useState(false);
@@ -16,17 +17,9 @@ const Connexion = (): JSX.Element => {
 	const connexion = async () => {
 		try {
 			const res = await login({ email: loginInput, password: pwdInut });
-			if (res.status !== 'success') {
-				toast({
-					status: res.status,
-					title: res.message,
-					description: res.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-			}
+			requestResponseToast(res);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 

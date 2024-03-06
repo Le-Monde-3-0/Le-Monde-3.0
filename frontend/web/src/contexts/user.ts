@@ -21,36 +21,14 @@ type UserContextType = {
 	//
 	clearUser: () => void;
 	toggleOfflineState: () => void;
-	setPublishedArticlesData: (publishedArticles: Article[]) => void;
-	setDraftArticlesData: (draftArticles: Article[]) => void;
-	setLikedArticlesData: (likedArticles: Article[]) => void;
-	addPublishedArticleData: (article: Article) => void;
-	addArticleData: (article: Article) => void;
-	switchArticleDraftStateData: (articleId: number) => void;
-	deleteArticleData: (articleId: number) => void;
-	likeArticleData: (article: Article) => void;
-	unlikeArticleData: (articleId: number) => void;
-	setBookmarksData: (bookmarks: Bookmark[]) => void;
-	addBookmarkData: (bookmark: Bookmark) => void;
-	updateBookmarkData: ({
-		bookmarkId,
-		title,
-		description,
-	}: {
-		bookmarkId: number;
-		title: string;
-		description: string;
-	}) => void;
-	deleteBookmarkData: (bookmarkId: number) => void;
-	addArticleToBookmarkData: (bookmarkId: number, articleId: number) => void;
 
 	//
 	// Methods to interact with the services
 	//
-	getPublishedArticles: () => Promise<RequestResponse<Article[]>>;
-	getDraftArticles: () => Promise<RequestResponse<Article[]>>;
+	getArticles: () => Promise<RequestResponse<Article[]>>;
 	getLikedArticles: () => Promise<RequestResponse<Article[]>>;
 	getArticle: (articleId: number) => Promise<RequestResponse<Article>>;
+	getBookmarks: () => Promise<RequestResponse<Bookmark[]>>;
 	getBookmark: (bookmarkId: number) => Promise<RequestResponse<Bookmark>>;
 	addArticle: ({
 		title,
@@ -67,7 +45,6 @@ type UserContextType = {
 	deleteArticle: (articleId: number) => Promise<RequestResponse<{ delete: string }>>;
 	likeArticle: (articleId: number) => Promise<RequestResponse<Article>>;
 	unlikeArticle: (articleId: number) => Promise<RequestResponse<Article>>;
-	getBookmarks: () => Promise<RequestResponse<Bookmark[]>>;
 	addBookmark: ({ title, description }: { title: string; description: string }) => Promise<RequestResponse<Bookmark>>;
 	updateBookmark: ({
 		bookmarkId,

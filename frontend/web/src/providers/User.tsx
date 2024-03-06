@@ -18,6 +18,95 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 		bookmarks: [],
 	});
 
+	const setArticlesData = (articles: Article[]) =>
+		setUser((u) => ({
+			...u,
+			publishedArticles: articles.filter((a) => !a.Draft),
+			draftArticles: articles.filter((a) => a.Draft),
+		}));
+	const setLikedArticlesData = (likedArticles: Article[]) => setUser((u) => ({ ...u, likedArticles }));
+	const addArticleData = (article: Article) => {
+		if (article.Draft) {
+			setUser((u) => ({ ...u, draftArticles: [...u.draftArticles, article] }));
+		} else {
+			setUser((u) => ({ ...u, publishedArticles: [...u.publishedArticles, article] }));
+		}
+	};
+	const switchArticleDraftStateData = (articleId: number) => {
+		const draftArticle = user.draftArticles.find((a) => a.Id === articleId);
+		const publishedArticle = user.publishedArticles.find((a) => a.Id === articleId);
+		if (draftArticle) {
+			setUser((u) => ({
+				...u,
+				draftArticles: [...u.draftArticles.filter((a) => a.Id !== articleId)],
+				publishedArticles: [...u.publishedArticles, draftArticle],
+			}));
+		}
+		if (publishedArticle) {
+			setUser((u) => ({
+				...u,
+				draftArticles: [...u.draftArticles, publishedArticle],
+				publishedArticles: [...u.publishedArticles.filter((a) => a.Id !== articleId)],
+			}));
+		}
+	};
+	const deleteArticleData = (articleId: number) => {
+		const draftArticle = user.draftArticles.find((a) => a.Id === articleId);
+		const publishedArticle = user.publishedArticles.find((a) => a.Id === articleId);
+		if (draftArticle) {
+			setUser((u) => ({
+				...u,
+				draftArticles: [...u.draftArticles.filter((a) => a.Id !== articleId)],
+			}));
+		}
+		if (publishedArticle) {
+			setUser((u) => ({
+				...u,
+				publishedArticles: [...u.publishedArticles.filter((a) => a.Id !== articleId)],
+			}));
+		}
+	};
+	const likeArticleData = (article: Article) =>
+		setUser((u) => ({ ...u, likedArticles: [...u.likedArticles, article] }));
+	const unlikeArticleData = (articleId: number) =>
+		setUser((u) => ({ ...u, likedArticles: u.likedArticles.filter((a) => a.Id !== articleId) }));
+	const setBookmarksData = (bookmarks: Bookmark[]) => setUser((u) => ({ ...u, bookmarks }));
+	const addBookmarkData = (bookmark: Bookmark) => setUser((u) => ({ ...u, bookmarks: [...u.bookmarks, bookmark] }));
+	const updateBookmarkData = ({
+		bookmarkId,
+		title,
+		description,
+	}: {
+		bookmarkId: number;
+		title: string;
+		description: string;
+	}) => {
+		setUser((u) => ({
+			...u,
+			bookmarks: [
+				...u.bookmarks.map((b) => {
+					if (b.Id === bookmarkId) {
+						b.Title = title;
+						b.Description = description;
+					}
+					return b;
+				}),
+			],
+		}));
+	};
+	const deleteBookmarkData = (bookmarkId: number) =>
+		setUser((u) => ({ ...u, bookmarks: [...u.bookmarks.filter((b) => b.Id !== bookmarkId)] }));
+	const addArticleToBookmarkData = (bookmarkId: number, articleId: number) =>
+		setUser((u) => ({
+			...u,
+			bookmarks: user.bookmarks.map((b) => {
+				if (b.Id === bookmarkId) {
+					b.Articles = [...b.Articles, articleId];
+				}
+				return b;
+			}),
+		}));
+
 	useEffect(() => {
 		const localStorageUser = localStorage.getItem('user');
 		if (localStorageUser) setUser(JSON.parse(localStorageUser));
@@ -44,110 +133,18 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		toggleOfflineState: () => setUser((u) => ({ ...u, offline: !user.offline })),
-		setPublishedArticlesData: (publishedArticles: Article[]) => setUser((u) => ({ ...u, publishedArticles })),
-		setDraftArticlesData: (draftArticles: Article[]) => setUser((u) => ({ ...u, draftArticles })),
-		setLikedArticlesData: (likedArticles: Article[]) => setUser((u) => ({ ...u, likedArticles })),
-		addPublishedArticleData: (article: Article) =>
-			setUser((u) => ({ ...u, publishedArticles: [...u.publishedArticles, article] })),
-		addArticleData: (article: Article) => {
-			if (article.Draft) {
-				setUser((u) => ({ ...u, draftArticles: [...u.draftArticles, article] }));
-			} else {
-				setUser((u) => ({ ...u, publishedArticles: [...u.publishedArticles, article] }));
-			}
-		},
-		switchArticleDraftStateData: (articleId: number) => {
-			const draftArticle = user.draftArticles.find((a) => a.Id === articleId);
-			const publishedArticle = user.publishedArticles.find((a) => a.Id === articleId);
-			if (draftArticle) {
-				setUser((u) => ({
-					...u,
-					draftArticles: [...u.draftArticles.filter((a) => a.Id !== articleId)],
-					publishedArticles: [...u.publishedArticles, draftArticle],
-				}));
-			}
-			if (publishedArticle) {
-				setUser((u) => ({
-					...u,
-					draftArticles: [...u.draftArticles, publishedArticle],
-					publishedArticles: [...u.publishedArticles.filter((a) => a.Id !== articleId)],
-				}));
-			}
-		},
-		deleteArticleData: (articleId: number) => {
-			const draftArticle = user.draftArticles.find((a) => a.Id === articleId);
-			const publishedArticle = user.publishedArticles.find((a) => a.Id === articleId);
-			if (draftArticle) {
-				setUser((u) => ({
-					...u,
-					draftArticles: [...u.draftArticles.filter((a) => a.Id !== articleId)],
-				}));
-			}
-			if (publishedArticle) {
-				setUser((u) => ({
-					...u,
-					publishedArticles: [...u.publishedArticles.filter((a) => a.Id !== articleId)],
-				}));
-			}
-		},
-		likeArticleData: (article: Article) => setUser((u) => ({ ...u, likedArticles: [...u.likedArticles, article] })),
-		unlikeArticleData: (articleId: number) =>
-			setUser((u) => ({ ...u, likedArticles: u.likedArticles.filter((a) => a.Id !== articleId) })),
-		setBookmarksData: (bookmarks: Bookmark[]) => setUser((u) => ({ ...u, bookmarks })),
-		addBookmarkData: (bookmark: Bookmark) => setUser((u) => ({ ...u, bookmarks: [...u.bookmarks, bookmark] })),
-		updateBookmarkData({ bookmarkId, title, description }: { bookmarkId: number; title: string; description: string }) {
-			setUser((u) => ({
-				...u,
-				bookmarks: [
-					...u.bookmarks.map((b) => {
-						if (b.Id === bookmarkId) {
-							b.Title = title;
-							b.Description = description;
-						}
-						return b;
-					}),
-				],
-			}));
-		},
-		deleteBookmarkData: (bookmarkId: number) =>
-			setUser((u) => ({ ...u, bookmarks: [...u.bookmarks.filter((b) => b.Id !== bookmarkId)] })),
-		addArticleToBookmarkData: (bookmarkId: number, articleId: number) =>
-			setUser((u) => ({
-				...u,
-				bookmarks: user.bookmarks.map((b) => {
-					if (b.Id === bookmarkId) {
-						b.Articles = [...b.Articles, articleId];
-					}
-					return b;
-				}),
-			})),
 
-		getPublishedArticles: async () => {
+		getArticles: async () => {
 			if (user.offline) {
-				throw new Error('getPublishedArticles IPFS TODO');
+				throw new Error('Action not available using IPFS.');
 			}
 			return handleRequest({
 				request: async () => {
 					const res = await services.articles.me({ token: auth.accessToken! });
-					// TODO: vérifier qu'il ne faut pas trier "res.data.filter((a) => a.Draft === false"
-					userContextValue.setPublishedArticlesData(res.data);
+					setArticlesData(res.data);
 					return res;
 				},
-				requestName: 'getPublishedArticles',
-			});
-		},
-		getDraftArticles: async () => {
-			if (user.offline) {
-				throw new Error('getDraftArticles IPFS TODO');
-			}
-			return handleRequest({
-				request: async () => {
-					const res = await services.articles.me({ token: auth.accessToken! });
-					// TODO: vérifier qu'il ne faut pas trier "res.data.filter((a) => a.Draft === true"
-					userContextValue.setDraftArticlesData(res.data);
-					return res;
-				},
-				requestName: 'getDraftArticles',
+				requestName: 'getArticles',
 			});
 		},
 		getLikedArticles: async () => {
@@ -157,7 +154,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			return handleRequest({
 				request: async () => {
 					const res = await services.articles.liked({ token: auth.accessToken! });
-					userContextValue.setLikedArticlesData(res.data);
+					setLikedArticlesData(res.data);
 					return res;
 				},
 				requestName: 'getLikedArticles',
@@ -165,7 +162,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 		},
 		getArticle: async (articleId: number) => {
 			if (user.offline) {
-				throw new Error('getArticle IPFS TODO');
+				throw new Error('');
 			}
 			return handleRequest({
 				request: async () => {
@@ -173,6 +170,19 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 					return res;
 				},
 				requestName: 'getArticle',
+			});
+		},
+		getBookmarks: async () => {
+			if (user.offline) {
+				throw new Error('getBookmarks IPFS TODO');
+			}
+			return handleRequest({
+				request: async () => {
+					const res = await services.bookmarks.getAll({ token: auth.accessToken! });
+					setBookmarksData(res.data);
+					return res;
+				},
+				requestName: 'getBookmarks',
 			});
 		},
 		getBookmark: async (bookmarkId: number) => {
@@ -204,7 +214,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			return handleRequest({
 				request: async () => {
 					const res = await services.articles.publish({ token: auth.accessToken!, title, topic, content, draft });
-					userContextValue.addArticleData(res.data);
+					addArticleData(res.data);
 					return res;
 				},
 				requestName: 'addArticle',
@@ -222,7 +232,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 						articleId,
 						state: !currentDraftState,
 					});
-					userContextValue.switchArticleDraftStateData(articleId);
+					switchArticleDraftStateData(articleId);
 					return res;
 				},
 				requestName: 'switchArticleDraftState',
@@ -235,10 +245,10 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			return handleRequest({
 				request: async () => {
 					const res = await services.articles.delete({ token: auth.accessToken!, articleId });
-					userContextValue.deleteArticleData(articleId);
+					deleteArticleData(articleId);
 					return res;
 				},
-				requestName: 'deletePublishedArticle',
+				requestName: 'deleteArticle',
 			});
 		},
 		likeArticle: async (articleId: number) => {
@@ -248,7 +258,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			return handleRequest({
 				request: async () => {
 					const res = await services.articles.like({ token: auth.accessToken!, articleId });
-					userContextValue.likeArticleData(res.data);
+					likeArticleData(res.data);
 					return res;
 				},
 				requestName: 'likeArticle',
@@ -261,23 +271,10 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			return handleRequest({
 				request: async () => {
 					const res = await services.articles.unlike({ token: auth.accessToken!, articleId });
-					userContextValue.unlikeArticleData(articleId);
+					unlikeArticleData(articleId);
 					return res;
 				},
 				requestName: 'unlikeArticle',
-			});
-		},
-		getBookmarks: async () => {
-			if (user.offline) {
-				throw new Error('getBookmarks IPFS TODO');
-			}
-			return handleRequest({
-				request: async () => {
-					const res = await services.bookmarks.getAll({ token: auth.accessToken! });
-					userContextValue.setBookmarksData(res.data);
-					return res;
-				},
-				requestName: 'getBookmarks',
 			});
 		},
 		addBookmark: ({ title, description }: { title: string; description: string }) => {
@@ -287,7 +284,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			return handleRequest({
 				request: async () => {
 					const res = await services.bookmarks.create({ token: auth.accessToken!, title, description });
-					userContextValue.addBookmarkData(res.data);
+					addBookmarkData(res.data);
 					return res;
 				},
 				requestName: 'addBookmark',
@@ -308,7 +305,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			return handleRequest({
 				request: async () => {
 					const res = await services.bookmarks.update({ token: auth.accessToken!, bookmarkId, title, description });
-					userContextValue.updateBookmarkData({ bookmarkId, title, description });
+					updateBookmarkData({ bookmarkId, title, description });
 					return res;
 				},
 				requestName: 'updateBookmark',
@@ -321,7 +318,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			return handleRequest({
 				request: async () => {
 					const res = services.bookmarks.delete({ token: auth.accessToken!, bookmarkId });
-					userContextValue.deleteBookmarkData(bookmarkId);
+					deleteBookmarkData(bookmarkId);
 					return res;
 				},
 				requestName: 'deleteBookmark',
@@ -338,7 +335,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 						bookmarkId,
 						articleId,
 					});
-					userContextValue.addArticleToBookmarkData(bookmarkId, articleId);
+					addArticleToBookmarkData(bookmarkId, articleId);
 					return res;
 				},
 				requestName: 'addArticleToBookmark',

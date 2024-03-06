@@ -15,161 +15,91 @@ import {
 	Text,
 	VStack,
 	useDisclosure,
-	useToast,
 } from '@chakra-ui/react';
 import { AddIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons';
 
 import { useAuthContext } from 'contexts/auth';
 import { useUserContext } from 'contexts/user';
+import { useUIContext } from 'contexts/ui';
 import { Article } from 'types/article';
+import frenchDate from 'utils/frenchDate';
 
 const ArticlePage = (): JSX.Element => {
-	const toast = useToast();
 	const navigate = useNavigate();
 	const { articleId } = useParams();
 	const { auth } = useAuthContext();
+	const { requestResponseToast } = useUIContext();
 	const { user, addArticleToBookmark, getArticle, getBookmarks, getLikedArticles, likeArticle, unlikeArticle } =
 		useUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [article, setArticle] = useState<Article | undefined>(undefined);
 	const [isLiked, setIsLiked] = useState(false);
 
-	const frenchDate = (date: Date) => {
-		const mois = [
-			'Janvier',
-			'Février',
-			'Mars',
-			'Avril',
-			'Mai',
-			'Juin',
-			'Juillet',
-			'Août',
-			'Septembre',
-			'Octobre',
-			'Novembre',
-			'Décembre',
-		];
-
-		const year = date.getFullYear();
-		const dayNumber = date.getDate();
-		const month = mois[date.getMonth()];
-		const weekday = date.toLocaleDateString('fr-FR', { weekday: 'long' });
-
-		const capitalize = (word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-		return `${capitalize(weekday)}, le ${dayNumber} ${month} ${year}`;
-	};
-
 	const uiGetArticle = async () => {
 		try {
 			const res = await getArticle(+articleId!);
-			if (res.status !== 'success') {
-				console.log(res);
-				toast({
-					status: res.status,
-					title: res.message,
-					description: res.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-				if (res.code === 404) {
-					navigate('/favoris');
-				}
-			} else {
+			requestResponseToast(res);
+			if (res.code === 404) {
+				navigate('/favoris');
+			} else if (res.status === 'success') {
 				setArticle(res.data);
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	const uiGetLikedArticles = async () => {
 		try {
 			const res = await getLikedArticles();
-			if (res.status !== 'success') {
-				toast({
-					status: res.status,
-					title: res.message,
-					description: res.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-			}
+			requestResponseToast(res);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	const uiLikeArticle = async () => {
 		try {
 			const res = await likeArticle(+articleId!);
-			if (res.status !== 'success') {
-				toast({
-					status: res.status,
-					title: res.message,
-					description: res.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-			} else {
+			requestResponseToast(res);
+			if (res.status === 'success') {
 				setIsLiked(true);
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	const uiUnlikeArticle = async () => {
 		try {
 			const res = await unlikeArticle(+articleId!);
-			if (res.status !== 'success') {
-				toast({
-					status: res.status,
-					title: res.message,
-					description: res.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-			} else {
+			requestResponseToast(res);
+			if (res.status === 'success') {
 				setIsLiked(false);
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	const uiGetBookmarks = async () => {
 		try {
 			const res = await getBookmarks();
-			if (res.status !== 'success') {
-				toast({
-					status: res.status,
-					title: res.message,
-					description: res.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-			}
+			requestResponseToast(res);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	const uiAddArticleToBookmark = async (bookmarkId: number) => {
 		try {
 			const res = await addArticleToBookmark(bookmarkId, +articleId!);
-			if (res.status !== 'success') {
-				toast({
-					status: res.status,
-					title: res.message,
-					description: res.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-			} else {
+			requestResponseToast(res);
+			if (res.status === 'success') {
 				onClose();
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 

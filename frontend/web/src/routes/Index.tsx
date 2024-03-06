@@ -19,33 +19,36 @@ import Statistiques from 'pages/Statistiques';
 import Reglages from 'pages/Reglages';
 import AuthProvider from 'providers/Auth';
 import IpfsProvider from 'providers/Ipfs';
+import UIProvider from 'providers/UI';
 
 const Routes = (): JSX.Element => (
 	<BrowserRouter>
-		<IpfsProvider>
-			<AuthProvider>
-				<RouterRoutes>
-					<Route path="/" element={<AuthRoute />}>
-						<Route path="/" element={<HomePage />} />
-						<Route path="/inscription" element={<InscriptionPage />} />
-						<Route path="/connexion" element={<ConnexionPage />} />
-					</Route>
-					<Route path="/" element={<PrivateRoute />}>
-						<Route path="/favoris" element={<Favoris />} />
-						<Route path="/articles/:articleId" element={<Article />} />
-						<Route path="/marque-pages" element={<MarquePages />} />
-						<Route path="/nouveautes" element={<Nouveautes />} />
-						<Route path="/decouvertes" element={<Decouvertes />} />
-						<Route path="/nouvel-article" element={<NouvelArticle />} />
-						<Route path="/publications" element={<Publications />} />
-						<Route path="/brouillons" element={<Brouillons />} />
-						<Route path="/statistiques" element={<Statistiques />} />
-						<Route path="/reglages" element={<Reglages />} />
-					</Route>
-					<Route path="*" element={<Navigate replace to="/favoris" />} />
-				</RouterRoutes>
-			</AuthProvider>
-		</IpfsProvider>
+		<UIProvider>
+			<IpfsProvider>
+				<AuthProvider>
+					<RouterRoutes>
+						<Route path="/" element={<AuthRoute />}>
+							<Route path="/" element={<HomePage />} />
+							<Route path="/inscription" element={<InscriptionPage />} />
+							<Route path="/connexion" element={<ConnexionPage />} />
+						</Route>
+						<Route path="/" element={<PrivateRoute />}>
+							<Route path="/favoris" element={<Favoris />} />
+							<Route path="/articles/:articleId" element={<Article />} />
+							<Route path="/marque-pages" element={<MarquePages />} />
+							<Route path="/nouveautes" element={<Nouveautes />} />
+							<Route path="/decouvertes" element={<Decouvertes />} />
+							<Route path="/nouvel-article" element={<NouvelArticle />} />
+							<Route path="/publications" element={<Publications />} />
+							<Route path="/brouillons" element={<Brouillons />} />
+							<Route path="/statistiques" element={<Statistiques />} />
+							<Route path="/reglages" element={<Reglages />} />
+						</Route>
+						<Route path="*" element={<Navigate replace to="/favoris" />} />
+					</RouterRoutes>
+				</AuthProvider>
+			</IpfsProvider>
+		</UIProvider>
 	</BrowserRouter>
 );
 

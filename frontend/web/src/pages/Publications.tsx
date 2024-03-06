@@ -1,69 +1,50 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { CircularProgress, Grid, GridItem, HStack, Tag, Tooltip, VStack, useToast } from '@chakra-ui/react';
+import { CircularProgress, Grid, GridItem, HStack, Tag, Tooltip, VStack } from '@chakra-ui/react';
 import { DeleteIcon, ViewOffIcon } from '@chakra-ui/icons';
 
 import { useAuthContext } from 'contexts/auth';
 import { useUserContext } from 'contexts/user';
+import { useUIContext } from 'contexts/ui';
 import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
 
 const Publications = (): JSX.Element => {
 	const [search, setSearch] = useState('');
-	const toast = useToast();
 	const { auth } = useAuthContext();
-	const { user, switchArticleDraftState, deleteArticle, getPublishedArticles } = useUserContext();
+	const { requestResponseToast } = useUIContext();
+	const { user, switchArticleDraftState, deleteArticle, getArticles } = useUserContext();
 
-	const uiGetPublishedArticles = async () => {
+	const uiGetArticles = async () => {
 		try {
-			const res = await getPublishedArticles();
-			if (res.status !== 'success') {
-				toast({
-					status: res.status,
-					title: res.message,
-					description: res.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-			}
+			const res = await getArticles();
+			requestResponseToast(res);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	const uiDeleteArticle = async (articleId: number) => {
 		try {
 			const res = await deleteArticle(articleId);
-			toast({
-				status: res.status,
-				title: res.message,
-				description: res.subMessage,
-				duration: 5000,
-				isClosable: true,
-			});
+			requestResponseToast(res, true);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	const uiSwitchArticleDraftState = async (articleId: number) => {
 		try {
 			const res = await switchArticleDraftState(articleId);
-			toast({
-				status: res.status,
-				title: res.message,
-				description: res.subMessage,
-				duration: 5000,
-				isClosable: true,
-			});
+			requestResponseToast(res, true);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	useEffect(() => {
 		if (auth.accessToken) {
-			uiGetPublishedArticles();
+			uiGetArticles();
 		}
 	}, [auth]);
 

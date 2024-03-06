@@ -18,18 +18,18 @@ import {
 	Tooltip,
 	VStack,
 	useDisclosure,
-	useToast,
 } from '@chakra-ui/react';
 import { AddIcon, CloseIcon } from '@chakra-ui/icons';
 
 import { useAuthContext } from 'contexts/auth';
 import { useUserContext } from 'contexts/user';
+import { useUIContext } from 'contexts/ui';
 import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
 
 const Favoris = (): JSX.Element => {
-	const toast = useToast();
 	const { auth } = useAuthContext();
+	const { requestResponseToast } = useUIContext();
 	const { user, addArticleToBookmark, getLikedArticles, getBookmarks, unlikeArticle } = useUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [search, setSearch] = useState('');
@@ -38,71 +38,40 @@ const Favoris = (): JSX.Element => {
 	const uiGetLikedArticles = async () => {
 		try {
 			const res = await getLikedArticles();
-			if (res.status !== 'success') {
-				toast({
-					status: res.status,
-					title: res.message,
-					description: res.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-			}
+			requestResponseToast(res);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	const uiUnlikeArticle = async (articleId: number) => {
 		try {
 			const res = await unlikeArticle(articleId);
-			if (res.status !== 'success') {
-				toast({
-					status: res.status,
-					title: res.message,
-					description: res.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-			}
+			requestResponseToast(res, true);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	const uiGetBookmarks = async () => {
 		try {
 			const res = await getBookmarks();
-			if (res.status !== 'success') {
-				toast({
-					status: res.status,
-					title: res.message,
-					description: res.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-			}
+			requestResponseToast(res);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	const uiAddArticleToBookmark = async (bookmarkId: number) => {
 		try {
 			const res = await addArticleToBookmark(bookmarkId, articleToAdd!);
-			if (res.status !== 'success') {
-				toast({
-					status: res.status,
-					title: res.message,
-					description: res.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-			} else {
+			requestResponseToast(res);
+			if (res.status === 'success') {
 				onClose();
 				setArticleToAdd(undefined);
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 

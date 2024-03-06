@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { Button, HStack, Input, Stack, Textarea, VStack, useToast } from '@chakra-ui/react';
+import { Button, HStack, Input, Stack, Textarea, VStack } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 
 import { useUserContext } from 'contexts/user';
+import { useUIContext } from 'contexts/ui';
 
 const NouvelArticle = (): JSX.Element => {
-	const toast = useToast();
 	const navigate = useNavigate();
 	const { addArticle } = useUserContext();
+	const { requestResponseToast } = useUIContext();
 	const [title, setTitle] = useState('');
 	const [topic, setTopic] = useState('');
 	const [content, setContent] = useState('');
@@ -16,36 +17,24 @@ const NouvelArticle = (): JSX.Element => {
 	const uiAddPublishedArticle = async () => {
 		try {
 			const res = await addArticle({ title, topic, content, draft: false });
-			toast({
-				status: res.status,
-				title: res.message,
-				description: res.subMessage,
-				duration: 5000,
-				isClosable: true,
-			});
+			requestResponseToast(res, true);
 			if (res.status === 'success') {
 				navigate(`/articles/${res.data!.Id}`);
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	const uiAddDraftArticle = async () => {
 		try {
 			const res = await addArticle({ title, topic, content, draft: true });
-			toast({
-				status: res.status,
-				title: res.message,
-				description: res.subMessage,
-				duration: 5000,
-				isClosable: true,
-			});
+			requestResponseToast(res, true);
 			if (res.status === 'success') {
 				navigate(`/brouillons`);
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 

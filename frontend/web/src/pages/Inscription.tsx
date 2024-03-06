@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Button, Link, useToast } from '@chakra-ui/react';
+import { Button, Link } from '@chakra-ui/react';
 import { Link as RouteLink } from 'react-router-dom';
 
 import { useAuthContext } from 'contexts/auth';
+import { useUIContext } from 'contexts/ui';
 import FormInput from 'components/Inputs/FormInput';
 import PwdInput from 'components/Inputs/PwdInput';
+import emailRegex from 'utils/emailRegex';
 
 const Inscription = (): JSX.Element => {
-	const emailRegex = new RegExp(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/);
-
-	const toast = useToast();
 	const { register, login } = useAuthContext();
+	const { requestResponseToast } = useUIContext();
 	const [email, setEmail] = useState('');
 	const [username, setUsername] = useState('');
 	const [pwd, setPwd] = useState('');
@@ -29,28 +29,13 @@ const Inscription = (): JSX.Element => {
 	const inscription = async () => {
 		try {
 			const registerRes = await register({ email, password: pwd, username });
-			if (registerRes.status !== 'success') {
-				toast({
-					status: registerRes.status,
-					title: registerRes.message,
-					description: registerRes.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-			} else {
+			requestResponseToast(registerRes);
+			if (registerRes.status === 'success') {
 				const loginRes = await login({ email, password: pwd });
-				if (loginRes.status !== 'success') {
-					toast({
-						status: loginRes.status,
-						title: loginRes.message,
-						description: loginRes.subMessage,
-						duration: 5000,
-						isClosable: true,
-					});
-				}
+				requestResponseToast(loginRes);
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 

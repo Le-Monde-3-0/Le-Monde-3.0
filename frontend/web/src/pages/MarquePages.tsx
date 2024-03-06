@@ -22,18 +22,18 @@ import {
 	Tooltip,
 	VStack,
 	useDisclosure,
-	useToast,
 } from '@chakra-ui/react';
 import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
 import { useAuthContext } from 'contexts/auth';
 import { useUserContext } from 'contexts/user';
+import { useUIContext } from 'contexts/ui';
 import SearchInput from 'components/Inputs/SearchInput';
 
 const MarquePages = (): JSX.Element => {
-	const toast = useToast();
 	const navigate = useNavigate();
 	const { auth } = useAuthContext();
+	const { requestResponseToast } = useUIContext();
 	const { user, addBookmark, deleteBookmark, getBookmarks, updateBookmark } = useUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [search, setSearch] = useState('');
@@ -45,65 +45,39 @@ const MarquePages = (): JSX.Element => {
 	const uiGetBookmarks = async () => {
 		try {
 			const res = await getBookmarks();
-			if (res.status !== 'success') {
-				toast({
-					status: res.status,
-					title: res.message,
-					description: res.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-			}
+			requestResponseToast(res);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	const uiCreateBookmark = async () => {
 		try {
 			const res = await addBookmark({ title, description });
-			toast({
-				status: res.status,
-				title: res.message,
-				description: res.subMessage,
-				duration: 5000,
-				isClosable: true,
-			});
+			requestResponseToast(res, true);
 			if (res.status === 'success') {
 				onClose();
 				setTitle('');
 				setDescription('');
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	const uiDeleteBookmark = async (bookmarkId: number) => {
 		try {
 			const res = await deleteBookmark(bookmarkId);
-			toast({
-				status: res.status,
-				title: res.message,
-				description: res.subMessage,
-				duration: 5000,
-				isClosable: true,
-			});
+			requestResponseToast(res, true);
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
 	const uiUpdateBookmark = async (bookmarkId: number) => {
 		try {
 			const res = await updateBookmark({ bookmarkId, title, description });
-			toast({
-				status: res.status,
-				title: res.message,
-				description: res.subMessage,
-				duration: 5000,
-				isClosable: true,
-			});
+			requestResponseToast(res, true);
 			if (res.status === 'success') {
 				onClose();
 				setTitle('');
@@ -112,7 +86,7 @@ const MarquePages = (): JSX.Element => {
 				setBookmarkIdToUpdate(undefined);
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 

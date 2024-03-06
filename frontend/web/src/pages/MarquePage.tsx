@@ -1,17 +1,18 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CircularProgress, Tag, VStack, useToast } from '@chakra-ui/react';
+import { CircularProgress, Tag, VStack } from '@chakra-ui/react';
 
 import { useAuthContext } from 'contexts/auth';
 import { useUserContext } from 'contexts/user';
+import { useUIContext } from 'contexts/ui';
 import SearchInput from 'components/Inputs/SearchInput';
 import { Bookmark } from 'types/bookmark';
 
 const MarquePage = (): JSX.Element => {
-	const toast = useToast();
 	const navigate = useNavigate();
 	const { auth } = useAuthContext();
+	const { requestResponseToast } = useUIContext();
 	const { getBookmark } = useUserContext();
 	const { bookmarkId } = useParams();
 	const [search, setSearch] = useState('');
@@ -20,22 +21,14 @@ const MarquePage = (): JSX.Element => {
 	const uiGetBookmark = async () => {
 		try {
 			const res = await getBookmark(+bookmarkId!);
-			if (res.status !== 'success') {
-				toast({
-					status: res.status,
-					title: res.message,
-					description: res.subMessage,
-					duration: 5000,
-					isClosable: true,
-				});
-				if (res.code === 404) {
-					navigate('/marque-pages');
-				}
-			} else {
+			requestResponseToast(res);
+			if (res.code === 404) {
+				navigate('/marque-pages');
+			} else if (res.status === 'success') {
 				setBookmark(res.data);
 			}
 		} catch (error) {
-			console.log(error);
+			console.error(error);
 		}
 	};
 
