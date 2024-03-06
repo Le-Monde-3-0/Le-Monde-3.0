@@ -9,7 +9,6 @@ type UserContextType = {
 	// Data stored
 	//
 	user: {
-		offline: boolean; // false: fetch data via backend; true: fetch data via IPFS
 		draftArticles: Article[];
 		publishedArticles: Article[];
 		likedArticles: Article[];
@@ -20,7 +19,6 @@ type UserContextType = {
 	// Methods to manipulate data stored
 	//
 	clearUser: () => void;
-	toggleOfflineState: () => void;
 
 	//
 	// Methods to interact with the services

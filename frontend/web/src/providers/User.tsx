@@ -6,17 +6,19 @@ import { Article } from 'types/article';
 import { Bookmark } from 'types/bookmark';
 import handleRequest from 'utils/handleRequest';
 import services from 'services';
+import loadFromLocalStorage from 'utils/loadFromLocalStorage';
 
 const UserProvider = ({ children }: { children: JSX.Element }) => {
 	const { auth } = useAuthContext();
 
-	const [user, setUser] = useState<UserContextType['user']>({
-		offline: false,
-		draftArticles: [],
-		publishedArticles: [],
-		likedArticles: [],
-		bookmarks: [],
-	});
+	const [user, setUser] = useState<UserContextType['user']>(
+		loadFromLocalStorage<UserContextType['user']>('user', {
+			draftArticles: [],
+			publishedArticles: [],
+			likedArticles: [],
+			bookmarks: [],
+		}),
+	);
 
 	const setArticlesData = (articles: Article[]) =>
 		setUser((u) => ({
@@ -113,7 +115,6 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 	}, []);
 
 	useEffect(() => {
-		// TODO: verify that this condition is enough
 		if (user) {
 			localStorage.setItem('user', JSON.stringify(user));
 		}
@@ -125,17 +126,15 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 		clearUser: () => {
 			localStorage.removeItem('user');
 			setUser({
-				offline: false,
 				draftArticles: [],
 				publishedArticles: [],
 				likedArticles: [],
 				bookmarks: [],
 			});
 		},
-		toggleOfflineState: () => setUser((u) => ({ ...u, offline: !user.offline })),
 
 		getArticles: async () => {
-			if (user.offline) {
+			if (auth.offline) {
 				throw new Error('Action not available using IPFS.');
 			}
 			return handleRequest({
@@ -148,7 +147,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		getLikedArticles: async () => {
-			if (user.offline) {
+			if (auth.offline) {
 				throw new Error('getLikedArticles IPFS TODO');
 			}
 			return handleRequest({
@@ -161,7 +160,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		getArticle: async (articleId: number) => {
-			if (user.offline) {
+			if (auth.offline) {
 				throw new Error('');
 			}
 			return handleRequest({
@@ -173,7 +172,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		getBookmarks: async () => {
-			if (user.offline) {
+			if (auth.offline) {
 				throw new Error('getBookmarks IPFS TODO');
 			}
 			return handleRequest({
@@ -186,7 +185,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		getBookmark: async (bookmarkId: number) => {
-			if (user.offline) {
+			if (auth.offline) {
 				throw new Error('getBookmark IPFS TODO');
 			}
 			return handleRequest({
@@ -208,7 +207,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			content: string;
 			draft: boolean;
 		}) => {
-			if (user.offline) {
+			if (auth.offline) {
 				throw new Error('addPublishedArticle');
 			}
 			return handleRequest({
@@ -221,7 +220,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		switchArticleDraftState: async (articleId: number) => {
-			if (user.offline) {
+			if (auth.offline) {
 				throw new Error('switchArticleDraftState IPFS TODO');
 			}
 			return handleRequest({
@@ -239,7 +238,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		deleteArticle: async (articleId: number) => {
-			if (user.offline) {
+			if (auth.offline) {
 				throw new Error('deletePublishedArticle IPFS TODO');
 			}
 			return handleRequest({
@@ -252,7 +251,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		likeArticle: async (articleId: number) => {
-			if (user.offline) {
+			if (auth.offline) {
 				throw new Error('likeArticles IPFS TODO');
 			}
 			return handleRequest({
@@ -265,7 +264,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		unlikeArticle: async (articleId: number) => {
-			if (user.offline) {
+			if (auth.offline) {
 				throw new Error('unlikeArticles IPFS TODO');
 			}
 			return handleRequest({
@@ -278,7 +277,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		addBookmark: ({ title, description }: { title: string; description: string }) => {
-			if (user.offline) {
+			if (auth.offline) {
 				throw new Error('addBookmark IPFS TODO');
 			}
 			return handleRequest({
@@ -299,7 +298,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			title: string;
 			description: string;
 		}) => {
-			if (user.offline) {
+			if (auth.offline) {
 				throw new Error('updateBookmark IPFS TODO');
 			}
 			return handleRequest({
@@ -312,7 +311,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		deleteBookmark: (bookmarkId: number) => {
-			if (user.offline) {
+			if (auth.offline) {
 				throw new Error('deleteBookmark IPFS TODO');
 			}
 			return handleRequest({
@@ -325,7 +324,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 		addArticleToBookmark: async (bookmarkId: number, articleId: number) => {
-			if (user.offline) {
+			if (auth.offline) {
 				throw new Error('addArticleToBookmark IPFS TODO');
 			}
 			return handleRequest({

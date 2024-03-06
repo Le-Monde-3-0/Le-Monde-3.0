@@ -1,33 +1,23 @@
 import * as React from 'react';
-import { useEffect } from 'react';
-import { Button, Link } from '@chakra-ui/react';
-import { Link as RouteLink } from 'react-router-dom';
-import { useIpfsContext } from 'contexts/ipfs';
+import { Button, Link, Text } from '@chakra-ui/react';
+import { Link as RouteLink, useNavigate } from 'react-router-dom';
+
+import { useAuthContext } from 'contexts/auth';
 
 const Home = (): JSX.Element => {
-	const { config, setGateway, getIPFSFile } = useIpfsContext();
+	const { toggleOfflineState } = useAuthContext();
+	const navigate = useNavigate();
 
-	const testIPFS = async () => {
-		console.log('-- TEST IPFS --');
-		// const cid = 'QmSMtVRQMHn2zek3UoH2NWfqxk5NKdfHgcSbTbanLif5FU';
-		const cid = 'QmP8jTG1m9GSDJLCbeWhVSVgEzCPPwXRdCRuJtQ5Tz9Kc9';
-		try {
-			const file = await getIPFSFile(cid);
-			console.log(file);
-		} catch (error) {
-			console.error(error);
-		}
-		console.log('---------------');
+	const enterOfflineMode = async () => {
+		toggleOfflineState();
+		navigate('/ipfs-config');
 	};
-
-	useEffect(() => {
-		if (config.gateway === undefined) {
-			setGateway('http://localhost:8080');
-		}
-	}, []);
 
 	return (
 		<>
+			<Text>
+				Utilisez Le Monde 3.0 <b>en ligne</b> pour publier des articles.
+			</Text>
 			<Link as={RouteLink} to="/connexion" w="100%">
 				<Button id="home-connexion-btn" variant="primary-yellow">
 					Connexion
@@ -38,8 +28,12 @@ const Home = (): JSX.Element => {
 					Inscription
 				</Button>
 			</Link>
-			<Button onClick={testIPFS} variant="primary-purple">
-				Test IPFS
+			<br />
+			<Text>
+				Utilisez Le Monde 3.0 <b>hors ligne</b> pour lire dans un État censuré.
+			</Text>
+			<Button onClick={enterOfflineMode} variant="primary-purple">
+				Mode hors ligne
 			</Button>
 		</>
 	);

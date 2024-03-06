@@ -9,6 +9,7 @@ type AuthContextType = {
 	//
 	auth: {
 		accessToken: string | undefined;
+		offline: boolean;
 	};
 
 	//
@@ -16,6 +17,7 @@ type AuthContextType = {
 	//
 	clearAuth: () => void;
 	setAccessToken: (accessToken: string) => void;
+	toggleOfflineState: () => void;
 
 	//
 	// Methods to interact with the services

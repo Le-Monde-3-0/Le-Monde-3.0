@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 import IpfsContext, { IpfsContextType } from 'contexts/ipfs';
+import loadFromLocalStorage from 'utils/loadFromLocalStorage';
 
 const IpfsProvider = ({ children }: { children: JSX.Element }) => {
-	const [config, setConfig] = useState<IpfsContextType['config']>({
-		gateway: undefined,
-	});
+	const [config, setConfig] = useState<IpfsContextType['config']>(
+		loadFromLocalStorage<IpfsContextType['config']>('ipfs', {
+			gateway: undefined,
+		}),
+	);
 
 	useEffect(() => {
 		const localStorageIpfs = localStorage.getItem('ipfs');
