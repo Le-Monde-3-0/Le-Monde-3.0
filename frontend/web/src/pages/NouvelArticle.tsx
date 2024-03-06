@@ -1,95 +1,40 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { Button, HStack, Input, Stack, Textarea, VStack, useToast } from '@chakra-ui/react';
+import { Button, HStack, Input, Stack, Textarea, VStack } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 
-import services from 'services';
-import { useAuthContext } from 'contexts/auth';
-import { AxiosError } from 'axios';
+import { useUserContext } from 'contexts/user';
+import { useUIContext } from 'contexts/ui';
 
 const NouvelArticle = (): JSX.Element => {
-	const toast = useToast();
 	const navigate = useNavigate();
-	const { auth } = useAuthContext();
+	const { addArticle } = useUserContext();
+	const { requestResponseToast } = useUIContext();
 	const [title, setTitle] = useState('');
 	const [topic, setTopic] = useState('');
 	const [content, setContent] = useState('');
 
-	const createArticle = async () => {
+	const uiAddPublishedArticle = async () => {
 		try {
-			const res = await services.articles.publish({ token: auth.accessToken!, title, topic, content });
-			console.log(res.data);
-			toast({
-				title: 'Votre article a été publié !',
-				description: 'Nous vous avons redirigé vers votre nouvelle publication.',
-				status: 'success',
-				duration: 9000,
-				isClosable: true,
-			});
-			navigate(`/articles/${res.data.Id}`);
-		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					if (status === 400) {
-						toast({
-							title: 'Paramètres invalides.',
-							description: 'Veuillez en renseigner de nouveaux.',
-							status: 'error',
-							duration: 9000,
-							isClosable: true,
-						});
-					}
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
+			const res = await addArticle({ title, topic, content, draft: false });
+			requestResponseToast(res, true);
+			if (res.status === 'success') {
+				navigate(`/articles/${res.data!.Id}`);
 			}
+		} catch (error) {
+			console.error(error);
 		}
 	};
 
-	const createDraftArticle = async () => {
+	const uiAddDraftArticle = async () => {
 		try {
-			const res = await services.articles.publish({ token: auth.accessToken!, title, topic, content, draft: true });
-			console.log(res.data);
-			toast({
-				title: 'Votre article a été sauvegardé !',
-				description: 'Nous vous avons redirigé vers vos brouillons.',
-				status: 'success',
-				duration: 9000,
-				isClosable: true,
-			});
-			navigate(`/brouillons`);
-		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					if (status === 400) {
-						toast({
-							title: 'Paramètres invalides.',
-							description: 'Veuillez en renseigner de nouveaux.',
-							status: 'error',
-							duration: 9000,
-							isClosable: true,
-						});
-					}
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
+			const res = await addArticle({ title, topic, content, draft: true });
+			requestResponseToast(res, true);
+			if (res.status === 'success') {
+				navigate(`/brouillons`);
 			}
+		} catch (error) {
+			console.error(error);
 		}
 	};
 
@@ -121,7 +66,7 @@ const NouvelArticle = (): JSX.Element => {
 			<Button
 				id="nouvel-article-publish-btn"
 				variant="primary-yellow"
-				onClick={() => createArticle()}
+				onClick={() => uiAddPublishedArticle()}
 				isDisabled={title === '' || topic === '' || content === ''}
 			>
 				Publier
@@ -133,7 +78,7 @@ const NouvelArticle = (): JSX.Element => {
 				<Button
 					id="nouvel-article-save-draft-btn"
 					variant="primary-purple"
-					onClick={() => createDraftArticle()}
+					onClick={() => uiAddDraftArticle()}
 					isDisabled={title === '' || topic === '' || content === ''}
 				>
 					Enregistrer dans les brouillons
