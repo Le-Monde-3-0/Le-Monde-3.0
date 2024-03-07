@@ -70,11 +70,11 @@ const Publications = (): JSX.Element => {
 					variant="primary-1"
 				/>
 				<HStack>
-					<Tag bg="yellow">
+					<Tag bg="primary.yellow">
 						{user.publishedArticles.filter((p) => (search !== '' ? p.Title.includes(search) : true)).length} publication
 						{user.publishedArticles.length !== 1 && 's'}
 					</Tag>
-					<Tag bg="blue">
+					<Tag bg="primary.blue">
 						{user.publishedArticles
 							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
 							.map((p) => p.Likes.length)

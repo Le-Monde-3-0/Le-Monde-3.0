@@ -58,7 +58,7 @@ const MarquePage = (): JSX.Element => {
 				onChange={(e) => setSearch(e.target.value)}
 				variant="primary-1"
 			/>
-			<Tag bg="yellow">
+			<Tag bg="primary.yellow">
 				{bookmark.Articles.length} article
 				{bookmark.Articles.length !== 1 && 's'}
 			</Tag>

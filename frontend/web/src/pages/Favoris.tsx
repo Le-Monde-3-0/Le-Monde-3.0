@@ -103,7 +103,7 @@ const Favoris = (): JSX.Element => {
 					onChange={(e) => setSearch(e.target.value)}
 					variant="primary-1"
 				/>
-				<Tag bg="yellow">
+				<Tag bg="primary.yellow">
 					{user.likedArticles.length} favori
 					{user.likedArticles.length !== 1 && 's'}
 				</Tag>

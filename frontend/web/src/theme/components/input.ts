@@ -7,7 +7,7 @@ const input = {
 				_focus: {
 					border: 'none',
 					outline: 'solid 3px',
-					outlineColor: 'yellow',
+					outlineColor: 'primary.yellow',
 					outlineOffset: '-2px',
 				},
 				borderRadius: 'sm',
