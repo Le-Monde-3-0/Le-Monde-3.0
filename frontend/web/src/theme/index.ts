@@ -4,6 +4,7 @@ import Text from './components/text';
 import Button from './components/button';
 import Input from './components/input';
 import Textarea from './components/textarea';
+import Switch from './components/switch';
 import breakpoints from './foundations/breakpoints';
 import colors from './foundations/colors';
 import fontWeights from './foundations/fontWeights';
@@ -19,6 +20,7 @@ const overrides = {
 		Button,
 		Input,
 		Textarea,
+		Switch,
 	},
 };
 

@@ -1,24 +1,31 @@
 import * as React from 'react';
-import { useEffect } from 'react';
-import { Button, Text } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { Alert, AlertIcon, HStack, Input, Switch, Text, VStack } from '@chakra-ui/react';
 
 import { useIpfsContext } from 'contexts/ipfs';
+import { useAuthContext } from 'contexts/auth';
 
 const IpfsConfig = (): JSX.Element => {
+	const { auth, toggleOfflineState } = useAuthContext();
 	const { config, setGateway, getIPFSFile } = useIpfsContext();
+	const [isGatewayWorking, setIsGatewayWorking] = useState<true | false | 'loading'>(false);
 
-	const testIPFS = async () => {
-		console.log('-- TEST IPFS --');
-		// const cid = 'QmSMtVRQMHn2zek3UoH2NWfqxk5NKdfHgcSbTbanLif5FU';
-		const cid = 'QmP8jTG1m9GSDJLCbeWhVSVgEzCPPwXRdCRuJtQ5Tz9Kc9';
+	const testGateway = async () => {
+		const cid = 'Qmf8e9tCBH62GNKwYc6jypzqf5hcP5L61SMdZVBVFiqSip';
 		try {
-			const file = await getIPFSFile(cid);
+			setIsGatewayWorking('loading');
+			const file = await getIPFSFile<{ message: string }>(cid);
+			setIsGatewayWorking(file.message === 'OK');
 			console.log(file);
 		} catch (error) {
+			setIsGatewayWorking(false);
 			console.error(error);
 		}
-		console.log('---------------');
 	};
+
+	useEffect(() => {
+		testGateway();
+	}, [config.gateway]);
 
 	useEffect(() => {
 		if (config.gateway === undefined) {
@@ -28,8 +35,29 @@ const IpfsConfig = (): JSX.Element => {
 
 	return (
 		<>
-			<Text variant="h5">TODO: /ipfs-config</Text>
-			<Button onClick={testIPFS}>Test IPFS</Button>
+			<VStack align="start" w="100%" spacing="32px">
+				<HStack w="160px" justify="space-between">
+					<Text variant="link">{auth.offline ? 'Hors Ligne' : 'En Ligne'}</Text>
+					<Switch size="lg" defaultChecked={auth.offline} variant="primary" onChange={toggleOfflineState} />
+				</HStack>
+				<VStack align="start" w="100%" maxW="560px">
+					<Text variant="link">Gateway IPFS</Text>
+					<Input
+						variant="primary-1"
+						placeholder="https://ipfs.io"
+						value={config.gateway}
+						onChange={(e) => setGateway(e.target.value)}
+					/>
+					<Alert status={isGatewayWorking === 'loading' ? 'info' : isGatewayWorking ? 'success' : 'error'}>
+						<AlertIcon />
+						{isGatewayWorking === 'loading'
+							? 'Vérification en cours'
+							: isGatewayWorking
+							? 'Gateway fonctionnelle'
+							: 'Gateway non-fonctionnelle'}
+					</Alert>
+				</VStack>
+			</VStack>
 		</>
 	);
 };

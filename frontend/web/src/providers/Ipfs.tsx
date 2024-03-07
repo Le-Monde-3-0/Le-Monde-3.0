@@ -32,14 +32,13 @@ const IpfsProvider = ({ children }: { children: JSX.Element }) => {
 		},
 		setGateway: (gateway: string) => setConfig((c) => ({ ...c, gateway })),
 		getIPFSFile: async (cid: string) => {
-			console.log(`getFile(${cid})`);
 			try {
-				const res = await axios.get(`${config.gateway}/ipfs/${cid}`);
+				console.log(`get IPFS CID: ${cid}`);
+				const res = await axios.get(`${config.gateway}/ipfs/${cid}`, { timeout: 50000 });
 				console.log(res);
-				return JSON.parse('{}');
+				return res.data;
 			} catch (error) {
-				console.error(error);
-				return JSON.parse('{}');
+				throw error;
 			}
 		},
 	};

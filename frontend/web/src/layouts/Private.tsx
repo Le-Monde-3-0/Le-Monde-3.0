@@ -56,14 +56,14 @@ const Option = ({
 			display={isSelected ? 'block' : 'none'}
 			w="8px"
 			h="24px"
-			bg="yellow"
+			bg="primary.yellow"
 			borderRadius="sm"
 		/>
 		<Text
 			variant="link"
 			fontWeight="medium"
 			pl="120px"
-			color={isSelected ? 'yellow !important' : 'white !important'}
+			color={isSelected ? 'primary.yellow !important' : 'white !important'}
 			opacity={isEnable ? '1' : '0.5'}
 		>
 			{name}
@@ -175,7 +175,12 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 					isSelected={location.pathname === '/ipfs-config'}
 					onClick={() => navigate('/ipfs-config')}
 				/>
-				<Option name="Déconnexion" isSelected={location.pathname === '/deconnexion'} onClick={() => clearAuth()} />
+				<Option
+					name="Déconnexion"
+					isSelected={location.pathname === '/deconnexion'}
+					onClick={() => clearAuth()}
+					isEnable={!auth.offline}
+				/>
 			</VStack>
 		</VStack>
 	);

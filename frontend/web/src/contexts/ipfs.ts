@@ -6,7 +6,7 @@ type IpfsContextType = {
 	};
 	clearConfig: () => void;
 	setGateway: (gateway: string) => void;
-	getIPFSFile: (cid: string) => Promise<JSON>;
+	getIPFSFile: <Type>(cid: string) => Promise<Type>;
 };
 
 const IpfsContext = createContext<IpfsContextType | undefined>(undefined);

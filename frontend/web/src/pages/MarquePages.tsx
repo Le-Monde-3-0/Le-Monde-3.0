@@ -122,7 +122,7 @@ const MarquePages = (): JSX.Element => {
 						Nouveau marque-page
 					</Button>
 				</Stack>
-				<Tag bg="yellow">
+				<Tag bg="primary.yellow">
 					{user.bookmarks.filter((b) => (search !== '' ? b.Title.includes(search) : true)).length} marque-page
 					{user.bookmarks.filter((b) => (search !== '' ? b.Title.includes(search) : true)).length !== 1 && 's'}
 				</Tag>

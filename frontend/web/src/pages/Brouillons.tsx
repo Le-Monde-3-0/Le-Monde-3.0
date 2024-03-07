@@ -70,11 +70,11 @@ const Brouillons = (): JSX.Element => {
 					variant="primary-1"
 				/>
 				<HStack>
-					<Tag bg="yellow">
+					<Tag bg="primary.yellow">
 						{user.draftArticles.filter((p) => (search !== '' ? p.Title.includes(search) : true)).length} brouillon
 						{user.draftArticles.length !== 1 && 's'}
 					</Tag>
-					<Tag bg="blue">
+					<Tag bg="primary.blue">
 						{user.draftArticles
 							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
 							.map((p) => p.Likes.length)
