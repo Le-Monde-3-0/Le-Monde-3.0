@@ -187,7 +187,7 @@ func GetLikesInfo(c *gin.Context, logger *zap.Logger) {
 // @Success 200 {object} Article
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
-// @Router /articles [put]
+// @Router /articles/:id [put]
 func EditArticle(c *gin.Context, logger *zap.Logger) {
 	var articlesParams ArticleInput
 

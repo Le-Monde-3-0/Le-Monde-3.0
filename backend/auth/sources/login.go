@@ -7,12 +7,13 @@ import (
 	"gorm.io/gorm"
 	"net/http"
 	"os"
+	"regexp"
 	"time"
 )
 
 type LoginInput struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Identifier string `json:"identifier" binding:"required"`
+	Password   string `json:"password" binding:"required"`
 }
 
 /*
@@ -26,12 +27,7 @@ func Login(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	u := new(User)
-
-	u.Email = input.Email
-	u.Password = input.Password
-
-	token, err := LoginCheck(u.Email, u.Password, db)
+	token, err := LoginCheck(input.Identifier, input.Password, db)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "email or password is incorrect."})
@@ -57,13 +53,17 @@ func GenerateToken(user_id int32) (string, error) {
 /*
 LoginCheck is called in Login to check if the parameters are correct
 */
-func LoginCheck(username string, password string, db *gorm.DB) (string, error) {
+func LoginCheck(identifier string, password string, db *gorm.DB) (string, error) {
 
 	var err error
 
 	u := new(User)
 
-	err = db.Model(User{}).Where("email = ?", username).Take(&u).Error
+	if isEmail(identifier) {
+		err = db.Model(User{}).Where("email = ?", identifier).Take(&u).Error
+	} else {
+		err = db.Model(User{}).Where("username = ?", identifier).Take(&u).Error
+	}
 
 	if err != nil {
 		return "", err
@@ -83,6 +83,14 @@ func LoginCheck(username string, password string, db *gorm.DB) (string, error) {
 
 	return token, nil
 
+}
+
+/*
+isEmail return true if the given string is an email, false otherwise
+*/
+func isEmail(identifier string) bool {
+	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	return emailRegex.MatchString(identifier)
 }
 
 /*
