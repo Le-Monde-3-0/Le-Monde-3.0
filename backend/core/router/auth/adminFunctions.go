@@ -111,7 +111,7 @@ func Login(c *gin.Context, logger *zap.Logger) {
 // @Failure      500  {object}  req.HTTPError
 // @Router /me [get]
 func GetMyInfo(c *gin.Context, logger *zap.Logger) {
-	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://auth-lemonde3-0:8082/me", nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://auth-lemonde3-0:8081/me", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		return

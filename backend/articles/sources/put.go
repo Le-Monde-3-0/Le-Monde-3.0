@@ -36,7 +36,7 @@ func EditArticle(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	result := db.Where(Article{UserId: userId, Id: int32(id)}).Find(&article)
+	result := db.Where(Article{UserId: userId, Id: uint(id)}).Find(&article)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return

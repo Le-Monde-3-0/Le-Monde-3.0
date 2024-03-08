@@ -43,7 +43,7 @@ func GetArticle(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	result := db.Where(Article{Id: int32(id)}).Find(&article)
+	result := db.Where(Article{Id: uint(id)}).Find(&article)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return
@@ -107,7 +107,7 @@ func GetLikesInfo(c *gin.Context, db *gorm.DB) {
 		panic(err)
 	}
 
-	result := db.Where(Article{Id: int32(id)}).Find(&article)
+	result := db.Where(Article{Id: uint(id)}).Find(&article)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": result.Error})

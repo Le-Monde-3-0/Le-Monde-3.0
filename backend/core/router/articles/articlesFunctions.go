@@ -13,7 +13,7 @@ type ArticleInput struct {
 }
 
 type Article struct {
-	Id      int32
+	Id      uint
 	UserId  int32
 	Title   string
 	Content string

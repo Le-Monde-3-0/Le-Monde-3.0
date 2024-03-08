@@ -23,7 +23,7 @@ func ipfsRequest(method string, url string, requestBody interface{}) ([]byte, in
 	}
 
 	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("X-Auth-Token", "69cb409c-7f40-4541-b571-01d788bc4703") // TODO add token
+	request.Header.Set("X-Auth-Token", os.Getenv("X_AUTH_TOKEN"))
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
@@ -53,8 +53,8 @@ func AddInIPFS(article *Article) {
 		fmt.Fprintf(os.Stderr, "error: %s", err)
 		os.Exit(1)
 	}
-	newPin := PinnedArticle{"1e23a02f-622d-41e9-8ac8-823ab335bf33", cid, cid} // TODO add Name choice feature
-	_, _, err = ipfsRequest(http.MethodPost, "https://api.scaleway.com/ipfs/v1alpha1/regions/fr-par/pins/create-by-cid", newPin)
+	newPin := PinnedArticle{os.Getenv("VOLUME_ID"), cid, cid} // TODO add Name choice feature
+	_, _, err = ipfsRequest(http.MethodPost, os.Getenv("SCALEWAY_PINNING_URL"), newPin)
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -37,7 +37,7 @@ func AddArticle(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": result.Error})
 		return
 	}
-	AddInIPFS(article)
+	//AddInIPFS(article) // TODO generates Post "": unsupported protocol scheme "" error
 	c.JSON(http.StatusCreated, article)
 }
 
@@ -58,7 +58,7 @@ func AddLike(c *gin.Context, db *gorm.DB) {
 		panic(err)
 	}
 
-	result := db.Where(Article{Id: int32(id)}).Find(&article)
+	result := db.Where(Article{Id: uint(id)}).Find(&article)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return

@@ -41,8 +41,7 @@ func DeleteArticle(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"delete": "article id could not be retrieved"})
 		return
 	}
-
-	result := db.Where(Article{UserId: userId, Id: int32(id)}).Delete(&Article{})
+	result := db.Where(Article{UserId: userId, Id: uint(id)}).Delete(&Article{})
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return
@@ -71,7 +70,7 @@ func RemoveLike(c *gin.Context, db *gorm.DB) {
 		panic(err)
 	}
 
-	result := db.Where(Article{Id: int32(id)}).Find(&article)
+	result := db.Where(Article{Id: uint(id)}).Find(&article)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return
