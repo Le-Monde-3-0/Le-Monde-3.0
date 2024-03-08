@@ -75,7 +75,7 @@ func LoginCheck(username string, password string, db *gorm.DB) (string, error) {
 		return "", err
 	}
 
-	token, err := GenerateToken(u.Id)
+	token, err := GenerateToken(int32(u.Id))
 
 	if err != nil {
 		return "", err

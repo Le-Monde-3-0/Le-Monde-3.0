@@ -14,6 +14,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 /*
@@ -128,10 +129,12 @@ func getArticleById(c *gin.Context, articleId int32) (adtos.ArticleResponse, err
 }
 
 type Bookmark struct {
-	gorm.Model
-	Id       int32
-	UserId   int32
-	Title    string
-	Public   bool
-	Articles pq.Int32Array `gorm:"type:integer[]"`
+	Id        uint `gorm:"primarykey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+	UserId    int32
+	Title     string
+	Public    bool
+	Articles  pq.Int32Array `gorm:"type:integer[]"`
 }

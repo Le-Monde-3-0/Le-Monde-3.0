@@ -70,7 +70,7 @@ func AddArticleInBookmark(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	result := db.Where(Bookmark{Id: int32(bookmarkId), UserId: userId}).Find(&bookmark)
+	result := db.Where(Bookmark{Id: uint(bookmarkId), UserId: userId}).Find(&bookmark)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return

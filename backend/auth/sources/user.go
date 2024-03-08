@@ -10,14 +10,17 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 type User struct {
-	gorm.Model
-	Id       int32
-	Email    string
-	Username string
-	Password string
+	Id        uint `gorm:"primarykey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+	Email     string
+	Username  string
+	Password  string
 }
 
 type ReceiveUser struct {
@@ -92,7 +95,7 @@ func GetMyInfo(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	result := db.Where(User{Id: userId}).Find(&user)
+	result := db.Where(User{Id: uint(userId)}).Find(&user)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return

@@ -24,7 +24,7 @@ func DeleteBookmark(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	result := db.Where(Bookmark{Id: int32(bookmarkId), UserId: userId}).Delete(&Bookmark{})
+	result := db.Where(Bookmark{Id: uint(bookmarkId), UserId: userId}).Delete(&Bookmark{})
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return
@@ -69,7 +69,7 @@ func DeleteAllArticlesBookmark(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	result := db.Where(Bookmark{Id: int32(bookmarkId), UserId: userId}).Find(&bookmark)
+	result := db.Where(Bookmark{Id: uint(bookmarkId), UserId: userId}).Find(&bookmark)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return
@@ -130,7 +130,7 @@ func DeleteArticleBookmark(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	result := db.Where(Bookmark{Id: int32(bookmarkId), UserId: userId}).Find(&bookmark)
+	result := db.Where(Bookmark{Id: uint(bookmarkId), UserId: userId}).Find(&bookmark)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return
