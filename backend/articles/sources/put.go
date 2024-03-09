@@ -48,5 +48,9 @@ func EditArticle(c *gin.Context, db *gorm.DB) {
 	article.Title = editedArticle.Title
 
 	db.Save(&article)
+
+	if hasUserLikedArticle(id, article) {
+		article.HasConnectedUserLiked = true
+	}
 	c.JSON(http.StatusOK, article)
 }

@@ -68,5 +68,8 @@ func AddLike(c *gin.Context, db *gorm.DB) {
 	}
 	article.Likes = addIfNotPresent(article.Likes, userId)
 	db.Save(&article)
+
+	article.HasConnectedUserLiked = true
+
 	c.JSON(http.StatusOK, article)
 }

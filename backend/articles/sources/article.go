@@ -43,12 +43,13 @@ func getUserId(c *gin.Context) (int32, error) {
 }
 
 type Article struct {
-	Id        uint `gorm:"primarykey"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
-	UserId    int32
-	Title     string
-	Content   string
-	Likes     pq.Int32Array `gorm:"type:integer[]"`
+	Id                    uint `gorm:"primarykey"`
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
+	DeletedAt             gorm.DeletedAt `gorm:"index"`
+	UserId                int32
+	Title                 string
+	Content               string
+	Likes                 pq.Int32Array `gorm:"type:integer[]"`
+	HasConnectedUserLiked bool
 }

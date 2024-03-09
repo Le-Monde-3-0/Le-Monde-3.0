@@ -31,6 +31,19 @@ func GetAllArticles(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return
 	}
+
+	userId, err := getUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	for i := range *articles {
+		if hasUserLikedArticle(int64(userId), &(*articles)[i]) {
+			(*articles)[i].HasConnectedUserLiked = true
+		}
+	}
+
 	c.JSON(http.StatusOK, articles)
 }
 
@@ -51,7 +64,27 @@ func GetArticle(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
 		return
 	}
+
+	userId, err := getUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if hasUserLikedArticle(int64(userId), article) {
+		article.HasConnectedUserLiked = true
+	}
 	c.JSON(http.StatusOK, article)
+}
+
+func hasUserLikedArticle(userId int64, article *Article) bool {
+
+	for _, value := range article.Likes {
+		if value == int32(userId) {
+			return true
+		}
+	}
+	return false
 }
 
 func GetMyArticles(c *gin.Context, db *gorm.DB) {
@@ -68,6 +101,13 @@ func GetMyArticles(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return
 	}
+
+	for _, article := range *articles {
+		if hasUserLikedArticle(int64(userId), &article) {
+			article.HasConnectedUserLiked = true
+		}
+	}
+
 	c.JSON(http.StatusOK, articles)
 }
 

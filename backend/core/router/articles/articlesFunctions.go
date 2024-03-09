@@ -13,11 +13,12 @@ type ArticleInput struct {
 }
 
 type Article struct {
-	Id      uint
-	UserId  int32
-	Title   string
-	Content string
-	Likes   []int32
+	Id                    uint
+	UserId                int32
+	Title                 string
+	Content               string
+	Likes                 []int32
+	hasConnectedUserLiked bool
 }
 
 type LikesResponse struct {

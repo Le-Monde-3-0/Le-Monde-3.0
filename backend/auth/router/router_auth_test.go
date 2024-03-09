@@ -57,8 +57,8 @@ func TestLoginAuth(t *testing.T) {
 		panic(result.Error)
 	}
 	requestBody := src.LoginInput{
-		Email:    "test@test.com",
-		Password: "pass",
+		Identifier: "test@test.com",
+		Password:   "pass",
 	}
 
 	jsonBody, err := json.Marshal(requestBody)
