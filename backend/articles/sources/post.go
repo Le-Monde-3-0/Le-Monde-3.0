@@ -30,6 +30,10 @@ func AddArticle(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	if err := db.Where(Article{UserId: userId, Title: article.Title}).First(article).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "you have already created an article with this title"})
+		return
+	}
 	article.UserId = userId
 	article.Likes = pq.Int32Array{}
 
