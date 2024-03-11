@@ -40,6 +40,12 @@ func AddBookmark(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "bookmark must have a title"})
 		return
 	}
+
+	if err := db.Where(Bookmark{UserId: userId, Title: bookmark.Title}).First(bookmark).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "you have already created a bookmark with this title"})
+		return
+	}
+
 	bookmark.UserId = userId
 	bookmark.Articles = pq.Int32Array{}
 
