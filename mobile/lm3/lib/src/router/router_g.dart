@@ -9,7 +9,23 @@ List<GoRoute> get $appRoutes => [
       $writeRoute,
       $profileRoute,
       $authRoute,
+      $bookmarksRoute,
 ];
+GoRoute get $bookmarksRoute => GoRouteData.$route(
+path: '/bookmarks', 
+factory: $BookmarksRouteExtension._fromState,
+);
+extension $BookmarksRouteExtension on Bookmarks_Route{
+  static Bookmarks_Route _fromState(GoRouterState state) => Bookmarks_Route();
+
+  String get location => GoRouteData.$location(
+    '/bookmarks',
+    );
+  void go(BuildContext context) => context.go(location,extra: this);
+  void push(BuildContext context) => context.push(location, extra: this);
+  
+}
+
 
 GoRoute get $articlesRoute => GoRouteData.$route(
   path: '/articles',

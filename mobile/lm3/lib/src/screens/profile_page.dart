@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import '../services/profile_service.dart';
 
 import 'auth_page.dart';
 import '../router/router.dart';
@@ -12,6 +13,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  bool isProfilePublic= false;
   final storage = FlutterSecureStorage();
 
   @override
@@ -31,7 +33,7 @@ class _ProfilePageState extends State<ProfilePage> {
     AuthRoute().go(context);
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     checkLoginStatus(context);
     return Scaffold(
@@ -39,13 +41,32 @@ class _ProfilePageState extends State<ProfilePage> {
         title: Text('Profil'),
       ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            logout(context);
-          },
-          child: Text('Se déconnecter'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Switch(
+              value: isProfilePublic,
+              onChanged: (newValue) {
+                setState(() {
+                  isProfilePublic = newValue;
+                  ProfilService.updateProfilePrivacy(newValue);
+                });
+              },
+            ),
+            Text(
+              isProfilePublic ? 'Profil public' : 'Profil privé',
+              style: TextStyle(fontSize: 20),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                logout(context);
+              },
+              child: Text('Se déconnecter'),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+

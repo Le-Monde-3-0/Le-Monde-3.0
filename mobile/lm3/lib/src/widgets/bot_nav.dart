@@ -29,8 +29,8 @@ class BottomNav extends StatelessWidget {
         },
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.newspaper),
-            label: 'articles',
+            icon: Icon(Icons.bookmark),
+            label: 'bookmarks',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.newspaper),
@@ -39,7 +39,7 @@ class BottomNav extends StatelessWidget {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'profile',
-          ),
+          )
         ],
       ),
     );
@@ -47,7 +47,7 @@ class BottomNav extends StatelessWidget {
 
   int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/articles')) {
+    if (location.startsWith('/bookmarks')) {
       return 0;
     }
     if (location.startsWith('/write')) {
