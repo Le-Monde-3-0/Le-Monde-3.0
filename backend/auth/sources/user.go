@@ -33,7 +33,11 @@ AddUser adds a new User object in the database
 func AddUser(email string, username string, password string, c *gin.Context, db *gorm.DB) {
 	existingUser := new(User)
 	if err := db.Where("username = ?", username).First(existingUser).Error; err == nil {
-		c.JSON(http.StatusConflict, gin.H{"error": "Username already exists"})
+		c.JSON(http.StatusConflict, gin.H{"error": "an account with this username already exists"})
+		return
+	}
+	if err := db.Where("email = ?", email).First(existingUser).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "an account with this email already exists"})
 		return
 	}
 

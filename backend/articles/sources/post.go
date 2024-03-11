@@ -29,6 +29,7 @@ func AddArticle(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "article must have a content and a title"})
 		return
 	}
+
 	article.UserId = userId
 	article.Likes = pq.Int32Array{}
 
