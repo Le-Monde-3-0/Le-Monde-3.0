@@ -19,8 +19,16 @@ func ApplyAuthRoutes(public *gin.RouterGroup, protected *gin.RouterGroup, logger
 		Login(c, logger)
 	})
 
-	protected.GET("/me", func(c *gin.Context) {
+	protected.GET("/users/me", func(c *gin.Context) {
 		GetMyInfo(c, logger)
+	})
+
+	protected.GET("/users/:id", func(c *gin.Context) {
+		GetUser(c, logger)
+	})
+
+	protected.POST("/users/me/visibility", func(c *gin.Context) {
+		ChangeUserVisibility(c, logger)
 	})
 
 	public.GET("/metrics", gin.WrapH(promhttp.Handler()))

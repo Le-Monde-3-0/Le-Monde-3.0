@@ -37,13 +37,17 @@ func EditBookmark(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	result := db.Where(Bookmark{Id: uint(bookmarkId), UserId: userId}).Find(&bookmark)
+	result := db.Where(Bookmark{Id: uint(bookmarkId)}).Find(&bookmark)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": result.Error})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+		return
+	}
+	if bookmark.UserId != userId {
+		c.JSON(http.StatusForbidden, gin.H{"error": "you are not allowed to edit this bookmark"})
 		return
 	}
 	bookmark.Title = editedBookmark.Title

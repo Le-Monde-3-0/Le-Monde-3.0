@@ -30,8 +30,11 @@ func GetBookmark(c *gin.Context, db *gorm.DB) {
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return
-	} else if bookmark.Title == "" || bookmark.IsPrivate {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "bookmark not found"})
+	} else if bookmark.Title == "" {
+		c.JSON(http.StatusNotFound, gin.H{"error": "bookmark not found"})
+		return
+	} else if bookmark.IsPrivate {
+		c.JSON(http.StatusForbidden, gin.H{"error": "bookmark is private"})
 		return
 	}
 	c.JSON(http.StatusOK, bookmark)
@@ -87,7 +90,7 @@ func GetAllArticlesBookmark(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return
 	} else if bookmark.Title == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "bookmark not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "bookmark not found"})
 		return
 	}
 

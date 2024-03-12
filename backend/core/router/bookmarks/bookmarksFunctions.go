@@ -38,8 +38,9 @@ type DeletedResponse struct {
 // @Produce json
 // @Param BookmarkInput body BookmarkInput true "Params to create a bookmark"
 // @Success 200 {object} Bookmark
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      409  {object}  HTTPError409
+// @Failure      500  {object}  HTTPError500
 // @Router /bookmarks [post]
 func AddBookmark(c *gin.Context, logger *zap.Logger) {
 	var bookmarksParams BookmarkInput
@@ -66,8 +67,9 @@ func AddBookmark(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Bookmark
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /bookmarks/:id/articles/:id-article [post]
 func AddArticleInBookmark(c *gin.Context, logger *zap.Logger) {
 
@@ -88,8 +90,9 @@ func AddArticleInBookmark(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} []Bookmark
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /bookmarks [get]
 func GetAllBookmarks(c *gin.Context, logger *zap.Logger) {
 
@@ -110,8 +113,10 @@ func GetAllBookmarks(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Bookmark
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      403  {object}  HTTPError403
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /bookmarks/:id [get]
 func GetBookmark(c *gin.Context, logger *zap.Logger) {
 
@@ -132,8 +137,9 @@ func GetBookmark(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} []Article
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /bookmarks/:id/articles [get]
 func GetAllArticlesBookmark(c *gin.Context, logger *zap.Logger) {
 
@@ -155,8 +161,10 @@ func GetAllArticlesBookmark(c *gin.Context, logger *zap.Logger) {
 // @Produce json
 // @Param BookmarkInput body BookmarkInput true "Params to edit a bookmark"
 // @Success 200 {object} Bookmark
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      403  {object}  HTTPError403
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /bookmarks/:id [put]
 func EditBookmark(c *gin.Context, logger *zap.Logger) {
 	var bookmarksParams BookmarkInput
@@ -184,8 +192,9 @@ func EditBookmark(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} DeletedResponse
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /bookmarks [delete]
 func DeleteAllBookmarks(c *gin.Context, logger *zap.Logger) {
 
@@ -206,8 +215,9 @@ func DeleteAllBookmarks(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} DeletedResponse
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /bookmarks/:id [delete]
 func DeleteBookmark(c *gin.Context, logger *zap.Logger) {
 
@@ -228,8 +238,9 @@ func DeleteBookmark(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Bookmark
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /bookmarks/:id/articles [delete]
 func DeleteAllArticlesBookmark(c *gin.Context, logger *zap.Logger) {
 
@@ -250,8 +261,9 @@ func DeleteAllArticlesBookmark(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Bookmark
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /bookmarks/:id/articles/id-article [delete]
 func DeleteArticleBookmark(c *gin.Context, logger *zap.Logger) {
 

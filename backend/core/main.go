@@ -26,8 +26,8 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
-	docs.SwaggerInfo.Title = "Swagger Example API"
-	docs.SwaggerInfo.Description = "This is a sample server Petstore server."
+	docs.SwaggerInfo.Title = "LeMonde3.0 backend API"
+	docs.SwaggerInfo.Description = "This is the description of all the backend routes of LeMonde3.0."
 	docs.SwaggerInfo.Version = "1.0"
 	docs.SwaggerInfo.Host = "petstore.swagger.io"
 	docs.SwaggerInfo.BasePath = "/v2"

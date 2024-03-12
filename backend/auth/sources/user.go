@@ -110,7 +110,7 @@ func GetUser(c *gin.Context, db *gorm.DB) {
 	}
 
 	if user.Id == 0 || user.IsPrivate {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "user is private"})
 		return
 	}
 	c.JSON(http.StatusOK, user)

@@ -13,12 +13,12 @@ type ArticleInput struct {
 }
 
 type Article struct {
-	Id                    uint
+	Id                    uint `gorm:"primarykey"`
 	UserId                int32
 	Title                 string
 	Content               string
 	Likes                 []int32
-	hasConnectedUserLiked bool
+	HasConnectedUserLiked bool
 }
 
 type LikesResponse struct {
@@ -38,8 +38,9 @@ type DeletedResponse struct {
 // @Produce json
 // @Param ArticleInput body ArticleInput true "Params to create an article"
 // @Success 200 {object} Article
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      409  {object}  HTTPError409
+// @Failure      500  {object}  HTTPError500
 // @Router /articles [post]
 func AddArticle(c *gin.Context, logger *zap.Logger) {
 	var articlesParams ArticleInput
@@ -64,8 +65,9 @@ func AddArticle(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Article
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/:id/likes [post]
 func AddLike(c *gin.Context, logger *zap.Logger) {
 
@@ -84,8 +86,8 @@ func AddLike(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} []Article
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      500  {object}  HTTPError500
 // @Router /articles [get]
 func GetAllArticles(c *gin.Context, logger *zap.Logger) {
 
@@ -104,8 +106,9 @@ func GetAllArticles(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Article
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError500
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/:id [get]
 func GetArticle(c *gin.Context, logger *zap.Logger) {
 
@@ -124,8 +127,8 @@ func GetArticle(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} []Article
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/me [get]
 func GetMyArticles(c *gin.Context, logger *zap.Logger) {
 
@@ -144,8 +147,8 @@ func GetMyArticles(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} []Article
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/liked [get]
 func GetLikedArticles(c *gin.Context, logger *zap.Logger) {
 
@@ -164,8 +167,9 @@ func GetLikedArticles(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} LikesResponse
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/:id/likes [get]
 func GetLikesInfo(c *gin.Context, logger *zap.Logger) {
 
@@ -186,8 +190,9 @@ func GetLikesInfo(c *gin.Context, logger *zap.Logger) {
 // @Produce json
 // @Param ArticleInput body ArticleInput true "Params to edit an article"
 // @Success 200 {object} Article
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError500
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/:id [put]
 func EditArticle(c *gin.Context, logger *zap.Logger) {
 	var articlesParams ArticleInput
@@ -214,8 +219,8 @@ func EditArticle(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} DeletedResponse
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      500  {object}  HTTPError500
 // @Router /articles [delete]
 func DeleteAllArticles(c *gin.Context, logger *zap.Logger) {
 
@@ -235,8 +240,9 @@ func DeleteAllArticles(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} DeletedResponse
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError500
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/:id [delete]
 func DeleteArticle(c *gin.Context, logger *zap.Logger) {
 
@@ -256,8 +262,9 @@ func DeleteArticle(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Article
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/:id/likes [delete]
 func RemoveLike(c *gin.Context, logger *zap.Logger) {
 
@@ -268,4 +275,29 @@ func RemoveLike(c *gin.Context, logger *zap.Logger) {
 		return
 	}
 	c.Data(statusCode, "application/json", responseBody)
+}
+
+type HTTPError400 struct {
+	Code    int    `json:"code" example:"400"`
+	Message string `json:"message" example:"status bad request"`
+}
+
+type HTTPError403 struct {
+	Code    int    `json:"code" example:"403"`
+	Message string `json:"message" example:"forbidden"`
+}
+
+type HTTPError404 struct {
+	Code    int    `json:"code" example:"404"`
+	Message string `json:"message" example:"not found"`
+}
+
+type HTTPError409 struct {
+	Code    int    `json:"code" example:"409"`
+	Message string `json:"message" example:"conflict"`
+}
+
+type HTTPError500 struct {
+	Code    int    `json:"code" example:"500"`
+	Message string `json:"message" example:"internal server error"`
 }
