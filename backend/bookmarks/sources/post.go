@@ -48,6 +48,7 @@ func AddBookmark(c *gin.Context, db *gorm.DB) {
 
 	bookmark.UserId = userId
 	bookmark.Articles = pq.Int32Array{}
+	bookmark.IsPrivate = true
 
 	result := db.Create(&bookmark)
 	if result.Error != nil {
@@ -86,5 +87,41 @@ func AddArticleInBookmark(c *gin.Context, db *gorm.DB) {
 	}
 	bookmark.Articles = addIfNotPresent(bookmark.Articles, int32(articleId))
 	db.Save(&bookmark)
+	c.JSON(http.StatusOK, bookmark)
+}
+
+/*
+ChangeBookmarkVisibility allows to switch the visibility of a bookmark (either public or private)
+*/
+func ChangeBookmarkVisibility(c *gin.Context, db *gorm.DB) {
+	bookmark := new(Bookmark)
+
+	userId, err := getUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	bookmarkId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"get": "bookmark id could not be retrieved"})
+		return
+	}
+
+	result := db.Where(Bookmark{Id: uint(bookmarkId), UserId: userId}).Find(&bookmark)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+		return
+	}
+
+	if bookmark.Title == "" {
+		c.JSON(http.StatusNotFound, gin.H{"error": "bookmark not found"})
+		return
+	}
+
+	bookmark.IsPrivate = !bookmark.IsPrivate
+
+	db.Save(&bookmark)
+
 	c.JSON(http.StatusOK, bookmark)
 }

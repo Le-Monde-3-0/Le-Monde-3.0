@@ -30,6 +30,10 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.AddArticleInBookmark(c, db)
 	})
 
+	r.POST("/bookmarks/:id/visibility", func(c *gin.Context) {
+		src.ChangeBookmarkVisibility(c, db)
+	})
+
 	r.GET("/bookmarks", func(c *gin.Context) {
 		src.GetAllBookmarks(c, db)
 	})

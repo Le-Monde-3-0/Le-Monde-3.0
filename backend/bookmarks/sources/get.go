@@ -21,15 +21,15 @@ func GetBookmark(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	result := db.Where(Bookmark{Id: uint(bookmarkId), Public: true}).Find(&bookmark)
+	result := db.Where(Bookmark{Id: uint(bookmarkId)}).Find(&bookmark)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": result.Error})
+			c.JSON(http.StatusNotFound, gin.H{"error": "bookmark not found"})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return
-	} else if bookmark.Title == "" {
+	} else if bookmark.Title == "" || bookmark.IsPrivate {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "bookmark not found"})
 		return
 	}
