@@ -9,6 +9,7 @@ import (
 	"html"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -21,6 +22,7 @@ type User struct {
 	Email     string
 	Username  string
 	Password  string
+	IsPrivate bool
 }
 
 type ReceiveUser struct {
@@ -52,6 +54,7 @@ func AddUser(email string, username string, password string, c *gin.Context, db 
 	}
 
 	user.Password = string(hashedPassword)
+	user.IsPrivate = false
 
 	result := db.Create(&user)
 	if result.Error != nil {
@@ -104,5 +107,65 @@ func GetMyInfo(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
 		return
 	}
+	c.JSON(http.StatusOK, user)
+}
+
+/*
+GetUser returns the information of a user
+*/
+func GetUser(c *gin.Context, db *gorm.DB) {
+	user := new(User)
+
+	userId, err := getUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	if id == int64(userId) {
+		GetMyInfo(c, db)
+		return
+	}
+
+	result := db.Where(User{Id: uint(id)}).Find(&user)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+		return
+	}
+
+	if user.Id == 0 || user.IsPrivate {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+	c.JSON(http.StatusOK, user)
+}
+
+/*
+ChangeUserVisibility allows to switch the visibility of the connected user (either public or private)
+*/
+func ChangeUserVisibility(c *gin.Context, db *gorm.DB) {
+	user := new(User)
+
+	userId, err := getUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	result := db.Where(User{Id: uint(userId)}).Find(&user)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+		return
+	}
+
+	user.IsPrivate = !user.IsPrivate
+
+	db.Save(&user)
+
 	c.JSON(http.StatusOK, user)
 }

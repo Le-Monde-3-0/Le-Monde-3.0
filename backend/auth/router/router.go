@@ -30,8 +30,16 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.Register(c, db)
 	})
 
-	r.GET("/me", func(c *gin.Context) {
+	r.GET("/users/me", func(c *gin.Context) {
 		src.GetMyInfo(c, db)
+	})
+
+	r.GET("/users/:id", func(c *gin.Context) {
+		src.GetUser(c, db)
+	})
+
+	r.POST("/users/me/visibility", func(c *gin.Context) {
+		src.ChangeUserVisibility(c, db)
 	})
 
 	return r

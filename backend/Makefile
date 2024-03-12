@@ -20,7 +20,6 @@ coverages:
 doc:
 	cd core ; swag init ; go build ; ./main
 clean:
-	sudo rm -rf data
 	rm -rf core/coverage.out
 	rm -rf auth/coverage.out
 	rm -rf articles/router/fakeAuth.db
