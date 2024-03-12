@@ -1,6 +1,7 @@
 package articles
 
 import (
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
@@ -12,7 +13,7 @@ DeleteAllArticles deletes all the articles of the connected user
 */
 func DeleteAllArticles(c *gin.Context, db *gorm.DB) {
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -30,7 +31,7 @@ func DeleteAllArticles(c *gin.Context, db *gorm.DB) {
 DeleteArticle deletes one of the articles of the connected user
 */
 func DeleteArticle(c *gin.Context, db *gorm.DB) {
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -59,7 +60,7 @@ func RemoveLike(c *gin.Context, db *gorm.DB) {
 	article := new(Article)
 	i := 0
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

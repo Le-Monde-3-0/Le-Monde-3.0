@@ -3,6 +3,7 @@ package bookmarks
 import (
 	"errors"
 	adtos "github.com/Le-Monde-3-0/articles_dtos/sources"
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
@@ -42,7 +43,7 @@ GetAllBookmarks retrieves every bookmark of the connected user
 func GetAllBookmarks(c *gin.Context, db *gorm.DB) {
 	bookmarks := new([]Bookmark)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
@@ -66,7 +67,7 @@ func GetAllArticlesBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
 	var articlesBookmark []adtos.ArticleResponse
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}

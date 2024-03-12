@@ -2,6 +2,7 @@ package bookmarks
 
 import "C"
 import (
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
@@ -13,7 +14,7 @@ import (
 DeleteBookmark delete a bookmark of the connected user
 */
 func DeleteBookmark(c *gin.Context, db *gorm.DB) {
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
@@ -39,7 +40,7 @@ func DeleteBookmark(c *gin.Context, db *gorm.DB) {
 DeleteAllBookmarks deletes all the bookmark of the connected user
 */
 func DeleteAllBookmarks(c *gin.Context, db *gorm.DB) {
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
@@ -57,7 +58,7 @@ DeleteAllArticlesBookmark deletes all the articles of a bookmark
 func DeleteAllArticlesBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -113,7 +114,7 @@ DeleteArticleBookmark remove an article from a bookmark
 func DeleteArticleBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

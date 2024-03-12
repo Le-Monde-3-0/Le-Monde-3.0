@@ -2,6 +2,7 @@ package articles
 
 import (
 	"errors"
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
@@ -32,7 +33,7 @@ func GetAllArticles(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -65,7 +66,7 @@ func GetArticle(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -90,7 +91,7 @@ func hasUserLikedArticle(userId int64, article *Article) bool {
 func GetMyArticles(c *gin.Context, db *gorm.DB) {
 	articles := new([]Article)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -114,7 +115,7 @@ func GetMyArticles(c *gin.Context, db *gorm.DB) {
 func GetMyLikedArticles(c *gin.Context, db *gorm.DB) {
 	var articles []Article
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

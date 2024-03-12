@@ -1,6 +1,7 @@
 package articles
 
 import (
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
@@ -14,7 +15,7 @@ AddArticle creates a new article
 func AddArticle(c *gin.Context, db *gorm.DB) {
 	article := new(Article)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -52,7 +53,7 @@ AddLike adds a like to a given article
 func AddLike(c *gin.Context, db *gorm.DB) {
 	article := new(Article)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

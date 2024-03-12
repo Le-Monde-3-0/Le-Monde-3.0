@@ -1,13 +1,13 @@
 package auth
 
 import (
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"net/http"
 	"os"
-	"regexp"
 	"time"
 )
 
@@ -59,7 +59,7 @@ func LoginCheck(identifier string, password string, db *gorm.DB) (string, error)
 
 	u := new(User)
 
-	if isEmail(identifier) {
+	if utils.IsEmail(identifier) {
 		err = db.Model(User{}).Where("email = ?", identifier).Take(&u).Error
 	} else {
 		err = db.Model(User{}).Where("username = ?", identifier).Take(&u).Error
@@ -83,14 +83,6 @@ func LoginCheck(identifier string, password string, db *gorm.DB) (string, error)
 
 	return token, nil
 
-}
-
-/*
-isEmail return true if the given string is an email, false otherwise
-*/
-func isEmail(identifier string) bool {
-	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
-	return emailRegex.MatchString(identifier)
 }
 
 /*

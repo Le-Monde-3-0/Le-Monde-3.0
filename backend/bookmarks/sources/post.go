@@ -1,6 +1,7 @@
 package bookmarks
 
 import (
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
@@ -26,7 +27,7 @@ func addIfNotPresent(arr pq.Int32Array, key int32) pq.Int32Array {
 func AddBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
@@ -61,7 +62,7 @@ func AddBookmark(c *gin.Context, db *gorm.DB) {
 func AddArticleInBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -96,7 +97,7 @@ ChangeBookmarkVisibility allows to switch the visibility of a bookmark (either p
 func ChangeBookmarkVisibility(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

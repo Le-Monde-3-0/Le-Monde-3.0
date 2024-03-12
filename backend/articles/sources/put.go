@@ -1,6 +1,7 @@
 package articles
 
 import (
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
@@ -18,7 +19,7 @@ EditArticle allows a user to edit one of its article
 func EditArticle(c *gin.Context, db *gorm.DB) {
 	article := new(Article)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

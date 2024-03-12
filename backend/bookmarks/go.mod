@@ -3,6 +3,8 @@ module main
 go 1.18
 
 require (
+	github.com/Le-Monde-3-0/articles_dtos v0.1.0
+	github.com/Le-Monde-3-0/utils v0.1.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.1
@@ -13,7 +15,6 @@ require (
 )
 
 require (
-	github.com/Le-Monde-3-0/articles_dtos v0.1.0 // indirect
 	github.com/bytedance/sonic v1.9.2 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect

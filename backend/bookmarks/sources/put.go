@@ -2,6 +2,7 @@ package bookmarks
 
 import (
 	"errors"
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
@@ -18,7 +19,7 @@ EditBookmark edits a bookmark
 func EditBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

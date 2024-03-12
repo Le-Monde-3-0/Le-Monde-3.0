@@ -1,14 +1,12 @@
 package auth
 
 import (
-	"errors"
-	"github.com/dgrijalva/jwt-go"
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"html"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -64,40 +62,13 @@ func AddUser(email string, username string, password string, c *gin.Context, db 
 	}
 }
 
-func getUserId(c *gin.Context) (int32, error) {
-
-	bearerToken := c.Request.Header.Get("Authorization")
-	tokenString := ""
-
-	if len(strings.Split(bearerToken, " ")) == 2 {
-		tokenString = strings.Split(bearerToken, " ")[1]
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid token format"})
-	}
-
-	tokenPure, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("secret_key")), nil
-	})
-
-	if err != nil {
-		return 0, err
-	}
-
-	if claims, ok := tokenPure.Claims.(jwt.MapClaims); ok && tokenPure.Valid {
-		userID, _ := claims["user_id"].(float64)
-		return int32(userID), nil
-	} else {
-		return 0, errors.New("invalid token")
-	}
-}
-
 /*
 GetMyInfo returns the information of the connected user
 */
 func GetMyInfo(c *gin.Context, db *gorm.DB) {
 	user := new(User)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -116,7 +87,7 @@ GetUser returns the information of a user
 func GetUser(c *gin.Context, db *gorm.DB) {
 	user := new(User)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -151,7 +122,7 @@ ChangeUserVisibility allows to switch the visibility of the connected user (eith
 func ChangeUserVisibility(c *gin.Context, db *gorm.DB) {
 	user := new(User)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
