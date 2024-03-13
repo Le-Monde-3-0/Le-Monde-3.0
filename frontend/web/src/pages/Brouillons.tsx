@@ -1,16 +1,40 @@
+import { DeleteIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import {
+	Button,
+	CircularProgress,
+	Grid,
+	GridItem,
+	HStack,
+	Modal,
+	ModalBody,
+	ModalCloseButton,
+	ModalContent,
+	ModalFooter,
+	ModalHeader,
+	ModalOverlay,
+	Tag,
+	Tooltip,
+	useDisclosure,
+	VStack,
+} from '@chakra-ui/react';
+import ArticleCard from 'components/Cards/ArticleCard';
+import Editor from 'components/Editor/Editor';
+import SearchInput from 'components/Inputs/SearchInput';
+import { useAuthContext } from 'contexts/auth';
+import { useUIContext } from 'contexts/ui';
+import { useUserContext } from 'contexts/user';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { CircularProgress, Grid, GridItem, HStack, Tag, Tooltip, VStack } from '@chakra-ui/react';
-import { DeleteIcon, ViewIcon } from '@chakra-ui/icons';
-
-import { useAuthContext } from 'contexts/auth';
-import { useUserContext } from 'contexts/user';
-import { useUIContext } from 'contexts/ui';
-import SearchInput from 'components/Inputs/SearchInput';
-import ArticleCard from 'components/Cards/ArticleCard';
 
 const Brouillons = (): JSX.Element => {
 	const [search, setSearch] = useState('');
+	const [editor, setEditor] = useState<boolean>(false);
+	const { isOpen, onOpen, onClose } = useDisclosure();
+	const [draft, setDraft] = useState({
+		title: '',
+		topic: '',
+		content: '',
+	});
 	const { auth } = useAuthContext();
 	const { requestResponseToast } = useUIContext();
 	const { user, deleteArticle, getArticles, switchArticleDraftState } = useUserContext();
@@ -103,9 +127,24 @@ const Brouillons = (): JSX.Element => {
 									topic={brouillon.Topic}
 									content={brouillon.Content}
 									actions={[
+										<Tooltip label="Éditer l'article">
+											<span>
+												<EditIcon
+													onClick={() => {
+														setEditor(true);
+														setDraft({
+															title: brouillon.Title,
+															topic: brouillon.Topic,
+															content: brouillon.Content,
+														});
+													}}
+													color="black"
+												/>
+											</span>
+										</Tooltip>,
 										<Tooltip label="Publier l'article">
 											<span>
-												<ViewIcon onClick={() => uiSwitchArticleDraftState(brouillon.Id)} color="black" />
+												<ExternalLinkIcon onClick={() => uiSwitchArticleDraftState(brouillon.Id)} color="black" />
 											</span>
 										</Tooltip>,
 										<Tooltip label="Supprimer définitivement">
@@ -121,6 +160,20 @@ const Brouillons = (): JSX.Element => {
 							</GridItem>
 						))}
 				</Grid>
+				<Modal isOpen={editor} size="full" onClose={() => setEditor(false)}>
+					<ModalOverlay />
+					<ModalContent bg="black">
+						<ModalHeader color="gray.100">Brouillon</ModalHeader>
+						<ModalCloseButton />
+						<ModalBody>
+							<Editor
+								placeholderTitle={draft.title}
+								placeholderTopic={draft.topic}
+								placeholderContent={draft.content}
+							/>
+						</ModalBody>
+					</ModalContent>
+				</Modal>
 			</VStack>
 		</>
 	);
