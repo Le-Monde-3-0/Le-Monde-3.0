@@ -2,6 +2,7 @@ import { AddIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons';
 import {
 	Badge,
 	CircularProgress,
+	Grid,
 	Collapse,
 	HStack,
 	Modal,
@@ -41,6 +42,7 @@ const ArticlePage = (): JSX.Element => {
 
 	const toggleViewChartDisplay = () => {
 		setViewChartDisplay(!isViewChartDisplayed);
+		console.log(article?.DailyViews);
 	};
 
 	const toggleLikeChartDisplay = () => {
@@ -186,14 +188,20 @@ const ArticlePage = (): JSX.Element => {
 								{article.TotalViews} view{article.TotalViews !== 1 && 's'}
 							</Badge>
 						</HStack>
-						<HStack>
+						{/* <HStack> */}
+						<Grid
+							templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
+							gap={{ base: 2, lg: 4 }}
+							w="100%"
+						>
 							<Collapse in={isViewChartDisplayed} animateOpacity>
 								<Chart yLabel="Vues" data={article.DailyViews} />
 							</Collapse>
 							<Collapse in={isLikeChartDisplayed} animateOpacity>
 								<Chart yLabel="Likes" data={article.DailyLikes} />
 							</Collapse>
-						</HStack>
+						</Grid>
+						{/* </HStack> */}
 					</VStack>
 					<Text variant="p" whiteSpace="pre-line">
 						{article.Content}
