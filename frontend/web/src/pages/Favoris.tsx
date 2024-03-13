@@ -142,6 +142,7 @@ const Favoris = (): JSX.Element => {
 										</Tooltip>,
 									]}
 									likes={article.Likes.length}
+									views={article.TotalViews}
 								/>
 							</GridItem>
 						))}

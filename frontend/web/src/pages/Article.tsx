@@ -1,9 +1,8 @@
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { AddIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons';
 import {
 	Badge,
 	CircularProgress,
+	Collapse,
 	HStack,
 	Modal,
 	ModalBody,
@@ -13,16 +12,19 @@ import {
 	ModalHeader,
 	ModalOverlay,
 	Text,
-	VStack,
 	useDisclosure,
+	VStack,
 } from '@chakra-ui/react';
-import { AddIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons';
-
+import { Chart } from 'components/Chart/Chart';
 import { useAuthContext } from 'contexts/auth';
-import { useUserContext } from 'contexts/user';
 import { useUIContext } from 'contexts/ui';
+import { useUserContext } from 'contexts/user';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Article } from 'types/article';
 import frenchDate from 'utils/frenchDate';
+import { generateDailyStats } from 'utils/generateDailyStats';
 
 const ArticlePage = (): JSX.Element => {
 	const navigate = useNavigate();
@@ -34,6 +36,16 @@ const ArticlePage = (): JSX.Element => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [article, setArticle] = useState<Article | undefined>(undefined);
 	const [isLiked, setIsLiked] = useState(false);
+	const [isViewChartDisplayed, setViewChartDisplay] = useState(false);
+	const [isLikeChartDisplayed, setLikeChartDisplay] = useState(false);
+
+	const toggleViewChartDisplay = () => {
+		setViewChartDisplay(!isViewChartDisplayed);
+	};
+
+	const toggleLikeChartDisplay = () => {
+		setLikeChartDisplay(!isLikeChartDisplayed);
+	};
 
 	const uiGetArticle = async () => {
 		try {
@@ -41,10 +53,13 @@ const ArticlePage = (): JSX.Element => {
 			requestResponseToast(res);
 			if (res.code === 404) {
 				navigate('/favoris');
-			} else if (res.status === 'success') {
+			} else if (res.data !== undefined && res.status === 'success') {
+				res.data.TotalViews = Math.floor(Math.random() * 1000);
+				res.data.DailyViews = generateDailyStats(res.data.TotalViews);
+				res.data.DailyLikes = generateDailyStats(Math.floor(Math.random() * 1000));
 				setArticle(res.data);
 			}
-		} catch (error) {
+		} catch (error: unknown) {
 			console.error(error);
 		}
 	};
@@ -152,9 +167,32 @@ const ArticlePage = (): JSX.Element => {
 							<Badge colorScheme="red" fontSize={{ base: 'small', lg: 'md' }} borderRadius="xsm">
 								{article.Topic}
 							</Badge>
-							<Badge colorScheme="green" fontSize={{ base: 'small', lg: 'md' }} borderRadius="xsm">
+							<Badge
+								colorScheme="green"
+								fontSize={{ base: 'small', lg: 'md' }}
+								borderRadius="xsm"
+								onClick={toggleLikeChartDisplay}
+								cursor={'pointer'}
+							>
 								{article.Likes.length} like{article.Likes.length !== 1 && 's'}
 							</Badge>
+							<Badge
+								colorScheme="blue"
+								fontSize={{ base: 'small', lg: 'md' }}
+								borderRadius="xsm"
+								cursor="pointer"
+								onClick={toggleViewChartDisplay}
+							>
+								{article.TotalViews} view{article.TotalViews !== 1 && 's'}
+							</Badge>
+						</HStack>
+						<HStack>
+							<Collapse in={isViewChartDisplayed} animateOpacity>
+								<Chart yLabel="Vues" data={article.DailyViews} />
+							</Collapse>
+							<Collapse in={isLikeChartDisplayed} animateOpacity>
+								<Chart yLabel="Likes" data={article.DailyLikes} />
+							</Collapse>
 						</HStack>
 					</VStack>
 					<Text variant="p" whiteSpace="pre-line">

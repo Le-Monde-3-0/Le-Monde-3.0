@@ -1,19 +1,45 @@
+import { DeleteIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { CircularProgress, Collapse, Grid, GridItem, HStack, Tag, Tooltip, VStack } from '@chakra-ui/react';
+import ArticleCard from 'components/Cards/ArticleCard';
+import { Chart } from 'components/Chart/Chart';
+import SearchInput from 'components/Inputs/SearchInput';
+import { useAuthContext } from 'contexts/auth';
+import { useUIContext } from 'contexts/ui';
+import { useUserContext } from 'contexts/user';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { CircularProgress, Grid, GridItem, HStack, Tag, Tooltip, VStack } from '@chakra-ui/react';
-import { DeleteIcon, ViewOffIcon } from '@chakra-ui/icons';
-
-import { useAuthContext } from 'contexts/auth';
-import { useUserContext } from 'contexts/user';
-import { useUIContext } from 'contexts/ui';
-import SearchInput from 'components/Inputs/SearchInput';
-import ArticleCard from 'components/Cards/ArticleCard';
+import { generateDailyStats } from 'utils/generateDailyStats';
 
 const Publications = (): JSX.Element => {
 	const [search, setSearch] = useState('');
 	const { auth } = useAuthContext();
 	const { requestResponseToast } = useUIContext();
 	const { user, switchArticleDraftState, deleteArticle, getArticles } = useUserContext();
+	const [isViewChartDisplayed, setViewChartDisplay] = useState(false);
+	const [isLikeChartDisplayed, setLikeChartDisplay] = useState(false);
+
+	let totalViews = 0;
+	for (let i = 0; i < user.publishedArticles.length; i++) {
+		console.log(user.publishedArticles[i].TotalViews);
+		totalViews += user.publishedArticles[i].TotalViews;
+	}
+	const dailyTotalView = generateDailyStats(totalViews);
+
+	let totalLikes = 0;
+	for (let i = 0; i < user.publishedArticles.length; i++) {
+		totalLikes += user.publishedArticles[i].Likes.length;
+	}
+
+	const views = generateDailyStats(totalViews);
+	const likes = generateDailyStats(totalLikes);
+
+	const toggleViewChartDisplay = () => {
+		setViewChartDisplay(!isViewChartDisplayed);
+	};
+
+	const toggleLikeChartDisplay = () => {
+		setLikeChartDisplay(!isLikeChartDisplayed);
+	};
 
 	const uiGetArticles = async () => {
 		try {
@@ -74,17 +100,24 @@ const Publications = (): JSX.Element => {
 						{user.publishedArticles.filter((p) => (search !== '' ? p.Title.includes(search) : true)).length} publication
 						{user.publishedArticles.length !== 1 && 's'}
 					</Tag>
-					<Tag bg="primary.blue">
+					<Tag bg="primary.blue" onClick={toggleLikeChartDisplay} cursor="pointer">
 						{user.publishedArticles
 							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
 							.map((p) => p.Likes.length)
 							.reduce((a, v) => a + v, 0)}{' '}
 						like
-						{user.publishedArticles
-							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
-							.map((p) => p.Likes.length)
-							.reduce((a, v) => a + v, 0) !== 1 && 's'}
 					</Tag>
+					<Tag bg="primary.blue" onClick={toggleViewChartDisplay} cursor="pointer">
+						{totalViews} view
+					</Tag>
+				</HStack>
+				<HStack>
+					<Collapse in={isLikeChartDisplayed} animateOpacity>
+						<Chart yLabel="Likes" data={likes} />
+					</Collapse>
+					<Collapse in={isViewChartDisplayed} animateOpacity>
+						<Chart yLabel="Vues" data={user.overallDailyTotalViews} />
+					</Collapse>
 				</HStack>
 				<Grid
 					templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
@@ -115,6 +148,7 @@ const Publications = (): JSX.Element => {
 										</Tooltip>,
 									]}
 									likes={publication.Likes.length}
+									views={publication.TotalViews}
 									view="publisher"
 								/>
 							</GridItem>

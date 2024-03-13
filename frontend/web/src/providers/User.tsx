@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-
 import { useAuthContext } from 'contexts/auth';
 import UserContext, { UserContextType } from 'contexts/user';
 import { Article } from 'types/article';
@@ -7,6 +6,7 @@ import { Bookmark } from 'types/bookmark';
 import handleRequest from 'utils/handleRequest';
 import services from 'services';
 import loadFromLocalStorage from 'utils/loadFromLocalStorage';
+import { generateDailyStats } from 'utils/generateDailyStats';
 
 const UserProvider = ({ children }: { children: JSX.Element }) => {
 	const { auth } = useAuthContext();
@@ -17,16 +17,30 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			publishedArticles: [],
 			likedArticles: [],
 			bookmarks: [],
+			overallDailyTotalLikes: [],
+			overallDailyTotalViews: [],
 		}),
 	);
 
-	const setArticlesData = (articles: Article[]) =>
+	// ─── Articles ────────────────────────────────────────────────────────
+
+	const setArticlesData = (articles: Article[]) => {
+		let overallTotalViews = 0;
+		for (let i = 0; i < articles.length; i++) {
+			overallTotalViews += articles[i].TotalViews;
+		}
+
 		setUser((u) => ({
 			...u,
 			publishedArticles: articles.filter((a) => !a.Draft),
 			draftArticles: articles.filter((a) => a.Draft),
+			overallDailyTotalViews: generateDailyStats(overallTotalViews),
+			overallDailyTotalLikes: generateDailyStats(overallTotalViews),
 		}));
+	};
+
 	const setLikedArticlesData = (likedArticles: Article[]) => setUser((u) => ({ ...u, likedArticles }));
+
 	const addArticleData = (article: Article) => {
 		if (article.Draft) {
 			setUser((u) => ({ ...u, draftArticles: [...u.draftArticles, article] }));
@@ -34,6 +48,9 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			setUser((u) => ({ ...u, publishedArticles: [...u.publishedArticles, article] }));
 		}
 	};
+
+	// ─── Drafts ──────────────────────────────────────────────────────────
+
 	const switchArticleDraftStateData = (articleId: number) => {
 		const draftArticle = user.draftArticles.find((a) => a.Id === articleId);
 		const publishedArticle = user.publishedArticles.find((a) => a.Id === articleId);
@@ -52,6 +69,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			}));
 		}
 	};
+
 	const deleteArticleData = (articleId: number) => {
 		const draftArticle = user.draftArticles.find((a) => a.Id === articleId);
 		const publishedArticle = user.publishedArticles.find((a) => a.Id === articleId);
@@ -68,12 +86,17 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			}));
 		}
 	};
+
 	const likeArticleData = (article: Article) =>
 		setUser((u) => ({ ...u, likedArticles: [...u.likedArticles, article] }));
+
 	const unlikeArticleData = (articleId: number) =>
 		setUser((u) => ({ ...u, likedArticles: u.likedArticles.filter((a) => a.Id !== articleId) }));
+
 	const setBookmarksData = (bookmarks: Bookmark[]) => setUser((u) => ({ ...u, bookmarks }));
+
 	const addBookmarkData = (bookmark: Bookmark) => setUser((u) => ({ ...u, bookmarks: [...u.bookmarks, bookmark] }));
+
 	const updateBookmarkData = ({
 		bookmarkId,
 		title,
@@ -96,8 +119,10 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			],
 		}));
 	};
+
 	const deleteBookmarkData = (bookmarkId: number) =>
 		setUser((u) => ({ ...u, bookmarks: [...u.bookmarks.filter((b) => b.Id !== bookmarkId)] }));
+
 	const addArticleToBookmarkData = (bookmarkId: number, articleId: number) =>
 		setUser((u) => ({
 			...u,
@@ -130,6 +155,8 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				publishedArticles: [],
 				likedArticles: [],
 				bookmarks: [],
+				overallDailyTotalLikes: [],
+				overallDailyTotalViews: [],
 			});
 		},
 
@@ -140,12 +167,29 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			return handleRequest({
 				request: async () => {
 					const res = await services.articles.me({ token: auth.accessToken! });
+					for (let i = 0; i < res.data.length; i++) {
+						res.data[i].TotalViews = Math.floor(Math.random() * 1000);
+					}
+
+					let overallTotalViews = 0;
+					for (let i = 0; i < res.data.length; i++) {
+						overallTotalViews += res.data[i].TotalViews;
+					}
+					const overallDailyTotalView = generateDailyStats(overallTotalViews);
+
+					let overallTotalLikes = 0;
+					for (let i = 0; i < res.data.length; i++) {
+						overallTotalLikes += res.data[i].Likes.length;
+					}
+					const overallDailyTotalLike = generateDailyStats(overallTotalLikes);
+
 					setArticlesData(res.data);
 					return res;
 				},
 				requestName: 'getArticles',
 			});
 		},
+
 		getLikedArticles: async () => {
 			if (auth.offline) {
 				throw new Error('getLikedArticles IPFS TODO');
@@ -159,6 +203,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				requestName: 'getLikedArticles',
 			});
 		},
+
 		getArticle: async (articleId: number) => {
 			if (auth.offline) {
 				throw new Error('');
@@ -166,11 +211,13 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			return handleRequest({
 				request: async () => {
 					const res = await services.articles.read({ token: auth.accessToken!, articleId: articleId });
+					res.data.TotalViews = Math.floor(Math.random() * 1000);
 					return res;
 				},
 				requestName: 'getArticle',
 			});
 		},
+
 		getBookmarks: async () => {
 			if (auth.offline) {
 				throw new Error('getBookmarks IPFS TODO');
@@ -184,6 +231,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				requestName: 'getBookmarks',
 			});
 		},
+
 		getBookmark: async (bookmarkId: number) => {
 			if (auth.offline) {
 				throw new Error('getBookmark IPFS TODO');
@@ -196,6 +244,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				requestName: 'getBookmark',
 			});
 		},
+
 		addArticle: ({
 			title,
 			topic,
@@ -219,6 +268,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				requestName: 'addArticle',
 			});
 		},
+
 		switchArticleDraftState: async (articleId: number) => {
 			if (auth.offline) {
 				throw new Error('switchArticleDraftState IPFS TODO');
@@ -237,6 +287,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				requestName: 'switchArticleDraftState',
 			});
 		},
+
 		deleteArticle: async (articleId: number) => {
 			if (auth.offline) {
 				throw new Error('deletePublishedArticle IPFS TODO');
@@ -250,6 +301,9 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				requestName: 'deleteArticle',
 			});
 		},
+
+		// ─── Like Actions ────────────────────────────────────────────
+
 		likeArticle: async (articleId: number) => {
 			if (auth.offline) {
 				throw new Error('likeArticles IPFS TODO');
@@ -263,6 +317,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				requestName: 'likeArticle',
 			});
 		},
+
 		unlikeArticle: async (articleId: number) => {
 			if (auth.offline) {
 				throw new Error('unlikeArticles IPFS TODO');
@@ -276,6 +331,9 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				requestName: 'unlikeArticle',
 			});
 		},
+
+		// ─── Bookmarks ───────────────────────────────────────────────
+
 		addBookmark: ({ title, description }: { title: string; description: string }) => {
 			if (auth.offline) {
 				throw new Error('addBookmark IPFS TODO');
@@ -289,6 +347,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				requestName: 'addBookmark',
 			});
 		},
+
 		updateBookmark: ({
 			bookmarkId,
 			title,
@@ -310,6 +369,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				requestName: 'updateBookmark',
 			});
 		},
+
 		deleteBookmark: (bookmarkId: number) => {
 			if (auth.offline) {
 				throw new Error('deleteBookmark IPFS TODO');
@@ -323,6 +383,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				requestName: 'deleteBookmark',
 			});
 		},
+
 		addArticleToBookmark: async (bookmarkId: number, articleId: number) => {
 			if (auth.offline) {
 				throw new Error('addArticleToBookmark IPFS TODO');
@@ -341,6 +402,8 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			});
 		},
 	};
+
+	// ─────────────────────────────────────────────────────────────────────
 
 	return <UserContext.Provider value={userContextValue} children={children} />;
 };

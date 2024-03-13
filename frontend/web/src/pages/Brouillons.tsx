@@ -115,6 +115,7 @@ const Brouillons = (): JSX.Element => {
 										</Tooltip>,
 									]}
 									view="publisher"
+									views={brouillon.TotalViews}
 									likes={+brouillon.Likes.length}
 								/>
 							</GridItem>
