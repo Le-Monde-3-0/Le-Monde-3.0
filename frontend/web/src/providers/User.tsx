@@ -30,12 +30,17 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			overallTotalViews += articles[i].TotalViews;
 		}
 
+		let overallTotalLikes = 0;
+		for (let i = 0; i < articles.length; i++) {
+			overallTotalLikes += articles[i].Likes.length;
+		}
+
 		setUser((u) => ({
 			...u,
 			publishedArticles: articles.filter((a) => !a.Draft),
 			draftArticles: articles.filter((a) => a.Draft),
 			overallDailyTotalViews: generateDailyStats(overallTotalViews),
-			overallDailyTotalLikes: generateDailyStats(overallTotalViews),
+			overallDailyTotalLikes: generateDailyStats(overallTotalLikes),
 		}));
 	};
 

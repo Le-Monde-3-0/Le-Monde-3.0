@@ -23,15 +23,11 @@ const Publications = (): JSX.Element => {
 		console.log(user.publishedArticles[i].TotalViews);
 		totalViews += user.publishedArticles[i].TotalViews;
 	}
-	const dailyTotalView = generateDailyStats(totalViews);
 
 	let totalLikes = 0;
 	for (let i = 0; i < user.publishedArticles.length; i++) {
 		totalLikes += user.publishedArticles[i].Likes.length;
 	}
-
-	const views = generateDailyStats(totalViews);
-	const likes = generateDailyStats(totalLikes);
 
 	const toggleViewChartDisplay = () => {
 		setViewChartDisplay(!isViewChartDisplayed);
@@ -111,14 +107,19 @@ const Publications = (): JSX.Element => {
 						{totalViews} view
 					</Tag>
 				</HStack>
-				<HStack>
+				<Grid
+					templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
+					gap={{ base: 2, lg: 4 }}
+					w="100%"
+				>
 					<Collapse in={isLikeChartDisplayed} animateOpacity>
-						<Chart yLabel="Likes" data={likes} />
+						<Chart yLabel="Likes" data={user.overallDailyTotalLikes} />
 					</Collapse>
 					<Collapse in={isViewChartDisplayed} animateOpacity>
 						<Chart yLabel="Vues" data={user.overallDailyTotalViews} />
 					</Collapse>
-				</HStack>
+					{/* </HStack> */}
+				</Grid>
 				<Grid
 					templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
 					gap={{ base: 2, lg: 4 }}
