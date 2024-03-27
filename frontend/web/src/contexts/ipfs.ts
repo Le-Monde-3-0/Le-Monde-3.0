@@ -1,11 +1,19 @@
 import { createContext, useContext } from 'react';
 
+import { Article } from 'types/article';
+
 type IpfsContextType = {
-	config: {
-		gateway: string | undefined;
+	ipfs: {
+		config: {
+			gateway: string | undefined;
+		};
+		data: {
+			articles: Article[];
+		};
 	};
-	clearConfig: () => void;
+	clearIpfs: () => void;
 	setGateway: (gateway: string) => void;
+	setArticles: (articles: Article[]) => void;
 	getIPFSFile: <Type>(cid: string) => Promise<Type>;
 };
 

@@ -2,15 +2,12 @@ import { CircularProgress, Grid, Text, GridItem, VStack } from '@chakra-ui/react
 import CategoryCard from 'components/Cards/CategoryCard';
 import SearchInput from 'components/Inputs/SearchInput';
 import { useAuthContext } from 'contexts/auth';
-import { useUIContext } from 'contexts/ui';
-import { useUserContext } from 'contexts/user';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 
 const Publications = (): JSX.Element => {
 	const [search, setSearch] = useState('');
 	const { auth } = useAuthContext();
-	const { requestResponseToast } = useUIContext();
 	const [categories, setCategories] = useState<{ name: string; image: string }[]>();
 
 	const uiGetCategories = async () => {
@@ -62,9 +59,7 @@ const Publications = (): JSX.Element => {
 	};
 
 	useEffect(() => {
-		if (auth.accessToken) {
-			uiGetCategories();
-		}
+		uiGetCategories();
 	}, [auth]);
 
 	if (!categories) {

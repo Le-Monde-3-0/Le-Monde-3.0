@@ -121,11 +121,9 @@ const ArticlePage = (): JSX.Element => {
 	};
 
 	useEffect(() => {
-		if (auth.accessToken) {
-			uiGetArticle();
-			uiGetLikedArticles();
-			uiGetBookmarks();
-		}
+		uiGetArticle();
+		uiGetLikedArticles();
+		uiGetBookmarks();
 	}, [auth]);
 
 	useEffect(() => {

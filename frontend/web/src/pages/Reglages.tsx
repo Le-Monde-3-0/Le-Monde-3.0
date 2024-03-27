@@ -1,10 +1,9 @@
 import { Button, VStack, Text } from '@chakra-ui/react';
 import FormInput from 'components/Inputs/FormInput';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const Reglages = (): JSX.Element => {
-	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const [newPassword, setNewPassword] = useState('');
 

@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
+
+import services from 'services';
 import { useAuthContext } from 'contexts/auth';
+import { useIpfsContext } from 'contexts/ipfs';
 import UserContext, { UserContextType } from 'contexts/user';
 import { Article } from 'types/article';
 import { Bookmark } from 'types/bookmark';
 import handleRequest from 'utils/handleRequest';
-import services from 'services';
 import loadFromLocalStorage from 'utils/loadFromLocalStorage';
 import { generateDailyStats } from 'utils/generateDailyStats';
 
 const UserProvider = ({ children }: { children: JSX.Element }) => {
 	const { auth } = useAuthContext();
+	const { ipfs } = useIpfsContext();
 
 	const [user, setUser] = useState<UserContextType['user']>(
 		loadFromLocalStorage<UserContextType['user']>('user', {
@@ -167,7 +170,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 
 		getArticles: async () => {
 			if (auth.offline) {
-				throw new Error('Action not available using IPFS.');
+				throw new Error("Action 'getArticles' not available using IPFS.");
 			}
 			return handleRequest({
 				request: async () => {
@@ -191,64 +194,81 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 					setArticlesData(res.data);
 					return res;
 				},
-				requestName: 'getArticles',
+				name: 'getArticles',
 			});
 		},
 
-		getLikedArticles: async () => {
-			if (auth.offline) {
-				throw new Error('getLikedArticles IPFS TODO');
-			}
-			return handleRequest({
-				request: async () => {
-					const res = await services.articles.liked({ token: auth.accessToken! });
-					setLikedArticlesData(res.data);
-					return res;
-				},
-				requestName: 'getLikedArticles',
-			});
-		},
+		getLikedArticles: async () =>
+			handleRequest({
+				request: auth.offline
+					? undefined
+					: async () => {
+							const res = await services.articles.liked({ token: auth.accessToken! });
+							setLikedArticlesData(res.data);
+							return res;
+					  },
+				action: auth.offline ? () => ({ status: 200, data: user.likedArticles }) : undefined,
+				name: 'getLikedArticles',
+			}),
 
-		getArticle: async (articleId: number) => {
-			if (auth.offline) {
-				throw new Error('');
-			}
-			return handleRequest({
-				request: async () => {
-					const res = await services.articles.read({ token: auth.accessToken!, articleId: articleId });
-					res.data.TotalViews = Math.floor(Math.random() * 1000);
-					return res;
-				},
-				requestName: 'getArticle',
-			});
-		},
+		getArticle: async (articleId: number) =>
+			handleRequest({
+				request: auth.offline
+					? undefined
+					: async () => {
+							const res = await services.articles.read({ token: auth.accessToken!, articleId });
+							res.data.TotalViews = Math.floor(Math.random() * 1000);
+							return res;
+					  },
+				action: auth.offline
+					? () => {
+							const article = ipfs.data.articles.find((a) => a.Id === articleId);
+							return {
+								status: article ? 200 : 404,
+								data: article,
+							};
+					  }
+					: undefined,
+				name: 'getArticle',
+			}),
 
-		getBookmarks: async () => {
-			if (auth.offline) {
-				throw new Error('getBookmarks IPFS TODO');
-			}
-			return handleRequest({
-				request: async () => {
-					const res = await services.bookmarks.getAll({ token: auth.accessToken! });
-					setBookmarksData(res.data);
-					return res;
-				},
-				requestName: 'getBookmarks',
-			});
-		},
+		getBookmarks: async () =>
+			handleRequest({
+				request: auth.offline
+					? undefined
+					: async () => {
+							const res = await services.bookmarks.getAll({ token: auth.accessToken! });
+							setBookmarksData(res.data);
+							return res;
+					  },
+				action: auth.offline
+					? () => ({
+							status: 200,
+							data: user.bookmarks,
+					  })
+					: undefined,
+				name: 'getBookmarks',
+			}),
 
-		getBookmark: async (bookmarkId: number) => {
-			if (auth.offline) {
-				throw new Error('getBookmark IPFS TODO');
-			}
-			return handleRequest({
-				request: async () => {
-					const res = await services.bookmarks.get({ token: auth.accessToken!, bookmarkId: bookmarkId });
-					return res;
-				},
-				requestName: 'getBookmark',
-			});
-		},
+		getBookmark: async (bookmarkId: number) =>
+			handleRequest({
+				request: auth.offline
+					? undefined
+					: async () => {
+							const res = await services.bookmarks.get({ token: auth.accessToken!, bookmarkId: bookmarkId });
+							return res;
+					  },
+				action: auth.offline
+					? () => {
+							const bookmark = user.bookmarks.find((b) => b.Id === bookmarkId);
+							return {
+								status: bookmark ? 200 : 404,
+								data: bookmark,
+							};
+					  }
+					: undefined,
+				name: 'getBookmark',
+			}),
 
 		addArticle: ({
 			title,
@@ -262,7 +282,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			draft: boolean;
 		}) => {
 			if (auth.offline) {
-				throw new Error('addPublishedArticle');
+				throw new Error("Action 'addArticle' not available using IPFS.");
 			}
 			return handleRequest({
 				request: async () => {
@@ -270,13 +290,13 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 					addArticleData(res.data);
 					return res;
 				},
-				requestName: 'addArticle',
+				name: 'addArticle',
 			});
 		},
 
 		switchArticleDraftState: async (articleId: number) => {
 			if (auth.offline) {
-				throw new Error('switchArticleDraftState IPFS TODO');
+				throw new Error("Action 'switchArticleDraftState' not available using IPFS.");
 			}
 			return handleRequest({
 				request: async () => {
@@ -289,13 +309,13 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 					switchArticleDraftStateData(articleId);
 					return res;
 				},
-				requestName: 'switchArticleDraftState',
+				name: 'switchArticleDraftState',
 			});
 		},
 
 		deleteArticle: async (articleId: number) => {
 			if (auth.offline) {
-				throw new Error('deletePublishedArticle IPFS TODO');
+				throw new Error("Action 'deleteArticle' not available using IPFS.");
 			}
 			return handleRequest({
 				request: async () => {
@@ -303,109 +323,158 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 					deleteArticleData(articleId);
 					return res;
 				},
-				requestName: 'deleteArticle',
+				name: 'deleteArticle',
 			});
 		},
 
 		// ─── Like Actions ────────────────────────────────────────────
 
-		likeArticle: async (articleId: number) => {
-			if (auth.offline) {
-				throw new Error('likeArticles IPFS TODO');
-			}
-			return handleRequest({
-				request: async () => {
-					const res = await services.articles.like({ token: auth.accessToken!, articleId });
-					likeArticleData(res.data);
-					return res;
-				},
-				requestName: 'likeArticle',
-			});
-		},
+		likeArticle: async (articleId: number) =>
+			handleRequest({
+				request: auth.offline
+					? undefined
+					: async () => {
+							const res = await services.articles.like({ token: auth.accessToken!, articleId });
+							likeArticleData(res.data);
+							return res;
+					  },
+				action: auth.offline
+					? () => {
+							const article = ipfs.data.articles.find((a) => a.Id === articleId);
+							if (article) likeArticleData(article);
+							return {
+								status: article ? 200 : 400,
+								data: article,
+							};
+					  }
+					: undefined,
+				name: 'likeArticle',
+			}),
 
-		unlikeArticle: async (articleId: number) => {
-			if (auth.offline) {
-				throw new Error('unlikeArticles IPFS TODO');
-			}
-			return handleRequest({
-				request: async () => {
-					const res = await services.articles.unlike({ token: auth.accessToken!, articleId });
-					unlikeArticleData(articleId);
-					return res;
-				},
-				requestName: 'unlikeArticle',
-			});
-		},
+		unlikeArticle: async (articleId: number) =>
+			handleRequest({
+				request: auth.offline
+					? undefined
+					: async () => {
+							const res = await services.articles.unlike({ token: auth.accessToken!, articleId });
+							unlikeArticleData(articleId);
+							return res;
+					  },
+				action: auth.offline
+					? () => {
+							const article = ipfs.data.articles.find((a) => a.Id === articleId);
+							if (article) unlikeArticleData(articleId);
+							return {
+								status: article ? 200 : 400,
+								data: article,
+							};
+					  }
+					: undefined,
+				name: 'unlikeArticle',
+			}),
 
 		// ─── Bookmarks ───────────────────────────────────────────────
 
-		addBookmark: ({ title, description }: { title: string; description: string }) => {
-			if (auth.offline) {
-				throw new Error('addBookmark IPFS TODO');
-			}
-			return handleRequest({
-				request: async () => {
-					const res = await services.bookmarks.create({ token: auth.accessToken!, title, description });
-					addBookmarkData(res.data);
-					return res;
-				},
-				requestName: 'addBookmark',
-			});
-		},
+		addBookmark: ({ title, description }: { title: string; description: string }) =>
+			handleRequest({
+				request: auth.offline
+					? undefined
+					: async () => {
+							const res = await services.bookmarks.create({ token: auth.accessToken!, title, description });
+							addBookmarkData(res.data);
+							return res;
+					  },
+				action: auth.offline
+					? () => {
+							const bookmark = {
+								Articles: [],
+								Description: description,
+								Title: title,
+								Id: Date.now(),
+								UserId: 0, // TODO: replace by user Id when we'll be able to
+								CreatedAt: new Date(),
+								UpdatedAt: new Date(),
+							};
+							addBookmarkData(bookmark);
+							return {
+								status: 201,
+								data: bookmark,
+							};
+					  }
+					: undefined,
+				name: 'addBookmark',
+			}),
 
-		updateBookmark: ({
-			bookmarkId,
-			title,
-			description,
-		}: {
-			bookmarkId: number;
-			title: string;
-			description: string;
-		}) => {
-			if (auth.offline) {
-				throw new Error('updateBookmark IPFS TODO');
-			}
-			return handleRequest({
-				request: async () => {
-					const res = await services.bookmarks.update({ token: auth.accessToken!, bookmarkId, title, description });
-					updateBookmarkData({ bookmarkId, title, description });
-					return res;
-				},
-				requestName: 'updateBookmark',
-			});
-		},
+		updateBookmark: ({ bookmarkId, title, description }: { bookmarkId: number; title: string; description: string }) =>
+			handleRequest({
+				request: auth.offline
+					? undefined
+					: async () => {
+							const res = await services.bookmarks.update({ token: auth.accessToken!, bookmarkId, title, description });
+							updateBookmarkData({ bookmarkId, title, description });
+							return res;
+					  },
+				action: auth.offline
+					? () => {
+							const bookmark = user.bookmarks.find((b) => b.Id === bookmarkId);
+							if (bookmark) updateBookmarkData({ bookmarkId, title, description });
+							return {
+								status: bookmark ? 200 : 400,
+								data: bookmark,
+							};
+					  }
+					: undefined,
+				name: 'updateBookmark',
+			}),
 
-		deleteBookmark: (bookmarkId: number) => {
-			if (auth.offline) {
-				throw new Error('deleteBookmark IPFS TODO');
-			}
-			return handleRequest({
-				request: async () => {
-					const res = services.bookmarks.delete({ token: auth.accessToken!, bookmarkId });
-					deleteBookmarkData(bookmarkId);
-					return res;
-				},
-				requestName: 'deleteBookmark',
-			});
-		},
+		deleteBookmark: (bookmarkId: number) =>
+			handleRequest({
+				request: auth.offline
+					? undefined
+					: async () => {
+							const res = services.bookmarks.delete({ token: auth.accessToken!, bookmarkId });
+							deleteBookmarkData(bookmarkId);
+							return res;
+					  },
+				action: auth.offline
+					? () => {
+							const bookmark = user.bookmarks.find((b) => b.Id === bookmarkId);
+							if (bookmark) deleteBookmarkData(bookmarkId);
+							return {
+								status: bookmark ? 200 : 400,
+								data: undefined,
+							};
+					  }
+					: undefined,
+				name: 'deleteBookmark',
+			}),
 
-		addArticleToBookmark: async (bookmarkId: number, articleId: number) => {
-			if (auth.offline) {
-				throw new Error('addArticleToBookmark IPFS TODO');
-			}
-			return handleRequest({
-				request: async () => {
-					const res = await services.bookmarks.addArticle({
-						token: auth.accessToken!,
-						bookmarkId,
-						articleId,
-					});
-					addArticleToBookmarkData(bookmarkId, articleId);
-					return res;
-				},
-				requestName: 'addArticleToBookmark',
-			});
-		},
+		addArticleToBookmark: async (bookmarkId: number, articleId: number) =>
+			handleRequest({
+				request: auth.offline
+					? undefined
+					: async () => {
+							const res = await services.bookmarks.addArticle({
+								token: auth.accessToken!,
+								bookmarkId,
+								articleId,
+							});
+							addArticleToBookmarkData(bookmarkId, articleId);
+							return res;
+					  },
+				action: auth.offline
+					? () => {
+							const article = ipfs.data.articles.find((a) => a.Id === articleId);
+							const bookmark = user.bookmarks.find((b) => b.Id === bookmarkId);
+							if (article && bookmark) addArticleToBookmarkData(bookmarkId, articleId);
+							return {
+								status: article && bookmark ? 200 : 400,
+								data: article,
+							};
+					  }
+					: undefined,
+				name: 'addArticleToBookmark',
+			}),
 	};
 
 	// ─────────────────────────────────────────────────────────────────────

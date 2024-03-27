@@ -8,7 +8,7 @@ type RequestResponse<Type> = {
 	data: Type | undefined;
 };
 
-const unhandledAxiosResponse: RequestResponse<never> = {
+const unhandledResponse: RequestResponse<never> = {
 	code: 0,
 	status: 'info',
 	message: 'Status code unhandled.',
@@ -85,24 +85,27 @@ const handleRequestTable: { [key: string]: RequestResponse<never>[] } = {
 
 const handleRequest = async <Type>({
 	request,
-	requestName,
+	action,
+	name,
 }: {
-	request: () => Promise<AxiosResponse<Type>>;
-	requestName: string;
+	request?: () => Promise<AxiosResponse<Type>>;
+	action?: () => { status: number; data: Type | undefined };
+	name: string;
 }): Promise<RequestResponse<Type>> => {
 	try {
-		const res = await request();
+		if (!request && !action) throw new Error('handleRequest must be provided of a request or an action');
+		const res = request ? await request() : action!();
 		console.log(res);
-		const output = handleRequestTable[requestName].find((r) => r.code === res.status);
-		return output ? { ...output, data: res.data } : unhandledAxiosResponse;
+		const output = handleRequestTable[name].find((r) => r.code === res.status);
+		return output ? { ...output, data: res.data } : unhandledResponse;
 	} catch (error) {
 		console.error(error);
 		if (error instanceof AxiosError) {
 			const errorCode = error.response ? error.response.status : 0;
 			if (errorCode === 500) return internalError;
 			const errorMessage = error.response?.data.error || 'No message provided from the backend';
-			const output = handleRequestTable[requestName].find((r) => r.code === errorCode);
-			return output ? { ...output, subMessage: errorMessage } : unhandledAxiosResponse;
+			const output = handleRequestTable[name].find((r) => r.code === errorCode);
+			return output ? { ...output, subMessage: errorMessage } : unhandledResponse;
 		}
 		return unknowError;
 	}
