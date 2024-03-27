@@ -1,6 +1,5 @@
 import { DeleteIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import {
-	Button,
 	CircularProgress,
 	Grid,
 	GridItem,
@@ -9,12 +8,10 @@ import {
 	ModalBody,
 	ModalCloseButton,
 	ModalContent,
-	ModalFooter,
 	ModalHeader,
 	ModalOverlay,
 	Tag,
 	Tooltip,
-	useDisclosure,
 	VStack,
 } from '@chakra-ui/react';
 import ArticleCard from 'components/Cards/ArticleCard';
@@ -29,7 +26,6 @@ import { useEffect, useState } from 'react';
 const Brouillons = (): JSX.Element => {
 	const [search, setSearch] = useState('');
 	const [editor, setEditor] = useState<boolean>(false);
-	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [draft, setDraft] = useState({
 		title: '',
 		topic: '',
@@ -67,9 +63,7 @@ const Brouillons = (): JSX.Element => {
 	};
 
 	useEffect(() => {
-		if (auth.accessToken) {
-			uiGetArticles();
-		}
+		uiGetArticles();
 	}, [auth]);
 
 	if (!user.draftArticles) {

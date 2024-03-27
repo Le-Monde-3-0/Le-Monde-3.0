@@ -3,38 +3,45 @@ import axios from 'axios';
 
 import IpfsContext, { IpfsContextType } from 'contexts/ipfs';
 import loadFromLocalStorage from 'utils/loadFromLocalStorage';
+import { Article } from 'types/article';
+
+const defaultIpfs = {
+	config: {
+		gateway: undefined,
+	},
+	data: {
+		articles: [],
+	},
+};
 
 const IpfsProvider = ({ children }: { children: JSX.Element }) => {
-	const [config, setConfig] = useState<IpfsContextType['config']>(
-		loadFromLocalStorage<IpfsContextType['config']>('ipfs', {
-			gateway: undefined,
-		}),
+	const [ipfs, setIpfs] = useState<IpfsContextType['ipfs']>(
+		loadFromLocalStorage<IpfsContextType['ipfs']>('ipfs', defaultIpfs),
 	);
 
 	useEffect(() => {
 		const localStorageIpfs = localStorage.getItem('ipfs');
-		if (localStorageIpfs) setConfig(JSON.parse(localStorageIpfs));
+		if (localStorageIpfs) setIpfs(JSON.parse(localStorageIpfs));
 	}, []);
 
 	useEffect(() => {
-		if (config && config.gateway) {
-			localStorage.setItem('ipfs', JSON.stringify(config));
+		if (ipfs) {
+			localStorage.setItem('ipfs', JSON.stringify(ipfs));
 		}
-	}, [config]);
+	}, [ipfs]);
 
 	const ipfsContextValue: IpfsContextType = {
-		config,
-		clearConfig: () => {
+		ipfs,
+		clearIpfs: () => {
 			localStorage.removeItem('ipfs');
-			setConfig({
-				gateway: undefined,
-			});
+			setIpfs(defaultIpfs);
 		},
-		setGateway: (gateway: string) => setConfig((c) => ({ ...c, gateway })),
+		setGateway: (gateway: string) => setIpfs((i) => ({ ...i, config: { ...i.config, gateway } })),
+		setArticles: (articles: Article[]) => setIpfs((i) => ({ ...i, data: { ...i.data, articles } })),
 		getIPFSFile: async (cid: string) => {
 			try {
 				console.log(`get IPFS CID: ${cid}`);
-				const res = await axios.get(`${config.gateway}/ipfs/${cid}`, { timeout: 50000 });
+				const res = await axios.get(`${ipfs.config.gateway}/ipfs/${cid}`, { timeout: 50000 });
 				console.log(res);
 				return res.data;
 			} catch (error) {

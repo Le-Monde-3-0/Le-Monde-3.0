@@ -44,12 +44,12 @@ const AuthProvider = ({ children }: { children: JSX.Element }) => {
 					authContextValue.setAccessToken(res.data.token);
 					return res;
 				},
-				requestName: 'login',
+				name: 'login',
 			}),
 		register: ({ email, username, password }: { email: string; username: string; password: string }) =>
 			handleRequest({
 				request: async () => await services.auth.register({ email, username, password }),
-				requestName: 'register',
+				name: 'register',
 			}),
 	};
 

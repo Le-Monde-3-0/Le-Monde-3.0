@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Alert, AlertIcon, HStack, Input, Switch, Text, VStack } from '@chakra-ui/react';
+import { Alert, AlertIcon, Button, HStack, Input, Switch, Text, VStack } from '@chakra-ui/react';
 
 import { useIpfsContext } from 'contexts/ipfs';
 import { useAuthContext } from 'contexts/auth';
 
 const IpfsConfig = (): JSX.Element => {
 	const { auth, toggleOfflineState } = useAuthContext();
-	const { config, setGateway, getIPFSFile } = useIpfsContext();
+	const { ipfs, setArticles, setGateway, getIPFSFile } = useIpfsContext();
 	const [isGatewayWorking, setIsGatewayWorking] = useState<true | false | 'loading'>(false);
+	const [isRefreshWorking, setIsRefreshWorking] = useState<true | false | 'loading'>(false);
 
 	const testGateway = async () => {
 		const cid = 'Qmf8e9tCBH62GNKwYc6jypzqf5hcP5L61SMdZVBVFiqSip';
@@ -23,14 +24,47 @@ const IpfsConfig = (): JSX.Element => {
 		}
 	};
 
-	useEffect(() => {
-		testGateway();
-	}, [config.gateway]);
+	const refresh = async () => {
+		// const cid = 'Qmf8e9tCBH62GNKwYc6jypzqf5hcP5L61SMdZVBVFiqSip';
+		try {
+			setIsRefreshWorking('loading');
+			// const file = await getIPFSFile<{ message: string }>(cid);
+			// setIsRefreshWorking(file.message === 'OK');
+			// console.log(file);
+			setArticles(
+				[0, 1, 2, 3, 4, 5].map((i) => ({
+					AuthorName: `AuthorName ${i}`,
+					Content: `Content ${i}`,
+					CreatedAt: new Date(),
+					Draft: false,
+					Id: i,
+					Likes: [],
+					TotalViews: i,
+					DailyViews: [],
+					DailyLikes: [],
+					Subtitle: `Subtitle ${i}`,
+					Title: `Title ${i}`,
+					Topic: `Topic ${i}`,
+					UserId: i,
+				})),
+			);
+			setIsRefreshWorking(true);
+		} catch (error) {
+			setIsRefreshWorking(false);
+			console.error(error);
+		}
+	};
 
 	useEffect(() => {
-		if (config.gateway === undefined) {
+		testGateway();
+	}, [ipfs.config.gateway]);
+
+	useEffect(() => {
+		if (ipfs.config.gateway === undefined) {
 			setGateway('http://localhost:8080');
 		}
+		testGateway();
+		refresh();
 	}, []);
 
 	return (
@@ -45,7 +79,7 @@ const IpfsConfig = (): JSX.Element => {
 					<Input
 						variant="primary-1"
 						placeholder="https://ipfs.io"
-						value={config.gateway}
+						value={ipfs.config.gateway}
 						onChange={(e) => setGateway(e.target.value)}
 					/>
 					<Alert status={isGatewayWorking === 'loading' ? 'info' : isGatewayWorking ? 'success' : 'error'}>
@@ -55,6 +89,20 @@ const IpfsConfig = (): JSX.Element => {
 							: isGatewayWorking
 							? 'Gateway fonctionnelle'
 							: 'Gateway non-fonctionnelle'}
+					</Alert>
+				</VStack>
+				<VStack align="start" w="100%" maxW="560px">
+					<Text variant="link">Rafraîchir les données</Text>
+					<Button variant="primary-purple" onClick={refresh}>
+						Rafraîchir
+					</Button>
+					<Alert status={isRefreshWorking === 'loading' ? 'info' : isRefreshWorking ? 'success' : 'error'}>
+						<AlertIcon />
+						{isRefreshWorking === 'loading'
+							? 'Rafraîchissement en cours'
+							: isRefreshWorking
+							? 'Rafraîchissement réussi'
+							: 'Rafraîchissement échoué'}
 					</Alert>
 				</VStack>
 			</VStack>

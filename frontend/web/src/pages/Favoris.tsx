@@ -76,17 +76,15 @@ const Favoris = (): JSX.Element => {
 	};
 
 	useEffect(() => {
-		if (auth.accessToken) {
-			uiGetLikedArticles();
-			uiGetBookmarks();
-		}
+		uiGetLikedArticles();
+		uiGetBookmarks();
 	}, [auth]);
 
 	if (!user.likedArticles || !user.bookmarks) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
-					<CircularProgress size="120px" isIndeterminate color="black" />
+					<CircularProgress size="120px" isIndeterminate color="yellow" />
 				</VStack>
 			</>
 		);

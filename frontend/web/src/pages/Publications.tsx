@@ -8,7 +8,6 @@ import { useUIContext } from 'contexts/ui';
 import { useUserContext } from 'contexts/user';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { generateDailyStats } from 'utils/generateDailyStats';
 
 const Publications = (): JSX.Element => {
 	const [search, setSearch] = useState('');
@@ -60,9 +59,7 @@ const Publications = (): JSX.Element => {
 	};
 
 	useEffect(() => {
-		if (auth.accessToken) {
-			uiGetArticles();
-		}
+		uiGetArticles();
 	}, [auth]);
 
 	if (!user.publishedArticles) {

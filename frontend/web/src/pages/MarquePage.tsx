@@ -33,9 +33,7 @@ const MarquePage = (): JSX.Element => {
 	};
 
 	useEffect(() => {
-		if (auth.accessToken) {
-			uiGetBookmark();
-		}
+		uiGetBookmark();
 	}, [auth]);
 
 	if (!bookmark) {
