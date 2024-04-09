@@ -8,7 +8,7 @@ import (
 /*
 ApplyArticlesRoutes implements the routes of the microservice Articles
 */
-func ApplyArticlesRoutes(protected *gin.RouterGroup, logger *zap.Logger) {
+func ApplyArticlesRoutes(public *gin.RouterGroup, protected *gin.RouterGroup, logger *zap.Logger) {
 
 	protected.POST("/articles", func(c *gin.Context) {
 		AddArticle(c, logger)
@@ -31,6 +31,10 @@ func ApplyArticlesRoutes(protected *gin.RouterGroup, logger *zap.Logger) {
 	})
 	protected.GET("/articles/:id/likes", func(c *gin.Context) {
 		GetLikesInfo(c, logger)
+	})
+
+	public.GET("/articles/topics/example", func(c *gin.Context) {
+		GetRandomTopics(c, logger)
 	})
 
 	protected.PUT("/articles/:id", func(c *gin.Context) {

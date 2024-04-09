@@ -758,6 +758,32 @@ paths:
             $ref: '#/definitions/core.HTTPError500'
       tags:
       - bookmarks
+  /bookmarks/:id/visibility:
+    post:
+      consumes:
+      - application/json
+      description: Change the visibility of a bookmark
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/core.Bookmark'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
+      tags:
+      - bookmarks
   /login:
     post:
       consumes:

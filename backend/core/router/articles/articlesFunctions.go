@@ -182,6 +182,26 @@ func GetLikesInfo(c *gin.Context, logger *zap.Logger) {
 	c.Data(statusCode, "application/json", responseBody)
 }
 
+// GetRandomTopics godoc
+// @Schemes
+// @Description Return random ideas of topics
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} []string
+// @Failure      500  {object}  HTTPError500
+// @Router /articles/topics/example [get]
+func GetRandomTopics(c *gin.Context, logger *zap.Logger) {
+
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/topics/example", nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		logger.Error(err.Error())
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
 // EditArticle godoc
 // @Schemes
 // @Description Edit an article

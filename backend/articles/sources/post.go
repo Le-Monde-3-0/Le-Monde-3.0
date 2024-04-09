@@ -43,7 +43,7 @@ func AddArticle(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": result.Error})
 		return
 	}
-	//AddInIPFS(article) // TODO generates Post "": unsupported protocol scheme "" error
+	//AddInIPFS(article) // TODO regenerer les .env info
 	c.JSON(http.StatusCreated, article)
 }
 

@@ -34,7 +34,7 @@ func Router(logger *zap.Logger) *gin.Engine {
 	protected.Use(utils.JwtAuthMiddleware())
 
 	adm.ApplyAuthRoutes(public, protected, logger)
-	art.ApplyArticlesRoutes(protected, logger)
+	art.ApplyArticlesRoutes(public, protected, logger)
 	bkm.ApplyBookmarksRoutes(protected, logger)
 
 	return r

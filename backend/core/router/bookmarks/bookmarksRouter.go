@@ -16,6 +16,9 @@ func ApplyBookmarksRoutes(protected *gin.RouterGroup, logger *zap.Logger) {
 	protected.POST("/bookmarks/:id/articles/:id-article", func(c *gin.Context) {
 		AddArticleInBookmark(c, logger)
 	})
+	protected.POST("/bookmarks/:id/visibility", func(c *gin.Context) {
+		ChangeBookmarkVisibility(c, logger)
+	})
 
 	protected.GET("/bookmarks", func(c *gin.Context) {
 		GetAllBookmarks(c, logger)

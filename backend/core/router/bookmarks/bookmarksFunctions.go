@@ -83,6 +83,29 @@ func AddArticleInBookmark(c *gin.Context, logger *zap.Logger) {
 	c.Data(statusCode, "application/json", responseBody)
 }
 
+// ChangeBookmarkVisibility godoc
+// @Schemes
+// @Description Change the visibility of a bookmark
+// @Tags bookmarks
+// @Accept json
+// @Produce json
+// @Success 200 {object} Bookmark
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
+// @Router /bookmarks/:id/visibility [post]
+func ChangeBookmarkVisibility(c *gin.Context, logger *zap.Logger) {
+
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPost, "http://bookmarks-lemonde3-0:8084/bookmarks/"+c.Param("id")+"/visibility", nil)
+	if err != nil {
+		logger.Error(err.Error())
+		c.String(statusCode, "Error making the request")
+		return
+	}
+
+	c.Data(statusCode, "application/json", responseBody)
+}
+
 // GetAllBookmarks godoc
 // @Schemes
 // @Description Retrieve the connected user bookmarks

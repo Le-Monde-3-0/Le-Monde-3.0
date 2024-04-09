@@ -6,8 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
+	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 )
 
 type LikesResponse struct {
@@ -162,4 +165,38 @@ func GetLikesInfo(c *gin.Context, db *gorm.DB) {
 	}
 
 	c.JSON(http.StatusOK, LikesResponse{len(article.Likes), article.Likes})
+}
+
+func GetRandomTopics(c *gin.Context) {
+	data, err := os.ReadFile("sources/.topics.txt")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to read topics file",
+		})
+		return
+	}
+
+	topics := strings.Split(string(data), "\n")
+
+	var filteredTopics []string
+	for _, topic := range topics {
+		if topic != "" {
+			filteredTopics = append(filteredTopics, topic)
+		}
+	}
+
+	rand.Shuffle(len(filteredTopics), func(i, j int) {
+		filteredTopics[i], filteredTopics[j] = filteredTopics[j], filteredTopics[i]
+	})
+
+	var randomTopics []string
+	if len(filteredTopics) <= 10 {
+		randomTopics = filteredTopics
+	} else {
+		randomTopics = filteredTopics[:10]
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"topics": randomTopics,
+	})
 }
