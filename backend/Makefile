@@ -1,11 +1,11 @@
 up:
-	 docker-compose up
+	 docker compose up
 
 down:
-	 docker-compose down
+	 docker compose down
 
 build:
-	 docker-compose up --build
+	 docker compose up --build
 
 tests:
 	cd auth ; go test -cover ./router
