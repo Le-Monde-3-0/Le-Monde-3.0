@@ -22,6 +22,12 @@ func GetBookmark(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	userId, err := utils.GetUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	result := db.Where(Bookmark{Id: uint(bookmarkId)}).Find(&bookmark)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -33,7 +39,7 @@ func GetBookmark(c *gin.Context, db *gorm.DB) {
 	} else if bookmark.Title == "" {
 		c.JSON(http.StatusNotFound, gin.H{"error": "bookmark not found"})
 		return
-	} else if bookmark.IsPrivate {
+	} else if bookmark.IsPrivate && bookmark.UserId != userId {
 		c.JSON(http.StatusForbidden, gin.H{"error": "bookmark is private"})
 		return
 	}
