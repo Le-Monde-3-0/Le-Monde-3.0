@@ -250,6 +250,38 @@ func TestGetLikesInfo(t *testing.T) {
 	assert.Equal(t, articles.LikesResponse{Amount: 1, Accounts: pq.Int32Array{7}}, likesResponse)
 }
 
+func TestGetRandomTopics(t *testing.T) {
+	setUp()
+
+	type Topics struct {
+		Topics []string
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/articles/topics/example", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 200, w.Code)
+
+	var responseTopics Topics
+	err = json.Unmarshal([]byte(w.Body.String()), &responseTopics)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+	assert.Equal(t, 10, len(responseTopics.Topics))
+	uniqueTopic := make(map[string]bool)
+	for _, element := range responseTopics.Topics {
+		uniqueTopic[element] = true
+	}
+	assert.Equal(t, 10, len(uniqueTopic))
+}
+
 func TestEditArticle(t *testing.T) {
 	setUp()
 

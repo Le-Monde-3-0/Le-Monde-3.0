@@ -168,7 +168,7 @@ func GetLikesInfo(c *gin.Context, db *gorm.DB) {
 }
 
 func GetRandomTopics(c *gin.Context) {
-	data, err := os.ReadFile("sources/.topics.txt")
+	data, err := os.ReadFile(".topics.txt")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to read topics file",
