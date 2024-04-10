@@ -155,12 +155,6 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 					onClick={() => navigate('/brouillons')}
 					isEnable={!auth.offline}
 				/>
-				<Option
-					name="Statistiques"
-					isSelected={location.pathname === '/statistiques'}
-					onClick={() => navigate('/statistiques')}
-					isEnable={!auth.offline}
-				/>
 			</VStack>
 			<VStack align="start" w="100%">
 				<Title icon={MdAccountCircle} name="Compte" />

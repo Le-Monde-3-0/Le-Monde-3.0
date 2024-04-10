@@ -15,7 +15,6 @@ import Decouvertes from 'pages/Decouvertes';
 import NouvelArticle from 'pages/NouvelArticle';
 import Publications from 'pages/Publications';
 import Brouillons from 'pages/Brouillons';
-import Statistiques from 'pages/Statistiques';
 import Reglages from 'pages/Reglages';
 import IpfsConfig from 'pages/IpfsConfig';
 import AuthProvider from 'providers/Auth';
@@ -43,7 +42,6 @@ const Routes = (): JSX.Element => (
 							<Route path="/nouvel-article" element={<NouvelArticle />} />
 							<Route path="/publications" element={<Publications />} />
 							<Route path="/brouillons" element={<Brouillons />} />
-							<Route path="/statistiques" element={<Statistiques />} />
 							<Route path="/reglages" element={<Reglages />} />
 							<Route path="/ipfs-config" element={<IpfsConfig />} />
 						</Route>

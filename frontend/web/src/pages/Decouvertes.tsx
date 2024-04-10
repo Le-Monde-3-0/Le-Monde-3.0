@@ -79,7 +79,7 @@ const Publications = (): JSX.Element => {
 					value={search}
 					inputId="publications-search-input"
 					w={{ base: '100%', xl: '640px' }}
-					placeholder="Cherchez parmis les différentes catégories"
+					placeholder="Rechercher un article"
 					onChange={(e) => setSearch(e.target.value)}
 					variant="primary-1"
 				/>

@@ -1,9 +1,9 @@
-import { AddIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons';
+import { AddIcon, CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons';
 import {
 	Badge,
 	CircularProgress,
-	Grid,
 	Collapse,
+	Grid,
 	HStack,
 	Modal,
 	ModalBody,
@@ -27,6 +27,8 @@ import { Article } from 'types/article';
 import frenchDate from 'utils/frenchDate';
 import { generateDailyStats } from 'utils/generateDailyStats';
 
+import Editor from '../components/Editor/Editor';
+
 const ArticlePage = (): JSX.Element => {
 	const navigate = useNavigate();
 	const { articleId } = useParams();
@@ -35,6 +37,7 @@ const ArticlePage = (): JSX.Element => {
 	const { user, addArticleToBookmark, getArticle, getBookmarks, getLikedArticles, likeArticle, unlikeArticle } =
 		useUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const [editor, setEditor] = useState(false);
 	const [article, setArticle] = useState<Article | undefined>(undefined);
 	const [isLiked, setIsLiked] = useState(false);
 	const [isViewChartDisplayed, setViewChartDisplay] = useState(false);
@@ -160,6 +163,16 @@ const ArticlePage = (): JSX.Element => {
 						<Badge fontSize={{ base: 'small', lg: 'md' }} cursor="pointer" borderRadius="xsm" onClick={onOpen}>
 							<AddIcon /> Marque-page
 						</Badge>
+						<Badge
+							fontSize={{ base: 'small', lg: 'md' }}
+							cursor="pointer"
+							borderRadius="xsm"
+							onClick={() => {
+								setEditor(true);
+							}}
+						>
+							<EditIcon /> Modifier
+						</Badge>
 					</HStack>
 					<VStack align="left" spacing="0px" w="100%">
 						<Text variant="h3">{article.Title}</Text>
@@ -192,11 +205,11 @@ const ArticlePage = (): JSX.Element => {
 							gap={{ base: 2, lg: 4 }}
 							w="100%"
 						>
-							<Collapse in={isViewChartDisplayed} animateOpacity>
-								<Chart yLabel="Vues" data={article.DailyViews} />
-							</Collapse>
 							<Collapse in={isLikeChartDisplayed} animateOpacity>
 								<Chart yLabel="Likes" data={article.DailyLikes} />
+							</Collapse>
+							<Collapse in={isViewChartDisplayed} animateOpacity>
+								<Chart yLabel="Vues" data={article.DailyViews} />
 							</Collapse>
 						</Grid>
 						{/* </HStack> */}
@@ -210,7 +223,20 @@ const ArticlePage = (): JSX.Element => {
 					<Text variant="p">{frenchDate(new Date(article.CreatedAt))}</Text>
 				</VStack>
 			</VStack>
-
+			<Modal isOpen={editor} size="full" onClose={() => setEditor(false)}>
+				<ModalOverlay />
+				<ModalContent bg="black">
+					<ModalHeader color="gray.100">Brouillon</ModalHeader>
+					<ModalCloseButton />
+					<ModalBody>
+						<Editor
+							placeholderTitle={article.Title}
+							placeholderTopic={article.Topic}
+							placeholderContent={article.Content}
+						/>
+					</ModalBody>
+				</ModalContent>
+			</Modal>
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent bg="gray.900">

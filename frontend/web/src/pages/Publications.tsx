@@ -1,5 +1,20 @@
-import { DeleteIcon, ViewOffIcon } from '@chakra-ui/icons';
-import { CircularProgress, Collapse, Grid, GridItem, HStack, Tag, Tooltip, VStack } from '@chakra-ui/react';
+import { DeleteIcon, EditIcon, ViewOffIcon } from '@chakra-ui/icons';
+import {
+	CircularProgress,
+	Collapse,
+	Grid,
+	GridItem,
+	HStack,
+	Modal,
+	ModalBody,
+	ModalCloseButton,
+	ModalContent,
+	ModalHeader,
+	ModalOverlay,
+	Tag,
+	Tooltip,
+	VStack,
+} from '@chakra-ui/react';
 import ArticleCard from 'components/Cards/ArticleCard';
 import { Chart } from 'components/Chart/Chart';
 import SearchInput from 'components/Inputs/SearchInput';
@@ -9,11 +24,15 @@ import { useUserContext } from 'contexts/user';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 
+import Editor from '../components/Editor/Editor';
+
 const Publications = (): JSX.Element => {
 	const [search, setSearch] = useState('');
 	const { auth } = useAuthContext();
 	const { requestResponseToast } = useUIContext();
 	const { user, switchArticleDraftState, deleteArticle, getArticles } = useUserContext();
+	const [editor, setEditor] = useState<boolean>(false);
+	const [article, setArticle] = useState({ title: '', topic: '', content: '' });
 	const [isViewChartDisplayed, setViewChartDisplay] = useState(false);
 	const [isLikeChartDisplayed, setLikeChartDisplay] = useState(false);
 
@@ -128,6 +147,22 @@ const Publications = (): JSX.Element => {
 									topic={publication.Topic}
 									content={publication.Content}
 									actions={[
+										<Tooltip label="Éditer l'article">
+											<span>
+												<EditIcon
+													onClick={() => {
+														setEditor(true);
+														setArticle({
+															title: publication.Title,
+															topic: publication.Topic,
+															content: publication.Content,
+														});
+													}}
+													color="black"
+												/>
+											</span>
+										</Tooltip>,
+
 										<Tooltip label="Archiver dans les brouillons">
 											<span>
 												<ViewOffIcon onClick={() => uiSwitchArticleDraftState(publication.Id)} color="black" />
@@ -146,6 +181,20 @@ const Publications = (): JSX.Element => {
 							</GridItem>
 						))}
 				</Grid>
+				<Modal isOpen={editor} size="full" onClose={() => setEditor(false)}>
+					<ModalOverlay />
+					<ModalContent bg="black">
+						<ModalHeader color="gray.100">Brouillon</ModalHeader>
+						<ModalCloseButton />
+						<ModalBody>
+							<Editor
+								placeholderTitle={article.title}
+								placeholderTopic={article.topic}
+								placeholderContent={article.content}
+							/>
+						</ModalBody>
+					</ModalContent>
+				</Modal>
 			</VStack>
 		</>
 	);

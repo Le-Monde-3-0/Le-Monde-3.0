@@ -22,7 +22,5 @@ export const generateDailyStats = (totalStats: number): { date: string; daily: n
 		dailyStats[i].date = date.getDate().toString() + '/' + (date.getMonth() + 1).toString();
 	}
 
-	console.log(dailyStats);
-
 	return dailyStats;
 };

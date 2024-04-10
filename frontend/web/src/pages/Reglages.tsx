@@ -1,4 +1,4 @@
-import { Button, VStack, Text } from '@chakra-ui/react';
+import { Button, VStack, Text, Switch, FormControl, FormLabel } from '@chakra-ui/react';
 import FormInput from 'components/Inputs/FormInput';
 import * as React from 'react';
 import { useState } from 'react';
@@ -11,6 +11,13 @@ const Reglages = (): JSX.Element => {
 		<>
 			<VStack w="100%" spacing={{ base: '8px', md: '12px', lg: '16px' }} align="start">
 				<Text variant={'h4'}>Réglages</Text>
+				<Text variant={'h5'}>Statut</Text>
+				<FormControl display={'flex'} alignItems={'center'}>
+					  <FormLabel htmlFor='profile-status' mb='0'>
+							<Text variant={"h7"}>Profil public</Text>
+						</FormLabel>
+					<Switch id="status" size="lg" />
+				</FormControl>
 				<Text variant={'h5'}>Nom d'utilisateur</Text>
 				<FormInput
 					value={password}
