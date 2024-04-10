@@ -4,8 +4,10 @@ import { Alert, AlertIcon, Button, HStack, Input, Switch, Text, VStack } from '@
 
 import { useIpfsContext } from 'contexts/ipfs';
 import { useAuthContext } from 'contexts/auth';
+import { useUserContext } from 'contexts/user';
 
 const IpfsConfig = (): JSX.Element => {
+	const { user } = useUserContext();
 	const { auth, toggleOfflineState } = useAuthContext();
 	const { ipfs, setArticles, setGateway, getIPFSFile } = useIpfsContext();
 	const [isGatewayWorking, setIsGatewayWorking] = useState<true | false | 'loading'>(false);
@@ -53,6 +55,15 @@ const IpfsConfig = (): JSX.Element => {
 			setIsRefreshWorking(false);
 			console.error(error);
 		}
+	};
+
+	const downloadProfil = () => {
+		const element = document.createElement('a');
+		const file = new Blob([JSON.stringify(user, null, '\t')], { type: 'application/json' });
+		element.href = URL.createObjectURL(file);
+		element.download = 'profil.json';
+		document.body.appendChild(element); // Required for this to work in FireFox
+		element.click();
 	};
 
 	useEffect(() => {
@@ -104,6 +115,11 @@ const IpfsConfig = (): JSX.Element => {
 							? 'Rafraîchissement réussi'
 							: 'Rafraîchissement échoué'}
 					</Alert>
+				</VStack>
+				<VStack>
+					<Button variant="primary-yellow" onClick={downloadProfil}>
+						Télécharger mon profil
+					</Button>
 				</VStack>
 			</VStack>
 		</>
