@@ -166,7 +166,7 @@ func TestGetUserInfoByUsername(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", "/users/Bob", nil)
+	req, err := http.NewRequest("GET", "/users/username/Bob", nil)
 	if err != nil {
 		log.Fatalf("impossible to build request: %s", err)
 	}

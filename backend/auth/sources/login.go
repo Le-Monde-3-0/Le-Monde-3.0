@@ -40,10 +40,11 @@ func Login(c *gin.Context, db *gorm.DB) {
 /*
 GenerateToken generates the required token
 */
-func GenerateToken(user_id int32) (string, error) {
+func GenerateToken(user_id int32, username string) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
 	claims["user_id"] = user_id
+	claims["username"] = username
 	claims["exp"] = time.Unix(1<<63-62135596801, 0).UTC().Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
@@ -75,7 +76,7 @@ func LoginCheck(identifier string, password string, db *gorm.DB) (string, error)
 		return "", err
 	}
 
-	token, err := GenerateToken(int32(u.Id))
+	token, err := GenerateToken(int32(u.Id), u.Username)
 
 	if err != nil {
 		return "", err
