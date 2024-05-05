@@ -459,6 +459,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/articles/topics/example": {
+            "get": {
+                "description": "Return random ideas of topics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
+                        }
+                    }
+                }
+            }
+        },
         "/bookmarks": {
             "get": {
                 "description": "Retrieve the connected user bookmarks",

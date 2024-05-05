@@ -477,6 +477,26 @@ paths:
             $ref: '#/definitions/core.HTTPError500'
       tags:
       - articles
+  /articles/topics/example:
+    get:
+      consumes:
+      - application/json
+      description: Return random ideas of topics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
+      tags:
+      - articles
   /bookmarks:
     delete:
       consumes:
