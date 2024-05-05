@@ -10,14 +10,19 @@ import (
 	"gorm.io/gorm"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type ReturnedBookmark struct {
-	Id          int32
+	Id          uint `gorm:"primarykey"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   gorm.DeletedAt `gorm:"index"`
 	UserId      int32
 	Title       string
-	Description string
 	Articles    []adtos.ArticleResponse
+	IsPrivate   bool
+	Description string
 }
 
 type CallBody struct {
@@ -85,7 +90,7 @@ func GetBookmark(c *gin.Context, db *gorm.DB) {
 	}
 
 	returnedBookmark := ReturnedBookmark{
-		Id:          int32(bookmark.Id),
+		Id:          bookmark.Id,
 		UserId:      bookmark.UserId,
 		Title:       bookmark.Title,
 		Description: bookmark.Description,
@@ -132,7 +137,7 @@ func GetAllBookmarks(c *gin.Context, db *gorm.DB) {
 		}
 
 		returnedBookmark := ReturnedBookmark{
-			Id:          int32(bookmark.Id),
+			Id:          bookmark.Id,
 			UserId:      bookmark.UserId,
 			Title:       bookmark.Title,
 			Description: bookmark.Description,
