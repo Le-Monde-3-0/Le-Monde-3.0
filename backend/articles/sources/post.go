@@ -21,6 +21,12 @@ func AddArticle(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	username, err := utils.GetUserUsername(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	if err := c.Bind(&article); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Create article parameter Incorect"})
 		return
@@ -37,6 +43,7 @@ func AddArticle(c *gin.Context, db *gorm.DB) {
 	}
 	article.UserId = userId
 	article.Likes = pq.Int32Array{}
+	article.AuthorName = username
 
 	result := db.Create(&article)
 	if result.Error != nil {

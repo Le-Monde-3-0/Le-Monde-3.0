@@ -45,6 +45,7 @@ func generateFakeToken() (string, error) {
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
 	claims["user_id"] = 1
+	claims["username"] = "bob"
 	claims["exp"] = time.Now().Add(time.Hour * time.Duration(1)).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(os.Getenv("secret_key")))
@@ -105,6 +106,7 @@ func TestAddArticle(t *testing.T) {
 	}
 	assert.Equal(t, "TestTitle", responseArticle.Title)
 	assert.Equal(t, "TestContent", responseArticle.Content)
+	assert.Equal(t, "bob", responseArticle.AuthorName)
 }
 
 func TestAddLike(t *testing.T) {
