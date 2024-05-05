@@ -104,6 +104,27 @@ definitions:
     - subtitle
     - title
     type: object
+  articles.GetArticlesTopicRespond:
+    properties:
+      "true":
+        example: TestTopic
+        type: string
+    type: object
+  articles.GetBookmarkObject:
+    properties:
+      articles:
+        items:
+          $ref: '#/definitions/main_router_bookmarks.Article'
+        type: array
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      userId:
+        type: integer
+    type: object
   articles.IsArticleDraftResponse:
     properties:
       "true":
@@ -135,6 +156,8 @@ definitions:
         example: XXXXXXXXXXXXXXXXXXXX
         type: string
     type: object
+  articles.MultipleArticlesIdsInput:
+    type: object
   articles.RegisterInput:
     properties:
       email:
@@ -152,6 +175,21 @@ definitions:
     properties:
       created:
         example: User created successfully
+        type: string
+    type: object
+  articles.User:
+    properties:
+      email:
+        example: test@gmail.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      password:
+        example: hashed password
+        type: string
+      username:
+        example: username
         type: string
     type: object
   http.HTTPError:
@@ -194,15 +232,23 @@ definitions:
     type: object
   main_router_bookmarks.Article:
     properties:
+      authorName:
+        type: string
       content:
         type: string
+      draft:
+        type: boolean
       id:
         type: integer
       likes:
         items:
           type: integer
         type: array
+      subtitle:
+        type: string
       title:
+        type: string
+      topic:
         type: string
       userId:
         type: integer
@@ -293,8 +339,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/main_router_articles.Article'
-        "400":
-          description: Bad Request
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/http.HTTPError'
         "500":
@@ -378,7 +424,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Check if the given article is a Draft
+      description: Get all topics
       produces:
       - application/json
       responses:
@@ -386,10 +432,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/articles.IsArticleDraftResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/http.HTTPError'
         "422":
           description: Unprocessable Entity
           schema:
@@ -485,6 +527,84 @@ paths:
             $ref: '#/definitions/http.HTTPError'
       tags:
       - articles
+  /articles/:id/topic:
+    get:
+      consumes:
+      - application/json
+      description: Get the topic of a Article
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/articles.GetArticlesTopicRespond'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      tags:
+      - articles
+  /articles/latest/created:
+    get:
+      consumes:
+      - application/json
+      description: Retrived articles created in the last two hours
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main_router_articles.Article'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      tags:
+      - articles
+  /articles/latest/modified:
+    get:
+      consumes:
+      - application/json
+      description: Retrived articles modified in the last two hours
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main_router_articles.Article'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      tags:
+      - articles
   /articles/liked:
     get:
       consumes:
@@ -533,7 +653,94 @@ paths:
             $ref: '#/definitions/http.HTTPError'
       tags:
       - articles
-  /articles/topic:
+  /articles/multiples:
+    post:
+      consumes:
+      - application/json
+      description: Get Articles by there Ids
+      parameters:
+      - description: "\tIds of the Articles research"
+        in: body
+        name: MultipleArticlesIdsInput
+        required: true
+        schema:
+          $ref: '#/definitions/articles.MultipleArticlesIdsInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main_router_articles.Article'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      tags:
+      - articles
+  /articles/search/:keyword:
+    post:
+      consumes:
+      - application/json
+      description: Find Articles by a keyword and search if it correspond
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main_router_articles.Article'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      tags:
+      - articles
+  /articles/topic/:topic:
+    get:
+      consumes:
+      - application/json
+      description: Get all articles by topic
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main_router_articles.Article'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      tags:
+      - articles
+  /articles/topics:
     get:
       consumes:
       - application/json
@@ -590,7 +797,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/articles.Bookmark'
+              $ref: '#/definitions/articles.GetBookmarkObject'
             type: array
         "400":
           description: Bad Request
@@ -662,7 +869,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/articles.Bookmark'
+            $ref: '#/definitions/articles.GetBookmarkObject'
         "400":
           description: Bad Request
           schema:
@@ -925,6 +1132,28 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/articles.ChangeUserNameResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HTTPError'
+      tags:
+      - authentication
+  /users/:username:
+    get:
+      consumes:
+      - application/json
+      description: Get a user information with the user username
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/articles.User'
         "400":
           description: Bad Request
           schema:

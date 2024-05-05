@@ -1,4 +1,6 @@
-FROM golang:1.20
+FROM golang:1.21.1
+
+# ENV CGO_ENABLED=1
 
 WORKDIR /app
 
@@ -8,6 +10,6 @@ RUN go mod download
 
 RUN go build . 
 
-EXPOSE 8080
+EXPOSE 8085
 
 CMD ["./main"]

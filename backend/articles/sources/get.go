@@ -7,11 +7,42 @@ import (
 	"gorm.io/gorm"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type LikesResponse struct {
 	Amount   int
 	Accounts pq.Int32Array `gorm:"type:integer[]"`
+}
+
+func GetLastCreatedArticles(c *gin.Context, db *gorm.DB) {
+	articles := []Article{}
+	currentTime := time.Now()
+	twoHoursAgo := currentTime.Add(-2 * time.Hour)
+
+	// Query to get articles created in the last 2 hours
+	result := db.Where("created_at >= ?", twoHoursAgo).Find(&articles)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch articles"})
+		return
+	}
+
+	c.JSON(http.StatusOK, articles)
+}
+
+func GetLastModifiedArticles(c *gin.Context, db *gorm.DB) {
+	articles := []Article{}
+	currentTime := time.Now()
+	twoHoursAgo := currentTime.Add(-2 * time.Hour)
+
+	// Query to get articles created in the last 2 hours
+	result := db.Where("updated_at >= ?", twoHoursAgo).Find(&articles)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch articles"})
+		return
+	}
+
+	c.JSON(http.StatusOK, articles)
 }
 
 func addIfNotPresent(arr pq.Int32Array, key int32) pq.Int32Array {
@@ -126,7 +157,7 @@ func GetLikesInfo(c *gin.Context, db *gorm.DB) {
 // * string topic as parameter, fetch the db -> 404 if no article with this topic -> 400 no args -> 200 lists of articles with given topic
 func GetArticlesByTopic(c *gin.Context, db *gorm.DB) {
 	var articles []Article
-	
+
 	var topic = c.Param("topic")
 
 	// Check if the required parameters are missing
@@ -159,7 +190,7 @@ func IsArticleDraft(c *gin.Context, db *gorm.DB) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		panic(err)
-	}	
+	}
 
 	result := db.Where(Article{Id: int32(id)}).Find(&article)
 
@@ -176,7 +207,7 @@ func IsArticleDraft(c *gin.Context, db *gorm.DB) {
 	} else {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"false": "Article is not a draft"})
 	}
-}	
+}
 
 func GetAllTopics(c *gin.Context, db *gorm.DB) {
 	var topics []string
@@ -187,4 +218,48 @@ func GetAllTopics(c *gin.Context, db *gorm.DB) {
 		return
 	}
 	c.JSON(http.StatusOK, topics)
+}
+
+func GetArticlesByKeyword(c *gin.Context, db *gorm.DB) {
+	articles := new([]Article)
+
+	_, err := getUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var keyword = c.Param("keyword")
+
+	if err := db.Where("Title LIKE ?", "%"+keyword+"%") .Or("Subtitle LIKE ?", "%"+keyword+"%").Find(&articles).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No Articles corresponding"})
+	}
+	c.JSON(http.StatusOK, articles)
+}
+
+func GetArticlesTopic(c *gin.Context, db *gorm.DB) {
+	article := new(Article)
+
+	_, err := getUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"put": "Article id could not be retrieved"})
+		return
+	}
+
+	result := db.Where(Article{Id: int32(id)}).Find(&article)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
+		return
+	} else if article.Title == "" {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"topic": article.Topic})
 }

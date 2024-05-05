@@ -39,6 +39,14 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.GetMyArticles(c, db)
 	})
 
+	r.GET("/articles/latest/created", func(c *gin.Context) {
+		src.GetLastCreatedArticles(c, db)
+	})
+
+	r.GET("/articles/latest/modified", func(c *gin.Context) {
+		src.GetLastModifiedArticles(c, db)
+	})
+
 	r.GET("/articles/liked", func(c *gin.Context) {
 		src.GetMyLikedArticles(c, db)
 	})
@@ -46,7 +54,7 @@ func Router(db *gorm.DB) *gin.Engine {
 	r.GET("/articles/:id/likes", func(c *gin.Context) {
 		src.GetLikesInfo(c, db)
 	})
-	
+
 	r.GET("/articles/topic/:topic", func(c *gin.Context) {
 		src.GetArticlesByTopic(c, db)
 	})
@@ -59,12 +67,16 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.IsArticleDraft(c, db)
 	})
 
-	r.PUT("/articles/:id/draft", func (c *gin.Context) {
+	r.PUT("/articles/:id/draft", func(c *gin.Context) {
 		src.ChangeDraftState(c, db)
 	})
 
 	r.PUT("/articles/:id", func(c *gin.Context) {
 		src.EditArticle(c, db)
+	})
+
+	r.GET("/articles/:id/topic", func(c *gin.Context) {
+		src.GetArticlesTopic(c, db)
 	})
 
 	r.DELETE("/articles", func(c *gin.Context) {
@@ -77,6 +89,14 @@ func Router(db *gorm.DB) *gin.Engine {
 
 	r.DELETE("/articles/:id/likes", func(c *gin.Context) {
 		src.RemoveLike(c, db)
+	})
+
+	r.GET("/articles/search/:keyword", func(c *gin.Context) {
+		src.GetArticlesByKeyword(c, db)
+	})
+
+	r.POST("/articles/multiples", func(c *gin.Context) {
+		src.GetMultipleArticlesFromIds(c, db)
 	})
 
 	return r

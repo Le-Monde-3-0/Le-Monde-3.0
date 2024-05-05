@@ -157,6 +157,31 @@ func TestChangeUserMail(t *testing.T) {
 	assert.Equal(t, "{\"created\":\"User mail changed\"}", w.Body.String())
 }
 
+func TestGetUserInfoByUsername(t *testing.T) {
+	setUp()
+
+	result := db.Create(&user)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/users/Bob", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 200, w.Code)
+
+	var responseUser src.User
+	err = json.Unmarshal([]byte(w.Body.String()), &responseUser)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+	assert.Equal(t, user, responseUser)
+}
+
 func ChangeUserPassword(t *testing.T) {
 	setUp()
 

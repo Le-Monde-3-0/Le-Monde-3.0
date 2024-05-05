@@ -9,8 +9,12 @@ import (
 type Article struct {
 	Id      int32
 	UserId  int32
+	AuthorName string
 	Title   string
+	Subtitle string
 	Content string
+	Topic string
+	Draft bool
 	Likes   []int32
 }
 
@@ -25,6 +29,14 @@ type Bookmark struct {
 	Title    string
 	Description string
 	Articles []int32
+}
+
+type GetBookmarkObject struct {
+	Id       int32
+	UserId   int32
+	Title    string
+	Description string
+	Articles []Article	
 }
 
 type DeletedResponse struct {
@@ -86,7 +98,7 @@ func AddArticleInBookmark(c *gin.Context) {
 // @Tags bookmarks
 // @Accept json
 // @Produce json
-// @Success 200 {object} []Bookmark
+// @Success 200 {object} []GetBookmarkObject
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /bookmarks [get]
@@ -107,7 +119,7 @@ func GetAllBookmarks(c *gin.Context) {
 // @Tags bookmarks
 // @Accept json
 // @Produce json
-// @Success 200 {object} Bookmark
+// @Success 200 {object} GetBookmarkObject
 // @Failure      400  {object}  req.HTTPError
 // @Failure      500  {object}  req.HTTPError
 // @Router /bookmarks/:id [get]

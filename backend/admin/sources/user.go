@@ -265,3 +265,17 @@ func ChangeUserMail(c *gin.Context, db *gorm.DB) {
 
 	c.JSON(http.StatusCreated, gin.H{"created": "User mail changed"})
 }
+
+func GetUserInfoByUsername(c *gin.Context, db *gorm.DB) {
+	user := new(User)
+
+	var username = c.Param("username")
+
+	var _ = db.Model(User{}).Where("username = ?", username).Take(&user).Error
+
+	if user.Username == "" {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No user with this username"})		
+	}
+
+	c.JSON(http.StatusOK, user)
+}

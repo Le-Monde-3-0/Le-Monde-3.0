@@ -18,6 +18,22 @@ import (
 	"time"
 )
 
+type Article struct {
+	ID         uint   `gorm:"primaryKey"`
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeletedAt  *time.Time `gorm:"index"`
+	Id      int32
+	UserId  int32
+	AuthorName string
+	Title   string
+	Subtitle string
+	Content string
+	Topic string
+	Draft bool
+	Likes   pq.Int32Array `gorm:"type:integer[]"`
+}
+
 func fakeDB() *gorm.DB {
 	if _, err := os.Stat("fakeArticles.db"); err == nil {
 		if err := os.Remove("fakeArticles.db"); err != nil {
@@ -38,6 +54,7 @@ func fakeDB() *gorm.DB {
 var db *gorm.DB
 var token string
 var fakeArticle src.Article
+var fakeOldArticle Article
 var router *gin.Engine
 
 func generateFakeToken() (string, error) {
@@ -59,6 +76,21 @@ func setUp() {
 		Topic:	"TestTopic",
 		AuthorName:	"TestAuthorName",
 		Content: "TestContent",
+		Draft:	true,
+		UserId:  1,
+		Likes:   pq.Int32Array{7},
+	}
+	fakeOldArticle = Article{
+		ID: 0,
+		CreatedAt: time.Now().Add(-3 * time.Hour),
+		UpdatedAt: time.Now().Add(-3 * time.Hour),
+		DeletedAt: nil,
+		Id:      3,
+		Title:   "TestTitle2",
+		Subtitle:	"TestSubTitle2",
+		Topic:	"TestTopic2",
+		AuthorName:	"TestAuthorName2",
+		Content: "TestContent2",
 		Draft:	true,
 		UserId:  1,
 		Likes:   pq.Int32Array{7},
@@ -310,6 +342,200 @@ func TestGetAllTopics(t *testing.T) {
     if !found {
         t.Error("Expected topic 'TestTopic' not found in the response")
     }
+}
+
+func TestGetLastCreatedArticles(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeOldArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	result2 := db.Create(&fakeArticle)
+	if result2.Error != nil {
+		panic(result2.Error)
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/articles/latest/created", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 200, w.Code)
+
+	var responseArticle []Article
+	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+	assert.Equal(t, len(responseArticle), 1)
+}
+
+func TestGetLastModifiedArticles(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeOldArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	result2 := db.Create(&fakeArticle)
+	if result2.Error != nil {
+		panic(result2.Error)
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/articles/latest/modified", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)	
+
+	assert.Equal(t, 200, w.Code)
+
+	var responseArticle []Article
+	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+	assert.Equal(t, len(responseArticle), 1)
+}
+
+type responseGetTopic struct {
+	Topic string
+}
+
+type responseGetTopicError struct {
+	Error string
+}
+
+func TestGetArticlesByKeyword(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/articles/search/Test", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)	
+
+	assert.Equal(t, 200, w.Code)
+
+	var responseArticle []src.Article
+	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+	assert.Equal(t, []src.Article{fakeArticle}, responseArticle)
+}
+
+func TestGetArticlesTopic200(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/articles/2/topic", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)	
+
+	assert.Equal(t, 200, w.Code)
+
+	var responseTopic responseGetTopic
+	err = json.Unmarshal([]byte(w.Body.String()), &responseTopic)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+	assert.Equal(t, fakeArticle.Topic, responseTopic.Topic)
+}
+
+func TestGetArticlesTopic401(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/articles/2/topic", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 400, w.Code)
+}
+
+func TestGetArticlesTopic404(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/articles/10/topic", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)	
+
+	assert.Equal(t, 404, w.Code)
+}
+
+func TestGetArticlesTopic400(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/articles/fwef/topic", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)	
+
+	assert.Equal(t, 400, w.Code)
 }
 
 func TestIsArticleDraft(t *testing.T) {

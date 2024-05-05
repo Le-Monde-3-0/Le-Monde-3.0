@@ -1,20 +1,70 @@
 package sources
 
 import (
+	"encoding/json"
 	"errors"
+	"net/http"
+	"strconv"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
-	"net/http"
-	"strconv"
 )
 
 type Article struct {
 	Id      int32
 	UserId  int32
 	Title   string
+	Subtitle  string
+	Topic  string
 	Content string
 	Likes   pq.Int32Array `gorm:"type:integer[]"`
+}
+
+type BindArticles struct {
+	AuthorName string
+    Content string
+    CreatedAt string
+    DeletedAt string
+    Draft bool
+    ID int32
+    Id int32
+    Likes pq.Int32Array
+    Subtitle string
+    Title string
+    Topic string
+    UpdatedAt string
+    UserId int32
+}
+
+type ReturnedBookmark struct {
+	Id       int32
+	UserId   int32
+	Title    string
+	Description string
+	Articles []BindArticles
+}
+
+type CallBody struct {
+	Ids pq.Int32Array
+}
+
+func GetArticlesForBookmark(c *gin.Context, Ids pq.Int32Array) ([]BindArticles, error) {
+	if len(Ids) == 0 {
+		return nil, nil
+	}
+
+	var articles []BindArticles
+    body := new(CallBody)
+    body.Ids = Ids
+
+    responseBody, _, err := MakeHTTPRequest(c, http.MethodPost, "http://articles-lemonde3-0:8082/articles/multiples", body)
+    if err != nil {
+        return nil, err
+    }
+
+	json.Unmarshal(responseBody, &articles)
+
+    return articles, nil
 }
 
 func GetBookmark(c *gin.Context, db *gorm.DB) {
@@ -44,11 +94,32 @@ func GetBookmark(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Bookmark not found"})
 		return
 	}
-	c.JSON(http.StatusOK, bookmark)
+
+	var responseBody []BindArticles
+    responseBody, err = GetArticlesForBookmark(c, bookmark.Articles)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error getting articles for bookmark"})
+        return
+    }
+
+	returnedBookmark := ReturnedBookmark{
+		Id:          bookmark.Id,
+		UserId:      bookmark.UserId,
+		Title:       bookmark.Title,
+		Description: bookmark.Description,
+		Articles:    responseBody,
+	}
+
+	// gin.H{"bookmark": bookmark, "articles": responseBody}
+	// c.JSON(http.StatusOK, bookmark)
+
+	c.JSON(http.StatusOK, returnedBookmark)
+
+	// c.JSON(http.StatusOK, gin.H{"bookmark": bookmark, "articles": responseBody})
 }
 
 func GetAllBookmarks(c *gin.Context, db *gorm.DB) {
-	bookmarks := new([]Bookmark)
+	var bookmarks []Bookmark
 
 	userId, err := getUserId(c)
 	if err != nil {
@@ -64,7 +135,28 @@ func GetAllBookmarks(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
 		return
 	}
-	c.JSON(http.StatusOK, bookmarks)
+
+	var returnedBookmarks []ReturnedBookmark
+
+	for _, bookmark := range bookmarks {
+		var responseBody []BindArticles
+		responseBody, err = GetArticlesForBookmark(c, bookmark.Articles)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error getting articles for bookmark"})
+			return
+		}
+
+		returnedBookmark := ReturnedBookmark{
+			Id:          bookmark.Id,
+			UserId:      bookmark.UserId,
+			Title:       bookmark.Title,
+			Description: bookmark.Description,
+			Articles:    responseBody,
+		}
+		returnedBookmarks = append(returnedBookmarks, returnedBookmark)
+	}
+
+	c.JSON(http.StatusOK, returnedBookmarks)
 }
 
 func GetAllArticlesBookmark(c *gin.Context, db *gorm.DB) {
@@ -100,5 +192,6 @@ func GetAllArticlesBookmark(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	
 	c.JSON(http.StatusOK, articlesBookmark)
 }

@@ -63,3 +63,27 @@ func AddLike(c *gin.Context, db *gorm.DB) {
 	db.Save(&article)
 	c.JSON(http.StatusOK, article)
 }
+
+type ArticleIds struct {
+	Ids pq.Int32Array
+}
+
+func GetMultipleArticlesFromIds(c *gin.Context, db *gorm.DB) {
+	var articles []Article
+
+	articleIds := ArticleIds{}
+	if err := c.ShouldBindJSON(&articleIds); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid arguments"})
+		return
+	}
+
+	for _, id := range articleIds.Ids {
+		var article Article
+		db.Where(Article{Id: id}).Find(&article)
+
+		if article.Id != 0 {
+			articles = append(articles, article)
+		}
+	}
+	c.JSON(http.StatusOK, articles)
+}

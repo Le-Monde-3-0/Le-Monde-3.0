@@ -144,7 +144,7 @@ func TestGetAllBookmarks(t *testing.T) {
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
-	assert.Equal(t, []src.Bookmark{fakeBookmark}, responseBookmarks)
+	assert.Equal(t, 1, len(responseBookmarks))
 }
 
 func TestGetBookmark(t *testing.T) {

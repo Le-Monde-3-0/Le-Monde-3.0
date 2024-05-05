@@ -81,4 +81,4 @@ func AddArticleInBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark.Articles = addIfNotPresent(bookmark.Articles, int32(articleId))
 	db.Save(&bookmark)
 	c.JSON(http.StatusOK, bookmark)
-}
+}                                                                      

@@ -132,8 +132,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/main_router_articles.Article"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/http.HTTPError"
                         }
@@ -247,7 +247,7 @@ const docTemplate = `{
         },
         "/articles/:id/draft": {
             "get": {
-                "description": "Check if the given article is a Draft",
+                "description": "Get all topics",
                 "consumes": [
                     "application/json"
                 ],
@@ -262,12 +262,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/articles.IsArticleDraftResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
                         }
                     },
                     "422": {
@@ -415,6 +409,126 @@ const docTemplate = `{
                 }
             }
         },
+        "/articles/:id/topic": {
+            "get": {
+                "description": "Get the topic of a Article",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/articles.GetArticlesTopicRespond"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/latest/created": {
+            "get": {
+                "description": "Retrived articles created in the last two hours",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main_router_articles.Article"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/latest/modified": {
+            "get": {
+                "description": "Retrived articles modified in the last two hours",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main_router_articles.Article"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/articles/liked": {
             "get": {
                 "description": "Retrieve liked articles",
@@ -489,7 +603,141 @@ const docTemplate = `{
                 }
             }
         },
-        "/articles/topic": {
+        "/articles/multiples": {
+            "post": {
+                "description": "Get Articles by there Ids",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "parameters": [
+                    {
+                        "description": "\tIds of the Articles research",
+                        "name": "MultipleArticlesIdsInput",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/articles.MultipleArticlesIdsInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main_router_articles.Article"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/search/:keyword": {
+            "post": {
+                "description": "Find Articles by a keyword and search if it correspond",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main_router_articles.Article"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/topic/:topic": {
+            "get": {
+                "description": "Get all articles by topic",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main_router_articles.Article"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/topics": {
             "get": {
                 "description": "Get all articles by topic",
                 "consumes": [
@@ -544,7 +792,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/articles.Bookmark"
+                                "$ref": "#/definitions/articles.GetBookmarkObject"
                             }
                         }
                     },
@@ -654,7 +902,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/articles.Bookmark"
+                            "$ref": "#/definitions/articles.GetBookmarkObject"
                         }
                     },
                     "400": {
@@ -1108,6 +1356,40 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/users/:username": {
+            "get": {
+                "description": "Get a user information with the user username",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/articles.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.HTTPError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1268,6 +1550,38 @@ const docTemplate = `{
                 }
             }
         },
+        "articles.GetArticlesTopicRespond": {
+            "type": "object",
+            "properties": {
+                "true": {
+                    "type": "string",
+                    "example": "TestTopic"
+                }
+            }
+        },
+        "articles.GetBookmarkObject": {
+            "type": "object",
+            "properties": {
+                "articles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main_router_bookmarks.Article"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
         "articles.IsArticleDraftResponse": {
             "type": "object",
             "properties": {
@@ -1315,6 +1629,9 @@ const docTemplate = `{
                 }
             }
         },
+        "articles.MultipleArticlesIdsInput": {
+            "type": "object"
+        },
         "articles.RegisterInput": {
             "type": "object",
             "required": [
@@ -1340,6 +1657,27 @@ const docTemplate = `{
                 "created": {
                     "type": "string",
                     "example": "User created successfully"
+                }
+            }
+        },
+        "articles.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "test@gmail.com"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "password": {
+                    "type": "string",
+                    "example": "hashed password"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "username"
                 }
             }
         },
@@ -1403,8 +1741,14 @@ const docTemplate = `{
         "main_router_bookmarks.Article": {
             "type": "object",
             "properties": {
+                "authorName": {
+                    "type": "string"
+                },
                 "content": {
                     "type": "string"
+                },
+                "draft": {
+                    "type": "boolean"
                 },
                 "id": {
                     "type": "integer"
@@ -1415,7 +1759,13 @@ const docTemplate = `{
                         "type": "integer"
                     }
                 },
+                "subtitle": {
+                    "type": "string"
+                },
                 "title": {
+                    "type": "string"
+                },
+                "topic": {
                     "type": "string"
                 },
                 "userId": {

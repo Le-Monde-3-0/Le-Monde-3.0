@@ -171,6 +171,25 @@ func ChangeUserMail(c *gin.Context) {
 	c.Data(statusCode, "application/json", responseBody)
 }
 
+// GetUserInfoByUsername godoc
+// @Schemes
+// @Description Get a user information with the user username
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Success 200 {object} User
+// @Failure      400  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /users/:username [get]
+func GetUserInfoByUsername(c *gin.Context) {
+	responseBody, statusCode, err := req.MakeHTTPRequest(c, http.MethodPut, "http://admin-lemonde3-0:8081/users/"+c.Param("username"), nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
 type LoginResponse struct {
 	Token string `json:"token" example:"XXXXXXXXXXXXXXXXXXXX"`
 }
@@ -189,4 +208,11 @@ type ChangeUserMailResponse struct {
 
 type ChangeUserNameResponse struct {
 	Created string `json:"created" example:"User name changed"`
+}
+
+type User struct {
+	Id int32 `json:"id" example:"1"`
+	Email string `json:"email" example:"test@gmail.com"`
+	Username string `json:"username" example:"username"`
+	Password string `json:"password" example:"hashed password"`
 }

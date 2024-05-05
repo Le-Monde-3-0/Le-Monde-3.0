@@ -13,4 +13,7 @@ func ApplyAdminRoutes(public *gin.RouterGroup) {
 	public.PUT("/username", ChangeUserName)
 	public.PUT("/mail", ChangeUserMail)
 	public.PUT("/password", ChangeUserPassword)
+
+	public.GET("/users/:username", GetUserInfoByUsername)
 }
+	

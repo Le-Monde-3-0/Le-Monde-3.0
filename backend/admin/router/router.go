@@ -39,6 +39,10 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.ChangeUserPassword(c, db)
 	})
 
+	r.GET("/users/:username", func(c *gin.Context) {
+		src.GetUserInfoByUsername(c, db)
+	})
+
 	// r.GET("/getUser/:id", func(c *gin.Context) {
 	// 	src.GetUserFromId(c, db)
 	// })

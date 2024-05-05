@@ -33,3 +33,9 @@ services:
     ports:
       - 4001:4001
       - 5001:5001
+  # ipfsservice:
+  #   container_name : ipfsservice-lemonde3-0
+  #   build:
+  #     context: ipfsservice
+  #   ports:
+  #     - 8085:8085
