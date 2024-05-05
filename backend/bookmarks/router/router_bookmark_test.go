@@ -56,6 +56,7 @@ func setUp() {
 		Id:       1,
 		Title:    "TestTitle",
 		UserId:   1,
+		Description: "TestDescription",
 		Articles: pq.Int32Array{},
 	}
 	router = Router(db)
@@ -85,6 +86,7 @@ func TestAddBookmark(t *testing.T) {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
 	assert.Equal(t, "TestTitle", responseBookmark.Title)
+	assert.Equal(t, "TestDescription", responseBookmark.Description)
 }
 
 func TestAddArticleInBookmark(t *testing.T) {
@@ -148,6 +150,7 @@ func TestGetAllBookmarks(t *testing.T) {
 	fakeBookmark.CreatedAt = currentTime
 	fakeBookmark.UpdatedAt = currentTime
 	assert.Equal(t, []src.Bookmark{fakeBookmark}, responseBookmarks)
+	assert.Equal(t, 1, len(responseBookmarks))
 }
 
 func TestGetBookmark(t *testing.T) {
@@ -237,7 +240,7 @@ func TestDeleteAllBookmarks(t *testing.T) {
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
-	assert.Equal(t, "all bookmarks have been successfully deleted", body["delete"])
+	assert.Equal(t, "All bookmarks have been successfully deleted", body["delete"])
 }
 
 func TestDeleteBookmark(t *testing.T) {
@@ -265,7 +268,7 @@ func TestDeleteBookmark(t *testing.T) {
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
-	assert.Equal(t, "bookmark has been deleted successfully", body["delete"])
+	assert.Equal(t, "Bookmark has been deleted successfully", body["delete"])
 }
 
 func TestDeleteAllArticlesBookmark(t *testing.T) {

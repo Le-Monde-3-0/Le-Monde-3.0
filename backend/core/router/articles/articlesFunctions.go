@@ -3,24 +3,38 @@ package core
 import (
 	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 	"go.uber.org/zap"
 	"net/http"
 )
 
 type ArticleInput struct {
-	Title   string `json:"title" binding:"required"`
-	Content string `json:"content" binding:"required"`
+	AuthorName string `json:"authorname" binding:"required"`
+	Title      string `json:"title" binding:"required"`
+	SubTitle   string `json:"subtitle" binding:"required"`
+	Content    string `json:"content" binding:"required"`
+	Topic      string `json:"topic" binging:"required"`
+	Draft      bool   `json:"draft" binging:"required"`
 }
 
-type Article struct {
-	Id                    uint `gorm:"primarykey"`
-	UserId                int32
-	Title                 string
-	Content               string
-	Likes                 []int32
-	HasConnectedUserLiked bool
+type EditArticleInput struct {
+	Title    string `json:"title" binding:"required"`
+	SubTitle string `json:"subtitle" binding:"required"`
+	Content  string `json:"content" binding:"required"`
+	Topic    string `json:"topic" binging:"required"`
 }
 
+type MultipleArticlesIdsInput struct {
+	Ids pq.Int32Array `json:"ids" binging:"required"`
+}
+
+type DraftStateInput struct {
+	Draft bool `json:"draft" binding:"required"`
+}
+
+type MultipleArticlesIds struct {
+	Ids []int32 `json:"ids" binding:"required"`
+}
 type LikesResponse struct {
 	Amount   int
 	Accounts []int32
@@ -140,6 +154,46 @@ func GetMyArticles(c *gin.Context, logger *zap.Logger) {
 	c.Data(statusCode, "application/json", responseBody)
 }
 
+// GetMyArticles godoc
+// @Schemes
+// @Description Retrived articles created in the last two hours
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} []Article
+// @Failure      400  {object}  req.HTTPError
+// @Failure      401  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /articles/latest/created [get]
+func GetLastCreatedArticles(c *gin.Context) {
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/latest/created", nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
+// GetMyArticles godoc
+// @Schemes
+// @Description Retrived articles modified in the last two hours
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} []Article
+// @Failure      400  {object}  req.HTTPError
+// @Failure      401  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /articles/latest/modified [get]
+func GetLastModifiedArticles(c *gin.Context) {
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/latest/modified", nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
 // GetLikedArticles godoc
 // @Schemes
 // @Description Retrieve liked articles
@@ -208,7 +262,7 @@ func GetRandomTopics(c *gin.Context, logger *zap.Logger) {
 // @Tags articles
 // @Accept json
 // @Produce json
-// @Param ArticleInput body ArticleInput true "Params to edit an article"
+// @Param EditArticleInput body EditArticleInput true "Params to edit an article"
 // @Success 200 {object} Article
 // @Failure      400  {object}  HTTPError400
 // @Failure      404  {object}  HTTPError500
@@ -320,4 +374,164 @@ type HTTPError409 struct {
 type HTTPError500 struct {
 	Code    int    `json:"code" example:"500"`
 	Message string `json:"message" example:"internal server error"`
+}
+
+// GetArticlesByTopic godoc
+// @Schemes
+// @Description Get all articles by topic
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} []Article
+// @Failure      400  {object}  req.HTTPError
+// @Failure      404  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /articles/topic/:topic [get]
+func GetArticlesByTopic(c *gin.Context) {
+
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/topic", nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
+// GetAllTopics godoc
+// @Schemes
+// @Description Get all articles by topic
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} []Article
+// @Failure      400  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /articles/topics [get]
+func GetAllTopics(c *gin.Context) {
+
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/topics", nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
+// GetArticlesByTopic godoc
+// @Schemes
+// @Description Get all topics
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} IsArticleDraftResponse
+// @Failure 422 {object} req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /articles/:id/draft [get]
+func IsArticleDraft(c *gin.Context) {
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/draft", nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
+// ChangeDraftState godoc
+// @Schemes
+// @Description Change the state of a draft
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} Article
+// @Failure      404  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /articles/:id/draft [put]
+func ChangeDraftState(c *gin.Context) {
+	var changeDraftStateParams DraftStateInput
+
+	if err := c.ShouldBindJSON(&changeDraftStateParams); err != nil {
+		c.String(http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPut, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/draft", changeDraftStateParams)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
+// GetArticlesByKeyword godoc
+// @Schemes
+// @Description Find Articles by a keyword and search if it correspond
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} []Article
+// @Failure      401  {object}  req.HTTPError
+// @Failure      404  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /articles/search/:keyword [post]
+func GetArticlesByKeyword(c *gin.Context) {
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/search/"+c.Param("keyword"), nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
+// GetArticlesTopic godoc
+// @Schemes
+// @Description Get the topic of a Article
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} GetArticlesTopicRespond
+// @Failure      404  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /articles/:id/topic [get]
+func GetArticlesTopic(c *gin.Context) {
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/topic", nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
+// GetMultipleArticlesFromIds godoc
+// @Schemes
+// @Description Get Articles by there Ids
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Param MultipleArticlesIdsInput body MultipleArticlesIdsInput true "	Ids of the Articles research"
+// @Success 200 {object} []Article
+// @Failure      404  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /articles/multiples [post]
+func GetMultipleArticlesFromIds(c *gin.Context) {
+	var multipleArticlesIds MultipleArticlesIds
+
+	if err := c.ShouldBindJSON(&multipleArticlesIds); err != nil {
+		c.String(http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPost, "http://articles-lemonde3-0:8082/articles/multiples", multipleArticlesIds)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}
+
+type GetArticlesTopicRespond struct {
+	Topic string `json:"true" example:"TestTopic"`
+}
+
+type IsArticleDraftResponse struct {
+	Ok string `json:"true" example:"Article is draft"`
 }

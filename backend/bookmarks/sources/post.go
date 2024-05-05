@@ -33,12 +33,12 @@ func AddBookmark(c *gin.Context, db *gorm.DB) {
 	}
 
 	if err := c.Bind(&bookmark); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid arguments"})
 		return
 	}
 
 	if bookmark.Title == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "bookmark must have a title"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Bookmark must have a title"})
 		return
 	}
 
@@ -53,7 +53,7 @@ func AddBookmark(c *gin.Context, db *gorm.DB) {
 
 	result := db.Create(&bookmark)
 	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": result.Error})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error creating bookmark"})
 		return
 	}
 	c.JSON(http.StatusCreated, bookmark)
@@ -69,21 +69,21 @@ func AddArticleInBookmark(c *gin.Context, db *gorm.DB) {
 	}
 	bookmarkId, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"get": "bookmark id could not be retrieved"})
+		c.JSON(http.StatusBadRequest, gin.H{"get": "Bookmark id could not be retrieved"})
 		return
 	}
 	articleId, err := strconv.ParseInt(c.Param("id-article"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"get": "article id could not be retrieved"})
+		c.JSON(http.StatusBadRequest, gin.H{"get": "Article id could not be retrieved"})
 		return
 	}
 
 	result := db.Where(Bookmark{Id: uint(bookmarkId), UserId: userId}).Find(&bookmark)
 	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
 		return
 	} else if bookmark.Title == "" {
-		c.JSON(http.StatusNotFound, gin.H{"error": "bookmark not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Bookmark not found"})
 		return
 	}
 	bookmark.Articles = addIfNotPresent(bookmark.Articles, int32(articleId))

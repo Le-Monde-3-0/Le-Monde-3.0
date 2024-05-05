@@ -20,7 +20,7 @@ func Register(c *gin.Context, db *gorm.DB) {
 	var input RegisterInput
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Arguments"})
 		return
 	}
 	AddUser(input.Email, input.Username, input.Password, c, db)

@@ -23,14 +23,14 @@ func Login(c *gin.Context, db *gorm.DB) {
 	var input LoginInput
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid arguments"})
 		return
 	}
 
 	token, err := LoginCheck(input.Identifier, input.Password, db)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "email or password is incorrect."})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email or Password is incorrect."})
 		return
 	}
 

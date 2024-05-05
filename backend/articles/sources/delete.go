@@ -21,10 +21,10 @@ func DeleteAllArticles(c *gin.Context, db *gorm.DB) {
 
 	result := db.Where(Article{UserId: userId}).Delete(&Article{})
 	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"delete": "all articles have been successfully deleted"})
+	c.JSON(http.StatusOK, gin.H{"delete": "All articles have been successfully deleted"})
 }
 
 /*
@@ -39,18 +39,18 @@ func DeleteArticle(c *gin.Context, db *gorm.DB) {
 
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"delete": "article id could not be retrieved"})
+		c.JSON(http.StatusBadRequest, gin.H{"delete": "Article id could not be retrieved"})
 		return
 	}
 	result := db.Where(Article{UserId: userId, Id: uint(id)}).Delete(&Article{})
 	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
 		return
 	} else if result.RowsAffected == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "article not found or was not created by the current user"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Article not found or was not created by the current user"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"delete": "article has been successfully deleted"})
+	c.JSON(http.StatusOK, gin.H{"delete": "Article has been successfully deleted"})
 }
 
 /*
@@ -73,7 +73,7 @@ func RemoveLike(c *gin.Context, db *gorm.DB) {
 
 	result := db.Where(Article{Id: uint(id)}).Find(&article)
 	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
 		return
 	} else if article.Title == "" {
 		c.JSON(http.StatusNotFound, gin.H{"error": "article not found"})

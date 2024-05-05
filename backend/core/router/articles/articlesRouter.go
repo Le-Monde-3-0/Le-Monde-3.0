@@ -36,6 +36,19 @@ func ApplyArticlesRoutes(public *gin.RouterGroup, protected *gin.RouterGroup, lo
 	public.GET("/articles/topics/example", func(c *gin.Context) {
 		GetRandomTopics(c, logger)
 	})
+	
+	protected.POST("/articles/multiples", GetMultipleArticlesFromIds)
+
+	
+	protected.GET("/articles/latest/created", GetLastCreatedArticles)
+	protected.GET("/articles/latest/modified", GetLastModifiedArticles)
+	protected.GET("/articles/topic/:topic", GetArticlesByTopic)
+	protected.GET("/articles/topics", GetAllTopics)
+	protected.GET("/articles/:id/topic", GetArticlesTopic)
+	protected.GET("/articles/search/:keyword", GetArticlesByKeyword)
+
+	protected.GET("/articles/:id/draft", IsArticleDraft)
+	protected.PUT("/articles/:id/draft", ChangeDraftState)
 
 	protected.PUT("/articles/:id", func(c *gin.Context) {
 		EditArticle(c, logger)

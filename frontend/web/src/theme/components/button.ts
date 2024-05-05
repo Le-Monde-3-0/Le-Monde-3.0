@@ -1,71 +1,76 @@
 import text from './text';
 
+const defaultPrimary = {
+	...text.variants.link,
+	color: 'black',
+	borderRadius: 'md',
+	padding: '24px 32px',
+	width: '100%',
+	transition: 'ease 0.5s',
+	_hover: {
+		opacity: '80%',
+		transition: 'ease 0.5s',
+	},
+};
+
 const button = {
 	variants: {
-		'primary-1': {
-			bg: 'primary.1',
-			...text.variants.h4,
-			fontWeight: 'semi-bold',
-			border: 'solid 1px black',
-			borderRadius: 'lg',
-			padding: '32px 40px',
-			width: '100%',
+		'primary-black': {
+			bg: 'black',
+			...defaultPrimary,
 		},
-		'primary-2': {
-			bg: 'primary.2',
-			...text.variants.h4,
-			border: 'solid 1px black',
-			borderRadius: 'lg',
-			padding: '32px 40px',
-			width: '100%',
+		'primary-white': {
+			bg: 'white',
+			...defaultPrimary,
+			color: 'black',
 		},
-		'primary-3': {
-			bg: 'primary.3',
-			...text.variants.h4,
-			border: 'solid 1px black',
-			borderRadius: 'lg',
-			padding: '32px 40px',
-			width: '100%',
+		'primary-yellow': {
+			bg: 'yellow',
+			...defaultPrimary,
 		},
-		'primary-4': {
-			bg: 'primary.4',
-			...text.variants.h4,
-			border: 'solid 1px black',
-			borderRadius: 'lg',
-			padding: '32px 40px',
-			width: '100%',
+		'primary-blue': {
+			bg: 'blue',
+			...defaultPrimary,
 		},
-		'secondary-1': {
-			bg: 'secondary.1',
-			...text.variants.h6,
-			color: 'white',
-			borderRadius: 'sm',
-			padding: '8px 16px',
-			width: '100%',
+		'primary-purple': {
+			bg: 'purple',
+			...defaultPrimary,
 		},
-		'secondary-2': {
-			bg: 'secondary.2',
-			...text.variants.h6,
-			color: 'white',
-			borderRadius: 'sm',
-			padding: '8px 16px',
-			width: '100%',
+		'primary-orange': {
+			bg: 'orange',
+			...defaultPrimary,
 		},
-		'secondary-3': {
-			bg: 'secondary.3',
-			...text.variants.h6,
-			color: 'white',
-			borderRadius: 'sm',
-			padding: '8px 16px',
-			width: '100%',
+		'secondary-yellow': {
+			bg: 'black',
+			border: '1px',
+			borderStyle: 'dashed',
+			borderColor: 'yellow',
+			color: 'yellow',
+			px: '24px',
 		},
-		'secondary-4': {
-			bg: 'secondary.4',
-			...text.variants.h6,
-			borderRadius: 'sm',
-			padding: '8px 16px',
-			width: '100%',
-		},
+		// 'secondary-2': {
+		// 	bg: 'secondary.2',
+		// 	...text.variants.h6,
+		// 	color: 'white',
+		// 	borderRadius: 'sm',
+		// 	padding: '8px 16px',
+		// 	width: '100%',
+		// },
+		// 'secondary-3': {
+		// 	bg: 'secondary.3',
+		// 	...text.variants.h6,
+		// 	color: 'white',
+		// 	borderRadius: 'sm',
+		// 	padding: '8px 16px',
+		// 	width: '100%',
+		// },
+		// 'secondary-4': {
+		// 	bg: 'secondary.4',
+		// 	...text.variants.h6,
+		// 	borderRadius: 'sm',
+		// 	padding: '8px 16px',
+		// 	width: '100%',
+		// },
 	},
 };
 

@@ -12,9 +12,9 @@ const FormInput = ({
 	errorMessage: string;
 } & InputProps): JSX.Element => (
 	<VStack w="100%" spacing="0px" align="left">
-		<Input id={inputId} border={isError ? '1px solid red' : undefined} {...props} />
+		<Input id={inputId} {...props} />
 		{isError && (
-			<Text variant="h6" color="red">
+			<Text variant="p" color="red !important">
 				{errorMessage}
 			</Text>
 		)}

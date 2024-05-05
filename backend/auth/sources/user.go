@@ -140,3 +140,155 @@ func ChangeUserVisibility(c *gin.Context, db *gorm.DB) {
 
 	c.JSON(http.StatusOK, user)
 }
+
+type UserChangePassword struct {
+	Email       string `json:"email" binding:"required"`
+	Password    string `json:"password" binding:"required"`
+	NewPassword string `json:"newpassword" binding:"required"`
+}
+
+func CheckUser(username string, password string, db *gorm.DB) (bool, error) {
+	var err error
+
+	u := new(User)
+
+	err = db.Model(User{}).Where("email = ?", username).Take(&u).Error
+
+	if err != nil {
+		return false, err
+	}
+
+	err = VerifyPassword(password, u.Password)
+
+	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
+		return false, err
+	}
+	return true, err
+}
+
+func ChangeUserPassword(c *gin.Context, db *gorm.DB) {
+	var input UserChangePassword
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Arguments"})
+		return
+	}
+
+	u := new(User)
+
+	u.Email = input.Email
+	u.Password = input.Password
+
+	check, err := CheckUser(u.Email, u.Password, db)
+
+	if err != nil || check == false {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email or Password is incorrect."})
+		return
+	}
+
+	err = db.Model(User{}).Where("email = ?", u.Email).Take(&u).Error
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching database"})
+	}
+
+	newhashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.NewPassword), bcrypt.DefaultCost)
+
+	u.Password = string(newhashedPassword)
+
+	db.Save(&u)
+
+	c.JSON(http.StatusCreated, gin.H{"created": "User password changed"})
+}
+
+type UserChangeUsername struct {
+	Email       string `json:"email" binding:"required"`
+	Password    string `json:"password" binding:"required"`
+	NewUsername string `json:"newusername" binding:"required"`
+}
+
+func ChangeUsername(c *gin.Context, db *gorm.DB) {
+	var input UserChangeUsername
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Arguments"})
+		return
+	}
+
+	u := new(User)
+
+	u.Email = input.Email
+	u.Password = input.Password
+
+	check, err := CheckUser(u.Email, u.Password, db)
+
+	if err != nil || check == false {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email or Password is incorrect."})
+		return
+	}
+
+	err = db.Model(User{}).Where("email = ?", u.Email).Take(&u).Error
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching database"})
+	}
+
+	u.Username = input.NewUsername
+
+	db.Save(&u)
+
+	c.JSON(http.StatusCreated, gin.H{"created": "User name changed"})
+}
+
+type UserChangeUserMail struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	NewEmail string `json:"newemail" binding:"required"`
+}
+
+func ChangeUserMail(c *gin.Context, db *gorm.DB) {
+	var input UserChangeUserMail
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Arguments"})
+		return
+	}
+
+	u := new(User)
+
+	u.Email = input.Email
+	u.Password = input.Password
+
+	check, err := CheckUser(u.Email, u.Password, db)
+
+	if err != nil || check == false {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email or Password is incorrect."})
+		return
+	}
+
+	err = db.Model(User{}).Where("email = ?", u.Email).Take(&u).Error
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching database"})
+	}
+
+	u.Email = input.NewEmail
+
+	db.Save(&u)
+
+	c.JSON(http.StatusCreated, gin.H{"created": "User mail changed"})
+}
+
+func GetUserInfoByUsername(c *gin.Context, db *gorm.DB) {
+	user := new(User)
+
+	var username = c.Param("username")
+
+	var _ = db.Model(User{}).Where("username = ?", username).Take(&user).Error
+
+	if user.Username == "" {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No user with this username"})
+	}
+
+	c.JSON(http.StatusOK, user)
+}

@@ -1,21 +1,34 @@
 import * as React from 'react';
-import { Box, HStack, Icon, Text, VStack } from '@chakra-ui/react';
-import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { useLocation, useNavigate } from 'react-router-dom';
+import {
+	Box,
+	Button,
+	Drawer,
+	DrawerContent,
+	DrawerOverlay,
+	HStack,
+	Icon,
+	StackProps,
+	Text,
+	VStack,
+	useBreakpointValue,
+	useDisclosure,
+} from '@chakra-ui/react';
+import { ChevronLeftIcon, ChevronRightIcon, HamburgerIcon } from '@chakra-ui/icons';
 import { FaBookOpen, FaPenNib } from 'react-icons/fa';
 import { MdAccountCircle } from 'react-icons/md';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthContext } from 'contexts/auth';
 
 type PrivateProps = { children: JSX.Element };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Title = ({ icon, name }: { icon: any; name: string }): JSX.Element => (
-	<Box position="relative" w="100%">
-		<Icon as={icon} position="absolute" left="40px" boxSize={12} color="black" />
-		<Text variant="h4" pl="120px">
+	<HStack position="relative" w="100%">
+		<Icon as={icon} position="absolute" left="40px" boxSize={12} color="white" />
+		<Text variant="h4" fontWeight="bold" pl="120px">
 			{name}
 		</Text>
-	</Box>
+	</HStack>
 );
 
 const Option = ({
@@ -34,37 +47,60 @@ const Option = ({
 			display={isSelected ? 'block' : 'none'}
 			w="8px"
 			h="24px"
-			bg="primary.1"
+			bg="yellow"
 			borderRadius="sm"
 		/>
-		<Text variant="link" pl="120px" color={isSelected ? 'primary.1' : 'black'}>
+		<Text variant="link" fontWeight="medium" pl="120px" color={isSelected ? 'yellow !important' : 'white'}>
 			{name}
 		</Text>
 	</Box>
 );
 
-const NavBar = (): JSX.Element => {
+const NavBar = ({ ...props }: StackProps): JSX.Element => {
 	const { clearAuth } = useAuthContext();
 	const location = useLocation();
 	const navigate = useNavigate();
 
 	return (
 		<VStack
-			bg="primary.4"
-			w="360px"
-			minW="360px !important"
-			h="100vh"
-			position="fixed"
-			spacing="48px"
-			p="16px 16px 16px 0px"
+			w="100%"
+			h="100%"
+			spacing="32px"
+			p="16px 16px 32px 0px"
 			borderTopRightRadius="sm"
 			borderBottomRightRadius="sm"
+			bg="gray.900"
+			overflowY="scroll"
+			{...props}
+			css={{
+				'&::-webkit-scrollbar': {
+					width: '0px',
+				},
+			}}
 		>
-			<HStack w="100%" justify="flex-end">
-				<ChevronLeftIcon boxSize={6} color="black" cursor="grab" onClick={() => navigate(-1)} />
-				<ChevronRightIcon boxSize={6} color="black" cursor="grab" onClick={() => navigate(1)} />
-			</HStack>
-			<Text variant="h4">@username</Text>
+			<VStack w="100%" spacing="16px">
+				<HStack w="100%" justify="flex-end">
+					<ChevronLeftIcon
+						boxSize={10}
+						bg="black"
+						borderRadius="50%"
+						p="8px"
+						color="white"
+						cursor="grab"
+						onClick={() => navigate(-1)}
+					/>
+					<ChevronRightIcon
+						boxSize={10}
+						bg="black"
+						borderRadius="50%"
+						p="8px"
+						color="white"
+						cursor="grab"
+						onClick={() => navigate(1)}
+					/>
+				</HStack>
+				<Text variant="h4">@username</Text>
+			</VStack>
 			<VStack align="start" w="100%">
 				<Title icon={FaBookOpen} name="Lire" />
 				<Option name="Favoris" isSelected={location.pathname === '/favoris'} onClick={() => navigate('/favoris')} />
@@ -116,13 +152,57 @@ const NavBar = (): JSX.Element => {
 	);
 };
 
-const Private = ({ children }: PrivateProps): JSX.Element => (
-	<HStack align="start">
-		<NavBar />
-		<Box w="100%" ml="360px" px="64px">
-			{children}
-		</Box>
-	</HStack>
-);
+const Private = ({ children }: PrivateProps): JSX.Element => {
+	const { isOpen, onOpen, onClose } = useDisclosure();
+	const collapseNavBar = useBreakpointValue({ base: true, xl: false });
+
+	return (
+		<HStack position="relative" align="start" h="100vh !important" spacing="0px">
+			{collapseNavBar ? (
+				<>
+					<Button
+						position="absolute"
+						top={{ base: '8px', md: '16px', lg: '24px' }}
+						left={{ base: '8px', md: '16px', lg: '24px' }}
+						zIndex={100}
+						onClick={onOpen}
+						bg="gray.900"
+					>
+						<Icon fontSize="24px" as={HamburgerIcon} color="white" />
+						<Text ml="4px" variant="link">
+							@username
+						</Text>
+					</Button>
+					<Drawer isOpen={isOpen} placement="left" onClose={onClose}>
+						<DrawerOverlay />
+						<DrawerContent bg="black" w="360px !important">
+							<NavBar />
+						</DrawerContent>
+					</Drawer>
+				</>
+			) : (
+				<NavBar w="480px !important" h="100% !important" />
+			)}
+			<Box
+				w="100%"
+				h="100% !important"
+				overflowY="scroll"
+				css={{
+					'&::-webkit-scrollbar': {
+						width: '0px',
+					},
+				}}
+				p={{
+					base: '56px 8px 8px 8px',
+					md: '64px 16px 16px 16px',
+					lg: '72px 24px 24px 24px',
+					xl: '24px 24px 24px 24px',
+				}}
+			>
+				{children}
+			</Box>
+		</HStack>
+	);
+};
 
 export default Private;

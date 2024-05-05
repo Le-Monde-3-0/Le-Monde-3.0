@@ -54,4 +54,5 @@ type Bookmark struct {
 	Title     string
 	Articles  pq.Int32Array `gorm:"type:integer[]"`
 	IsPrivate bool
+	Description string
 }

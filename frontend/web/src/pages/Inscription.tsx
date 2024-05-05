@@ -115,11 +115,16 @@ const Inscription = (): JSX.Element => {
 				placeholder="confirmation du mot de passe"
 				onChange={(e) => setConfirmedPwd(e.target.value)}
 			/>
-			<Button id="inscription-inscription-btn" variant="primary-1" isDisabled={!validation.valid} onClick={inscription}>
+			<Button
+				id="inscription-inscription-btn"
+				variant="primary-yellow"
+				isDisabled={!validation.valid}
+				onClick={inscription}
+			>
 				Inscription
 			</Button>
 			<Link as={RouteLink} to="/connexion" w="100%">
-				<Button id="inscription-connexion-btn" variant="secondary-4">
+				<Button id="inscription-connexion-btn" variant="primary-white">
 					Connexion
 				</Button>
 			</Link>

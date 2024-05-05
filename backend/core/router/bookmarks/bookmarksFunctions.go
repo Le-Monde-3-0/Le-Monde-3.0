@@ -10,20 +10,34 @@ import (
 type Article struct {
 	Id      int32
 	UserId  int32
+	AuthorName string
 	Title   string
+	Subtitle string
 	Content string
+	Topic string
+	Draft bool
 	Likes   []int32
 }
 
 type BookmarkInput struct {
 	Title string `json:"title" binding:"required"`
+	Description string `json:"description" bingind:"required"`
 }
 
 type Bookmark struct {
 	Id       int32
 	UserId   int32
 	Title    string
+	Description string
 	Articles []int32
+}
+
+type GetBookmarkObject struct {
+	Id       int32
+	UserId   int32
+	Title    string
+	Description string
+	Articles []Article	
 }
 
 type DeletedResponse struct {
