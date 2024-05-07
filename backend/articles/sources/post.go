@@ -42,7 +42,7 @@ func AddArticle(c *gin.Context, db *gorm.DB) {
 		return
 	}
 	article.UserId = userId
-	article.Likes = pq.Int32Array{}
+	article.Likes = []Record{}
 	article.AuthorName = username
 
 	result := db.Create(&article)
@@ -79,7 +79,7 @@ func AddLike(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
 		return
 	}
-	article.Likes = addIfNotPresent(article.Likes, userId)
+	article.Likes = addRecordIfNotPresent(article.Likes, userId)
 	db.Save(&article)
 
 	article.HasConnectedUserLiked = true

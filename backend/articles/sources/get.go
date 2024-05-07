@@ -19,6 +19,22 @@ type LikesResponse struct {
 	Accounts pq.Int32Array `gorm:"type:integer[]"`
 }
 
+type DailyInfo struct {
+	Date   time.Time
+	Daily  int
+	Summed int
+}
+
+type TimeRecord struct {
+	Total int
+	Daily []DailyInfo
+}
+
+type UserStats struct {
+	Likes TimeRecord
+	Views TimeRecord
+}
+
 func GetLastCreatedArticles(c *gin.Context, db *gorm.DB) {
 	articles := []Article{}
 	currentTime := time.Now()
@@ -49,13 +65,13 @@ func GetLastModifiedArticles(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, articles)
 }
 
-func addIfNotPresent(arr pq.Int32Array, key int32) pq.Int32Array {
-	for _, val := range arr {
-		if val == key {
-			return arr
+func addRecordIfNotPresent(record []Record, key int32) []Record {
+	for _, val := range record {
+		if val.UserId == key {
+			return record
 		}
 	}
-	return append(arr, key)
+	return append(record, Record{UserId: key, LikeTime: time.Now()})
 }
 
 func GetAllArticles(c *gin.Context, db *gorm.DB) {
@@ -109,13 +125,14 @@ func GetArticle(c *gin.Context, db *gorm.DB) {
 	if hasUserLikedArticle(int64(userId), article) {
 		article.HasConnectedUserLiked = true
 	}
+	addRecordIfNotPresent(article.Views, userId)
 	c.JSON(http.StatusOK, article)
 }
 
 func hasUserLikedArticle(userId int64, article *Article) bool {
 
 	for _, value := range article.Likes {
-		if value == int32(userId) {
+		if value.UserId == int32(userId) {
 			return true
 		}
 	}
@@ -164,7 +181,7 @@ func GetMyLikedArticles(c *gin.Context, db *gorm.DB) {
 	filteredArticles = []Article{}
 	for _, article := range articles {
 		for _, like := range article.Likes {
-			if like == userId {
+			if like.UserId == userId {
 				filteredArticles = append(filteredArticles, article)
 				break
 			}
@@ -195,7 +212,7 @@ func GetLikesInfo(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	c.JSON(http.StatusOK, LikesResponse{len(article.Likes), article.Likes})
+	c.JSON(http.StatusOK, LikesResponse{len(article.Likes), nil})
 }
 
 func GetRandomTopics(c *gin.Context) {
@@ -340,4 +357,83 @@ func GetArticlesTopic(c *gin.Context, db *gorm.DB) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"topic": article.Topic})
+}
+
+func isSameDay(date1, date2 time.Time) bool {
+	return date1.Year() == date2.Year() && date1.Month() == date2.Month() && date1.Day() == date2.Day()
+}
+
+func AddLikeRecord(article Article, userStats UserStats) {
+	for _, articleLikesRecord := range article.Likes {
+		for _, userArticleRecord := range userStats.Likes.Daily {
+			if isSameDay(articleLikesRecord.LikeTime, userArticleRecord.Date) {
+				userArticleRecord.Daily += 1
+				continue
+			}
+		}
+		userStats.Likes.Daily = append(userStats.Likes.Daily, DailyInfo{
+			Date:  articleLikesRecord.LikeTime,
+			Daily: 1,
+		})
+	}
+}
+
+func AddViewRecord(article Article, userStats UserStats) {
+	for _, articleViewsRecord := range article.Views {
+		for _, userArticleRecord := range userStats.Views.Daily {
+			if isSameDay(articleViewsRecord.LikeTime, userArticleRecord.Date) {
+				userArticleRecord.Daily += 1
+				continue
+			}
+		}
+		userStats.Likes.Daily = append(userStats.Views.Daily, DailyInfo{
+			Date:  articleViewsRecord.LikeTime,
+			Daily: 1,
+		})
+	}
+}
+
+func GetUserStats(c *gin.Context, db *gorm.DB) {
+	var userStats UserStats
+	userStats.Likes = TimeRecord{}
+	userStats.Views = TimeRecord{}
+	userStats.Likes.Daily = []DailyInfo{}
+	userStats.Views.Daily = []DailyInfo{}
+
+	articles := new([]Article)
+
+	userId, err := utils.GetUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	result := db.Where(Article{UserId: userId}).Find(&articles)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
+		return
+	}
+
+	for _, article := range *articles {
+		userStats.Views.Total += len(article.Views)
+		userStats.Likes.Total += len(article.Likes)
+		AddViewRecord(article, userStats)
+		AddLikeRecord(article, userStats)
+	}
+	if len(userStats.Likes.Daily) != 0 {
+		userStats.Likes.Daily[0].Summed = userStats.Likes.Daily[0].Daily
+	}
+	if len(userStats.Views.Daily) != 0 {
+		userStats.Views.Daily[0].Summed = userStats.Views.Daily[0].Daily
+
+	}
+
+	for i := 1; i < len(userStats.Views.Daily); i++ {
+		userStats.Views.Daily[i].Summed = userStats.Views.Daily[i-1].Summed + userStats.Views.Daily[i].Daily
+	}
+
+	for i := 1; i < len(userStats.Likes.Daily); i++ {
+		userStats.Likes.Daily[i].Summed = userStats.Likes.Daily[i-1].Summed + userStats.Likes.Daily[i].Daily
+	}
+	c.JSON(http.StatusOK, userStats)
 }

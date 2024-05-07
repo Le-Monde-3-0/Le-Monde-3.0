@@ -535,3 +535,23 @@ type GetArticlesTopicRespond struct {
 type IsArticleDraftResponse struct {
 	Ok string `json:"true" example:"Article is draft"`
 }
+
+// GetUserStats godoc
+// @Schemes
+// @Description Get user stats
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} []Article
+// @Failure      404  {object}  req.HTTPError
+// @Failure      500  {object}  req.HTTPError
+// @Router /me/stats [get]
+func GetUserStats(c *gin.Context, logger *zap.Logger) {
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/user/stats", nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		logger.Error(err.Error())
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
+}

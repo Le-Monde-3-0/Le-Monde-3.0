@@ -33,13 +33,16 @@ func ApplyArticlesRoutes(public *gin.RouterGroup, protected *gin.RouterGroup, lo
 		GetLikesInfo(c, logger)
 	})
 
+	protected.GET("/user/stats", func(c *gin.Context) {
+		GetUserStats(c, logger)
+	})
+
 	public.GET("/articles/topics/example", func(c *gin.Context) {
 		GetRandomTopics(c, logger)
 	})
-	
+
 	protected.POST("/articles/multiples", GetMultipleArticlesFromIds)
 
-	
 	protected.GET("/articles/latest/created", GetLastCreatedArticles)
 	protected.GET("/articles/latest/modified", GetLastModifiedArticles)
 	protected.GET("/articles/topic/:topic", GetArticlesByTopic)

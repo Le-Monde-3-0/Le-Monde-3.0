@@ -59,7 +59,7 @@ func Router(db *gorm.DB) *gin.Engine {
 	})
 
 	r.GET("/articles/topics/example", src.GetRandomTopics)
-	
+
 	r.GET("/articles/topic/:topic", func(c *gin.Context) {
 		src.GetArticlesByTopic(c, db)
 	})
@@ -102,6 +102,10 @@ func Router(db *gorm.DB) *gin.Engine {
 
 	r.POST("/articles/multiples", func(c *gin.Context) {
 		src.GetMultipleArticlesFromIds(c, db)
+	})
+
+	r.GET("/articles/user/stats", func(c *gin.Context) {
+		src.GetUserStats(c, db)
 	})
 
 	return r
