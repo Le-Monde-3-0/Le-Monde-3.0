@@ -52,6 +52,7 @@ exit_if_failure "Failed to add to IPFS."
 echo "file new CID is $NEW_CID"
 echo ""
 
+# QmRjYAEKKgZw5XP7f4MjZ5nsRFrdHdiF6YaR9gFQisGRK4
 
 # 4. Update IPFS name with new CID
 echo "[Step 4]. Update Scaleway name $SCALEWAY_NAME_ID with new CID"

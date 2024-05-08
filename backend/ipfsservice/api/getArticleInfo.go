@@ -1,10 +1,14 @@
 package api
 
 import (
-	"encoding/json"
-	"net/http"
-	"io/ioutil"
 	"bytes"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"github.com/lib/pq"
+
+	adtos "github.com/Le-Monde-3-0/articles_dtos/sources"
 )
 
 //! This file contain all interaction with our database to get the articles
@@ -22,6 +26,8 @@ func MakeHTTPRequest(method string, url string, requestBody interface{}) ([]byte
 	}
 
 	request.Header.Set("Content-Type", "application/json")
+	// ! need to fin a fix
+	request.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjkyMjMzNzE5NzQ3MTkxNzkwMDcsInVzZXJfaWQiOjMsInVzZXJuYW1lIjoiQW50d2VlZW5lIn0.9u1U-Etbhb11Gkhuj9t0Oc9KLze7KiHm1YI2jL9nrgM")
 
 	client := &http.Client{}
 	response, err := client.Do(request)
@@ -41,10 +47,10 @@ func MakeHTTPRequest(method string, url string, requestBody interface{}) ([]byte
 
 //* function used to transform a Article from the database to a Article that will be
 //* added on IPFS
-func BindtoUsableArticles(bindArticle BindArticles) IPFSArticle {
+func BindtoUsableArticles(bindArticle adtos.ArticleResponse) IPFSArticle {
 	var article IPFSArticle
 
-	article.Id = bindArticle.Id
+	article.Id = int32(bindArticle.Id)
 	article.Cid = "fwefewfwe"
 	article.Titre = bindArticle.Title
 	article.Subtitle = bindArticle.Subtitle
@@ -54,12 +60,19 @@ func BindtoUsableArticles(bindArticle BindArticles) IPFSArticle {
 	article.CreationDate = bindArticle.CreatedAt
 	article.ModificationDate = bindArticle.UpdatedAt
 	article.Likes = int32(len(bindArticle.Likes))
-
+	
+	
+	// article.TotalViews = bindArticle.stats.TotalViews || bindArticle.TotalViews
+	// article.DailyViews = bindArticle.stats.DailyViews || bindArticle.DailyViews
+	// article.DailyLikes = bindArticle.stats.DailyLikes || bindArticle.DailyLikes
+	article.TotalViews = 0
+	article.DailyViews = pq.Int32Array{0}
+	article.DailyLikes = pq.Int32Array{0}
 	return article
 }
 
 //* In this function we transform an Array of articles form the db into IPFS Articles
-func TreatArticles(bindArticles []BindArticles) []IPFSArticle{
+func TreatArticles(bindArticles []adtos.ArticleResponse) []IPFSArticle{
 	var articles []IPFSArticle
 
 	for _,article := range bindArticles {
@@ -78,10 +91,11 @@ func GetAllArticles() []IPFSArticle {
 	// responseBody, _, err := MakeHTTPRequest(http.MethodGet, "http://articles-lemonde3-0:8082/articles", nil)
 	responseBody, _, err := MakeHTTPRequest(http.MethodGet, "http://localhost:8082/articles", nil)
 	if err != nil {
+		fmt.Println(err.Error())
 		return articles
 	}
 
-	var tmparticles []BindArticles
+	var tmparticles []adtos.ArticleResponse
 	json.Unmarshal(responseBody, &tmparticles)
 
 	articles = TreatArticles(tmparticles)
@@ -99,7 +113,7 @@ func GetModifiedArticles() []IPFSArticle {
 		return articles
 	}
 
-	var tmparticles []BindArticles
+	var tmparticles []adtos.ArticleResponse
 	json.Unmarshal(responseBody, &tmparticles)
 
 	articles = TreatArticles(tmparticles)
@@ -117,7 +131,7 @@ func GetArticleInfo() []IPFSArticle {
 		return articles
 	}
 
-	var tmparticles []BindArticles
+	var tmparticles []adtos.ArticleResponse
 	json.Unmarshal(responseBody, &tmparticles)
 
 	articles = TreatArticles(tmparticles)

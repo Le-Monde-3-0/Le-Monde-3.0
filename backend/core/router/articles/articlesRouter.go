@@ -37,18 +37,35 @@ func ApplyArticlesRoutes(public *gin.RouterGroup, protected *gin.RouterGroup, lo
 		GetRandomTopics(c, logger)
 	})
 	
-	protected.POST("/articles/multiples", GetMultipleArticlesFromIds)
-
+	protected.POST("/articles/multiples", func (c *gin.Context) {
+		GetMultipleArticlesFromIds(c, logger)
+	})
 	
-	protected.GET("/articles/latest/created", GetLastCreatedArticles)
-	protected.GET("/articles/latest/modified", GetLastModifiedArticles)
-	protected.GET("/articles/topic/:topic", GetArticlesByTopic)
-	protected.GET("/articles/topics", GetAllTopics)
-	protected.GET("/articles/:id/topic", GetArticlesTopic)
-	protected.GET("/articles/search/:keyword", GetArticlesByKeyword)
+	protected.GET("/articles/latest/created", func (c *gin.Context) {
+		GetLastCreatedArticles(c, logger)
+	})
+	protected.GET("/articles/latest/modified", func (c *gin.Context) {
+		GetLastModifiedArticles(c, logger)
+	})
+	protected.GET("/articles/topic/:topic", func (c *gin.Context) {
+		GetArticlesByTopic(c, logger)
+	})
+	protected.GET("/articles/topics", func (c *gin.Context) {
+		GetAllTopics(c, logger)
+	})
+	protected.GET("/articles/:id/topic", func (c *gin.Context) {
+		GetArticlesTopic(c, logger)
+	})
+	protected.GET("/articles/search/:keyword", func (c *gin.Context) {
+		GetArticlesByKeyword(c, logger)
+	})
 
-	protected.GET("/articles/:id/draft", IsArticleDraft)
-	protected.PUT("/articles/:id/draft", ChangeDraftState)
+	protected.GET("/articles/:id/draft", func (c *gin.Context) {
+		IsArticleDraft(c, logger)
+	})
+	protected.PUT("/articles/:id/draft", func (c *gin.Context) {
+		ChangeDraftState(c, logger)
+	})
 
 	protected.PUT("/articles/:id", func(c *gin.Context) {
 		EditArticle(c, logger)
@@ -57,7 +74,7 @@ func ApplyArticlesRoutes(public *gin.RouterGroup, protected *gin.RouterGroup, lo
 	protected.DELETE("/articles", func(c *gin.Context) {
 		DeleteAllArticles(c, logger)
 	})
-	protected.DELETE("/articles/id", func(c *gin.Context) {
+	protected.DELETE("/articles/:id", func(c *gin.Context) {
 		DeleteArticle(c, logger)
 	})
 	protected.DELETE("/articles/:id/likes", func(c *gin.Context) {

@@ -104,5 +104,9 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.GetMultipleArticlesFromIds(c, db)
 	})
 
+	r.PUT("/articles/authorname", func(c *gin.Context) {
+		src.ChangeArticlesAuthorname(c, db)
+	})
+
 	return r
 }

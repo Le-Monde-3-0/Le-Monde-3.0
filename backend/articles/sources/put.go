@@ -92,3 +92,41 @@ func ChangeDraftState(c *gin.Context, db *gorm.DB) {
 	db.Save(&article)
 	c.JSON(http.StatusOK, article)
 }
+
+type ChangeArticlesAuthornameObject struct {
+	Oldname string `json:"oldname" required`
+	Newname string `json:"newname" required`
+}
+
+func ChangeArticlesAuthorname(c *gin.Context, db *gorm.DB) {
+	articles := new([]Article)
+
+	_, err := utils.GetUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	obj := ChangeArticlesAuthornameObject{}
+
+	if err := c.ShouldBindJSON(&obj); err != nil {
+		c.JSON(400, gin.H{"error": "Invalid arguments"})
+		return
+	}
+
+	result := db.Where(Article{AuthorName: obj.Oldname}).Find(&articles)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+		return
+	} else if len(*articles) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Articles not found with this author name"})
+		return
+	}
+
+	for _, article := range *articles {
+		article.AuthorName = obj.Newname
+		db.Save(&article)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Author names updated successfully"})
+}
