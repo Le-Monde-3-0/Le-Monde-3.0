@@ -1,5 +1,6 @@
 package articles
 
+/*
 import (
 	"github.com/gin-gonic/gin"
 	req "main/http"
@@ -215,4 +216,4 @@ type User struct {
 	Email string `json:"email" example:"test@gmail.com"`
 	Username string `json:"username" example:"username"`
 	Password string `json:"password" example:"hashed password"`
-}
+}*/

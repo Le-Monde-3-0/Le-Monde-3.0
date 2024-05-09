@@ -79,7 +79,7 @@ func AddLike(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
 		return
 	}
-	article.Likes = addRecordIfNotPresent(article.Likes, userId)
+	article.Likes = addRecordIfNotPresent(article.Id, userId, db)
 	db.Save(&article)
 
 	article.HasConnectedUserLiked = true

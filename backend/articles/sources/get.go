@@ -2,6 +2,7 @@ package articles
 
 import (
 	"errors"
+	"fmt"
 	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
@@ -65,13 +66,23 @@ func GetLastModifiedArticles(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, articles)
 }
 
-func addRecordIfNotPresent(record []Record, key int32) []Record {
-	for _, val := range record {
+func addRecordIfNotPresent(articleID uint, key int32, db *gorm.DB) []Record {
+	var records []Record
+
+	result := db.Where(Record{ArticleID: articleID}).Find(&records)
+	if result.Error != nil {
+		fmt.Print(result.Error.Error())
+		return nil
+	}
+
+	for _, val := range records {
 		if val.UserId == key {
-			return record
+			return records
 		}
 	}
-	return append(record, Record{UserId: key, LikeTime: time.Now()})
+	records = append(records, Record{UserId: key, LikeTime: time.Now()})
+
+	return records
 }
 
 func GetAllArticles(c *gin.Context, db *gorm.DB) {
@@ -121,11 +132,15 @@ func GetArticle(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	article.Views = addRecordIfNotPresent(article.Id, userId, db)
+	if err := db.Save(&article).Error; err != nil {
+		fmt.Print(err.Error())
+	}
 
 	if hasUserLikedArticle(int64(userId), article) {
 		article.HasConnectedUserLiked = true
 	}
-	addRecordIfNotPresent(article.Views, userId)
+
 	c.JSON(http.StatusOK, article)
 }
 

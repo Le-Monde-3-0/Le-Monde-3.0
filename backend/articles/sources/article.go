@@ -5,11 +5,6 @@ import (
 	"time"
 )
 
-type Record struct {
-	UserId   int32 `gorm:"primaryKey"`
-	LikeTime time.Time
-}
-
 type Article struct {
 	Id         uint `gorm:"primarykey"`
 	CreatedAt  time.Time
@@ -23,7 +18,14 @@ type Article struct {
 	Topic      string
 	Draft      bool
 	//Likes                 pq.Int32Array `gorm:"type:integer[]"`
-	Likes                 []Record `gorm:"-"`
+	Likes                 []Record `gorm:"foreignKey:ArticleID"`
 	HasConnectedUserLiked bool
-	Views                 []Record `gorm:"-"`
+	Views                 []Record `gorm:"foreignKey:ArticleID"`
+}
+
+type Record struct {
+	ID        uint `gorm:"primaryKey"`
+	ArticleID uint // Foreign key
+	UserId    int32
+	LikeTime  time.Time
 }

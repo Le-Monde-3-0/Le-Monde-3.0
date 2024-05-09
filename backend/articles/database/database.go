@@ -17,6 +17,7 @@ func DatabaseInit() *gorm.DB {
 	}
 
 	db.AutoMigrate(&src.Article{})
+	db.AutoMigrate(&src.Record{})
 
 	return db
 }
