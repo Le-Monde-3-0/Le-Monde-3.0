@@ -31,7 +31,7 @@ func TwoHourTime(startTime time.Time) (time.Time, bool) {
 
 //* function that check if the file articles,json exist or is empty
 func IsFileEmpty() bool {
-	filePath := "../articles.json"
+	filePath := "articles.json"
 
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		fmt.Println("File does not exist:", filePath)
@@ -60,15 +60,13 @@ func IsFileEmpty() bool {
 }
 
 //* function that will pin the article.json file on IPFS and call the scaleway API
-func IFPSPart() {
-	//pin file on ipfs get new cid
-	newcid := "dwedwede"
+func IFPSPart(newCID string) {
 
-	api.UpdateNameWithCID(newcid)
-	pins := api.GetPins()
-	api.DeletePins(pins)
-	api.PinCid(newcid)
-	api.CheckPinStatus()
+	// api.UpdateNameWithCID(newcid)
+	var _ []api.Names = api.GetPins()
+	// api.DeletePins(pins)
+	// api.PinCid(newCID)
+	// api.CheckPinStatus()
 }
 
 //* main function of this service, check the elapsed time, the status of the file
@@ -94,12 +92,16 @@ func IPFSTrigger() {
 				modifiedArticles = api.GetModifiedArticles()
 				fmt.Println("Get latest articles")
 			}
+			fmt.Println(articles)
 			allArticles := append(articles, modifiedArticles...)
 			fmt.Println("All Articles:", allArticles)
 			
 			if len(allArticles) != 0 {
 				myjson.WriteInFile(allArticles)
-				api.AddFileToIPFS()
+				newCID := api.AddFileToIPFS()
+				if newCID != "" {
+					IFPSPart(newCID)
+				}
 			}
 		}
 	// }	

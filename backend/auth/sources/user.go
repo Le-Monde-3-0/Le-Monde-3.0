@@ -1,15 +1,15 @@
 package auth
 
 import (
-	utils "github.com/Le-Monde-3-0/utils/sources"
-	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 	"html"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+	utils "github.com/Le-Monde-3-0/utils/sources"
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -174,6 +174,12 @@ func ChangeUserPassword(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	_, err := utils.GetUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	u := new(User)
 
 	u.Email = input.Email
@@ -207,11 +213,22 @@ type UserChangeUsername struct {
 	NewUsername string `json:"newusername" binding:"required"`
 }
 
+type ChangeArticlesAuthornameObject struct {
+	Oldname string `json:"oldname"`
+	Newname string `json:"newname"`
+}
+
 func ChangeUsername(c *gin.Context, db *gorm.DB) {
 	var input UserChangeUsername
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Arguments"})
+		return
+	}
+
+	_, err := utils.GetUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -222,7 +239,7 @@ func ChangeUsername(c *gin.Context, db *gorm.DB) {
 
 	check, err := CheckUser(u.Email, u.Password, db)
 
-	if err != nil || check == false {
+	if err != nil || !check {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Email or Password is incorrect."})
 		return
 	}
@@ -232,6 +249,12 @@ func ChangeUsername(c *gin.Context, db *gorm.DB) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching database"})
 	}
+
+	var body =ChangeArticlesAuthornameObject{}
+	body.Oldname = u.Username
+	body.Newname = input.NewUsername
+
+	utils.MakeHTTPRequest(c, http.MethodPut, "http://articles-lemonde3-0:8082/articles/authorname", body)
 
 	u.Username = input.NewUsername
 
@@ -251,6 +274,12 @@ func ChangeUserMail(c *gin.Context, db *gorm.DB) {
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Arguments"})
+		return
+	}
+
+	_, err := utils.GetUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

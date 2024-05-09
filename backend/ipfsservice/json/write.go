@@ -16,7 +16,7 @@ func WriteInFile(ipfsArticles []a.IPFSArticle) {
 	}
 
 	// Join the parent directory and filename to get the complete path
-	filePath := "../articles.json"
+	filePath := "articles.json"
 
 	// Write JSON data to file
 	file, err := os.Create(filePath)

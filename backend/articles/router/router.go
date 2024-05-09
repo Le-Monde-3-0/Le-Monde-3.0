@@ -107,6 +107,10 @@ func Router(db *gorm.DB) *gin.Engine {
 	r.GET("/articles/user/stats", func(c *gin.Context) {
 		src.GetUserStats(c, db)
 	})
+	
+	r.PUT("/articles/authorname", func(c *gin.Context) {
+		src.ChangeArticlesAuthorname(c, db)
+	})
 
 	return r
 }
