@@ -66,10 +66,10 @@ func GetLastModifiedArticles(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, articles)
 }
 
-func addRecordIfNotPresent(articleID uint, key int32, db *gorm.DB) []Record {
-	var records []Record
+func addRecordLike(articleID uint, key int32, db *gorm.DB) []RecordLike {
+	var records []RecordLike
 
-	result := db.Where(Record{ArticleID: articleID}).Find(&records)
+	result := db.Where(RecordLike{ArticleID: articleID}).Find(&records)
 	if result.Error != nil {
 		fmt.Print(result.Error.Error())
 		return nil
@@ -80,7 +80,50 @@ func addRecordIfNotPresent(articleID uint, key int32, db *gorm.DB) []Record {
 			return records
 		}
 	}
-	records = append(records, Record{UserId: key, LikeTime: time.Now()})
+	records = append(records, RecordLike{UserId: key, LikeTime: time.Now()})
+
+	return records
+}
+
+func getRecordLike(articleID uint, db *gorm.DB) []RecordLike {
+	var records []RecordLike
+
+	result := db.Where(RecordLike{ArticleID: articleID}).Find(&records)
+	if result.Error != nil {
+		fmt.Print(result.Error.Error())
+		return nil
+	}
+
+	return records
+}
+
+func getRecordView(articleID uint, db *gorm.DB) []RecordView {
+	var records []RecordView
+
+	result := db.Where(RecordView{ArticleID: articleID}).Find(&records)
+	if result.Error != nil {
+		fmt.Print(result.Error.Error())
+		return nil
+	}
+
+	return records
+}
+
+func addRecordView(articleID uint, key int32, db *gorm.DB) []RecordView {
+	var records []RecordView
+
+	result := db.Where(RecordView{ArticleID: articleID}).Find(&records)
+	if result.Error != nil {
+		fmt.Print(result.Error.Error())
+		return nil
+	}
+
+	for _, val := range records {
+		if val.UserId == key {
+			return records
+		}
+	}
+	records = append(records, RecordView{UserId: key, LikeTime: time.Now()})
 
 	return records
 }
@@ -132,7 +175,8 @@ func GetArticle(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	article.Views = addRecordIfNotPresent(article.Id, userId, db)
+	article.Views = addRecordView(article.Id, userId, db)
+	article.Likes = getRecordLike(article.Id, db)
 	if err := db.Save(&article).Error; err != nil {
 		fmt.Print(err.Error())
 	}
@@ -378,34 +422,44 @@ func isSameDay(date1, date2 time.Time) bool {
 	return date1.Year() == date2.Year() && date1.Month() == date2.Month() && date1.Day() == date2.Day()
 }
 
-func AddLikeRecord(article Article, userStats UserStats) {
+func AddLikeRecord(article Article, userStats UserStats) UserStats {
 	for _, articleLikesRecord := range article.Likes {
+		found := false
 		for _, userArticleRecord := range userStats.Likes.Daily {
 			if isSameDay(articleLikesRecord.LikeTime, userArticleRecord.Date) {
 				userArticleRecord.Daily += 1
-				continue
+				found = true
 			}
 		}
-		userStats.Likes.Daily = append(userStats.Likes.Daily, DailyInfo{
-			Date:  articleLikesRecord.LikeTime,
-			Daily: 1,
-		})
+		if !found {
+			userStats.Likes.Daily = append(userStats.Likes.Daily, DailyInfo{
+				Date:  articleLikesRecord.LikeTime,
+				Daily: 1,
+			})
+		}
+
 	}
+	return userStats
 }
 
-func AddViewRecord(article Article, userStats UserStats) {
+func AddViewRecord(article Article, userStats UserStats) UserStats {
 	for _, articleViewsRecord := range article.Views {
-		for _, userArticleRecord := range userStats.Views.Daily {
+		found := false
+		for index, userArticleRecord := range userStats.Views.Daily {
 			if isSameDay(articleViewsRecord.LikeTime, userArticleRecord.Date) {
-				userArticleRecord.Daily += 1
+				userStats.Views.Daily[index].Daily += 1
+				found = true
 				continue
 			}
 		}
-		userStats.Likes.Daily = append(userStats.Views.Daily, DailyInfo{
-			Date:  articleViewsRecord.LikeTime,
-			Daily: 1,
-		})
+		if !found {
+			userStats.Views.Daily = append(userStats.Views.Daily, DailyInfo{
+				Date:  articleViewsRecord.LikeTime,
+				Daily: 1,
+			})
+		}
 	}
+	return userStats
 }
 
 func GetUserStats(c *gin.Context, db *gorm.DB) {
@@ -430,10 +484,12 @@ func GetUserStats(c *gin.Context, db *gorm.DB) {
 	}
 
 	for _, article := range *articles {
+		article.Likes = getRecordLike(article.Id, db)
+		article.Views = getRecordView(article.Id, db)
 		userStats.Views.Total += len(article.Views)
 		userStats.Likes.Total += len(article.Likes)
-		AddViewRecord(article, userStats)
-		AddLikeRecord(article, userStats)
+		userStats = AddViewRecord(article, userStats)
+		userStats = AddLikeRecord(article, userStats)
 	}
 	if len(userStats.Likes.Daily) != 0 {
 		userStats.Likes.Daily[0].Summed = userStats.Likes.Daily[0].Daily

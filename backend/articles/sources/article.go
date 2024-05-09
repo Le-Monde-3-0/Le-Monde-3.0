@@ -18,12 +18,19 @@ type Article struct {
 	Topic      string
 	Draft      bool
 	//Likes                 pq.Int32Array `gorm:"type:integer[]"`
-	Likes                 []Record `gorm:"foreignKey:ArticleID"`
+	Likes                 []RecordLike `gorm:"foreignKey:ArticleID"`
 	HasConnectedUserLiked bool
-	Views                 []Record `gorm:"foreignKey:ArticleID"`
+	Views                 []RecordView `gorm:"foreignKey:ArticleID"`
 }
 
-type Record struct {
+type RecordView struct {
+	ID        uint `gorm:"primaryKey"`
+	ArticleID uint // Foreign key
+	UserId    int32
+	LikeTime  time.Time
+}
+
+type RecordLike struct {
 	ID        uint `gorm:"primaryKey"`
 	ArticleID uint // Foreign key
 	UserId    int32
