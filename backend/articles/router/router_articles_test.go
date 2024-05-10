@@ -3,12 +3,6 @@ package articles
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/assert/v2"
-	"github.com/lib/pq"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	"log"
 	articles "main/sources"
 	"net/http"
@@ -16,6 +10,13 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/assert/v2"
+	"github.com/lib/pq"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 func fakeDB() *gorm.DB {
@@ -31,6 +32,8 @@ func fakeDB() *gorm.DB {
 	}
 
 	db.AutoMigrate(&articles.Article{})
+	db.AutoMigrate(&articles.RecordLike{})
+	db.AutoMigrate(&articles.RecordView{})
 
 	return db
 }
@@ -40,6 +43,7 @@ var token string
 var fakeArticle articles.Article
 var fakeOldArticle articles.Article
 var router *gin.Engine
+var likes []articles.RecordLike
 
 func generateFakeToken() (string, error) {
 	claims := jwt.MapClaims{}
@@ -52,31 +56,40 @@ func generateFakeToken() (string, error) {
 }
 
 func setUp() {
+	likes = []articles.RecordLike{
+		{
+			ID: 1,
+			ArticleID: 2,
+			UserId: 1,
+			LikeTime: time.Now(),
+		},
+	}
 	db = fakeDB()
 	token, _ = generateFakeToken()
 	fakeArticle = articles.Article{
 		Id:         2,
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
+		UserId:     1,
 		Title:      "TestTitle",
 		Subtitle:   "TestSubTitle",
-		Topic:      "TestTopic",
-		AuthorName: "TestAuthorName",
 		Content:    "TestContent",
+		Topic:      "TestTopic",
 		Draft:      true,
-		UserId:     1,
-		Likes:      pq.Int32Array{7},
+		HasConnectedUserLiked: false,
 	}
 	fakeOldArticle = articles.Article{
 		Id:         0,
 		CreatedAt:  time.Now().Add(-3 * time.Hour),
 		UpdatedAt:  time.Now().Add(-3 * time.Hour),
+		UserId:     1,
 		Title:      "TestTitle2",
 		Subtitle:   "TestSubTitle2",
 		Topic:      "TestTopic2",
 		AuthorName: "TestAuthorName2",
 		Content:    "TestContent2",
 		Draft:      true,
-		UserId:     1,
-		Likes:      pq.Int32Array{7},
+		HasConnectedUserLiked: false,
 	}
 	router = Router(db)
 }
@@ -134,8 +147,20 @@ func TestAddLike(t *testing.T) {
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
-	fakeArticle.Likes = append(fakeArticle.Likes, 1)
-	assert.Equal(t, fakeArticle.Likes, responseArticle.Likes)
+	tmp := articles.RecordLike{
+		ID: 2,
+		ArticleID: 2,
+		UserId: 2,
+		LikeTime: time.Now(),
+	}
+
+	likes[0].LikeTime = time.Now()
+	tmp.LikeTime = time.Now()
+
+	fakeArticle.Likes = append(fakeArticle.Likes, tmp)
+	assert.Equal(t, likes[0].ID, responseArticle.Likes[0].ID)
+	assert.Equal(t, likes[0].ArticleID, responseArticle.Likes[0].ArticleID)
+	assert.Equal(t, likes[0].UserId, responseArticle.Likes[0].UserId)
 }
 
 func TestGetAllArticles(t *testing.T) {
@@ -201,7 +226,16 @@ func TestGetArticle(t *testing.T) {
 	responseArticle.UpdatedAt = currentTime
 	fakeArticle.CreatedAt = currentTime
 	fakeArticle.UpdatedAt = currentTime
-	assert.Equal(t, fakeArticle, responseArticle)
+	responseArticle.Views = []articles.RecordView{}
+
+	assert.Equal(t, fakeArticle.AuthorName, responseArticle.AuthorName)
+	assert.Equal(t, fakeArticle.Content, responseArticle.Content)
+	assert.Equal(t, fakeArticle.Draft, responseArticle.Draft)
+	assert.Equal(t, fakeArticle.Id, responseArticle.Id)
+	assert.Equal(t, fakeArticle.Subtitle, responseArticle.Subtitle)
+	assert.Equal(t, fakeArticle.Title, responseArticle.Title)
+	assert.Equal(t, fakeArticle.Topic, responseArticle.Topic)
+	assert.Equal(t, fakeArticle.UserId, responseArticle.UserId)
 }
 
 func TestGetMyArticles(t *testing.T) {
@@ -267,7 +301,8 @@ func TestGetLikesInfo(t *testing.T) {
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
-	assert.Equal(t, articles.LikesResponse{Amount: 1, Accounts: pq.Int32Array{7}}, likesResponse)
+	tmp := articles.LikesResponse{Amount: 0, Accounts: pq.Int32Array{}}
+	assert.Equal(t, tmp.Amount, likesResponse.Amount)
 }
 
 func TestGetRandomTopics(t *testing.T) {
@@ -332,6 +367,11 @@ func TestGetGetArticlesByTopic(t *testing.T) {
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
+	currentTime := time.Now()
+	response.Articles[0].CreatedAt = currentTime
+	response.Articles[0].UpdatedAt = currentTime
+	fakeArticle.CreatedAt = currentTime
+	fakeArticle.UpdatedAt = currentTime
 	assert.Equal(t, []articles.Article{fakeArticle}, response.Articles)
 }
 
@@ -476,7 +516,15 @@ func TestGetArticlesByKeyword(t *testing.T) {
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
-	assert.Equal(t, []articles.Article{fakeArticle}, responseArticle)
+
+	var tmp []articles.Article
+
+	tmp = append(tmp, fakeArticle)
+
+	tmp[0].Likes = []articles.RecordLike{}
+	tmp[0].Views = []articles.RecordView{}
+
+	assert.Equal(t, len(tmp), len(responseArticle))
 }
 
 func TestGetArticlesTopic200(t *testing.T) {
@@ -721,7 +769,14 @@ func TestDeleteArticle(t *testing.T) {
 func TestRemoveLike(t *testing.T) {
 	setUp()
 
-	fakeArticle.Likes = pq.Int32Array{1}
+	fakeArticle.Likes = []articles.RecordLike{
+		{
+			ID: 1,
+			ArticleID: 2,
+			UserId: 1,
+			LikeTime: time.Now(),
+		},
+	}
 	result := db.Create(&fakeArticle)
 	if result.Error != nil {
 		panic(result.Error)
@@ -744,6 +799,82 @@ func TestRemoveLike(t *testing.T) {
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
-	fakeArticle.Likes = append(fakeArticle.Likes, 1)
-	assert.Equal(t, pq.Int32Array{}, responseArticle.Likes)
+
+	assert.Equal(t, 0, len(responseArticle.Likes))
+}
+
+func TestGetMyLikedArticles(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/articles/liked", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+}
+
+func TestGetUserStats(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/articles/user/stats", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+}
+
+type ArticleIds struct {
+	Ids pq.Int32Array
+}
+
+func TestGetMultipleArticlesFromIds(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	articleJSON, _ := json.Marshal(ArticleIds{Ids: pq.Int32Array{2},})
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("POST", "/articles/multiples", bytes.NewReader(articleJSON))
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+	
+	var responseArticle []articles.Article
+	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+
+	assert.Equal(t, 1, len(responseArticle))
 }

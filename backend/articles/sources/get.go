@@ -508,3 +508,38 @@ func GetUserStats(c *gin.Context, db *gorm.DB) {
 	}
 	c.JSON(http.StatusOK, userStats)
 }
+
+type ArticleIds struct {
+	Ids pq.Int32Array
+}
+
+func GetMultipleArticlesFromIds(c *gin.Context, db *gorm.DB) {
+	var articles []Article
+
+	articleIds := ArticleIds{}
+	if err := c.ShouldBindJSON(&articleIds); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid arguments"})
+		return
+	}
+
+	for _, id := range articleIds.Ids {
+		
+		var article Article
+		db.Where(Article{Id: uint(id)}).Find(&article)
+
+		// article.Views = addRecordView(article.Id, userId, db)
+		// article.Likes = getRecordLike(article.Id, db)
+		// if err := db.Save(&article).Error; err != nil {
+		// 	fmt.Print(err.Error())
+		// }
+
+		// if hasUserLikedArticle(int64(userId), article) {
+		// 	article.HasConnectedUserLiked = true
+		// }
+
+		if article.Id != 0 {
+			articles = append(articles, article)
+		}
+	}
+	c.JSON(http.StatusOK, articles)
+}

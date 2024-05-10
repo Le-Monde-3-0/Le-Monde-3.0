@@ -3,7 +3,7 @@ module main
 go 1.18
 
 require (
-	github.com/Le-Monde-3-0/articles_dtos v0.1.1
+	github.com/Le-Monde-3-0/articles_dtos v0.1.2
 	github.com/Le-Monde-3-0/utils v0.1.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.4.0

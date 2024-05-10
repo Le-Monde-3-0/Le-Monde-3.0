@@ -25,14 +25,6 @@ services:
       context: bookmarks
     ports:
       - 8084:8084
-  ipfs:
-    container_name: ipfs
-    image: ipfs/go-ipfs
-    volumes:
-      - ./data/ipfs:/data/ipfs
-    ports:
-      - 4001:4001
-      - 5001:5001
   prometheus:
     image: prom/prometheus:latest
     ports:
@@ -41,21 +33,21 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
+  ipfs_host:
+    image: ipfs/kubo:latest
+    container_name: ipfs_host
+    ports:
+      - "4001:4001"
+      - "4001:4001/udp"
+      - "127.0.0.1:8086:8086"
+      - "127.0.0.1:5001:5001"
+    volumes:
+      - $ipfs_staging:/export
+      - $ipfs_data:/data/ipfs
+    restart: always
   # ipfsservice:
   #   container_name : ipfsservice-lemonde3-0
   #   build:
   #     context: ipfsservice
   #   ports:
   #     - 8085:8085
-  # ipfs_host:
-  #   image: ipfs/kubo:latest
-  #   container_name: ipfs_host
-  #   ports:
-  #     - "4001:4001"
-  #     - "4001:4001/udp"
-  #     - "127.0.0.1:8086:8086"
-  #     - "127.0.0.1:5001:5001"
-  #   volumes:
-  #     - $ipfs_staging:/export
-  #     - $ipfs_data:/data/ipfs
-  #   restart: always
