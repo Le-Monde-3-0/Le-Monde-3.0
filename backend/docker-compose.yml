@@ -47,3 +47,15 @@ services:
   #     context: ipfsservice
   #   ports:
   #     - 8085:8085
+  # ipfs_host:
+  #   image: ipfs/kubo:latest
+  #   container_name: ipfs_host
+  #   ports:
+  #     - "4001:4001"
+  #     - "4001:4001/udp"
+  #     - "127.0.0.1:8086:8086"
+  #     - "127.0.0.1:5001:5001"
+  #   volumes:
+  #     - $ipfs_staging:/export
+  #     - $ipfs_data:/data/ipfs
+  #   restart: always
