@@ -200,7 +200,7 @@ func GetLastModifiedArticles(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} []Article
-// @Failure      10  {object}  HTTPError400
+// @Failure      400  {object}  HTTPError400
 // @Failure      500  {object}  HTTPError500
 // @Router /articles/liked [get]
 func GetLikedArticles(c *gin.Context, logger *zap.Logger) {
