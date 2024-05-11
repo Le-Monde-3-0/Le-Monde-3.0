@@ -1,17 +1,21 @@
 package router
 
 import (
+	art "core/router/articles"
+	adm "core/router/auth"
+	bkm "core/router/bookmarks"
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	mw "main/middlewares"
-	adm "main/router/admin"
-	art "main/router/articles"
-	bkm "main/router/bookmarks"
+	"go.uber.org/zap"
 )
 
-func Router() *gin.Engine {
+/*
+Router implements the routes of the microservice
+*/
+func Router(logger *zap.Logger) *gin.Engine {
 
 	r := gin.New()
 
@@ -27,11 +31,11 @@ func Router() *gin.Engine {
 	public := r.Group("/")
 	protected := r.Group("/")
 
-	protected.Use(mw.JwtAuthMiddleware())
+	protected.Use(utils.JwtAuthMiddleware())
 
-	adm.ApplyAdminRoutes(public)
-	art.ApplyArticlesRoutes(protected)
-	bkm.ApplyBookmarksRoutes(protected)
+	adm.ApplyAuthRoutes(public, protected, logger)
+	art.ApplyArticlesRoutes(public, protected, logger)
+	bkm.ApplyBookmarksRoutes(protected, logger)
 
 	return r
 }

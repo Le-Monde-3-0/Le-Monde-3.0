@@ -1,7 +1,8 @@
-package sources
+package bookmarks
 
 import (
 	"errors"
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
@@ -13,10 +14,13 @@ type EditedBookmark struct {
 	Desccription string `json:"description"`
 }
 
+/*
+EditBookmark edits a bookmark
+*/
 func EditBookmark(c *gin.Context, db *gorm.DB) {
 	bookmark := new(Bookmark)
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -34,7 +38,7 @@ func EditBookmark(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	result := db.Where(Bookmark{Id: int32(bookmarkId), UserId: userId}).Find(&bookmark)
+	result := db.Where(Bookmark{Id: uint(bookmarkId)}).Find(&bookmark)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "No corresponding bookmark"})
@@ -43,13 +47,14 @@ func EditBookmark(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
 		return
 	}
-	// TODO unsure , if a user want to delete his descritpion maybe this has to change
+	if bookmark.UserId != userId {
+		c.JSON(http.StatusForbidden, gin.H{"error": "you are not allowed to edit this bookmark"})
+		return
+	}
 	if (editedBookmark.Title != "") {
 		bookmark.Title = editedBookmark.Title
 	}
-	if (editedBookmark.Desccription != "") {
-		bookmark.Description = editedBookmark.Desccription
-	}
+	bookmark.Description = editedBookmark.Desccription
 
 	db.Save(&bookmark)
 	c.JSON(http.StatusOK, bookmark)

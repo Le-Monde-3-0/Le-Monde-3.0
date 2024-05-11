@@ -1,4 +1,4 @@
-package router
+package articles
 
 import (
 	"github.com/gin-contrib/cors"
@@ -7,6 +7,9 @@ import (
 	src "main/sources"
 )
 
+/*
+Router implements the routes of the microservice
+*/
 func Router(db *gorm.DB) *gin.Engine {
 
 	r := gin.Default()
@@ -31,12 +34,24 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.GetAllArticles(c, db)
 	})
 
+	r.GET("/ipfs/articles", func(c *gin.Context) {
+		src.GetIPFSAllArticles(c, db)
+	})
+
 	r.GET("/articles/:id", func(c *gin.Context) {
 		src.GetArticle(c, db)
 	})
 
 	r.GET("/articles/me", func(c *gin.Context) {
 		src.GetMyArticles(c, db)
+	})
+
+	r.GET("/articles/latest/created", func(c *gin.Context) {
+		src.GetLastCreatedArticles(c, db)
+	})
+
+	r.GET("/articles/latest/modified", func(c *gin.Context) {
+		src.GetLastModifiedArticles(c, db)
 	})
 
 	r.GET("/articles/liked", func(c *gin.Context) {
@@ -46,7 +61,9 @@ func Router(db *gorm.DB) *gin.Engine {
 	r.GET("/articles/:id/likes", func(c *gin.Context) {
 		src.GetLikesInfo(c, db)
 	})
-	
+
+	r.GET("/articles/topics/example", src.GetRandomTopics)
+
 	r.GET("/articles/topic/:topic", func(c *gin.Context) {
 		src.GetArticlesByTopic(c, db)
 	})
@@ -59,12 +76,16 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.IsArticleDraft(c, db)
 	})
 
-	r.PUT("/articles/:id/draft", func (c *gin.Context) {
+	r.PUT("/articles/:id/draft", func(c *gin.Context) {
 		src.ChangeDraftState(c, db)
 	})
 
 	r.PUT("/articles/:id", func(c *gin.Context) {
 		src.EditArticle(c, db)
+	})
+
+	r.GET("/articles/:id/topic", func(c *gin.Context) {
+		src.GetArticlesTopic(c, db)
 	})
 
 	r.DELETE("/articles", func(c *gin.Context) {
@@ -77,6 +98,22 @@ func Router(db *gorm.DB) *gin.Engine {
 
 	r.DELETE("/articles/:id/likes", func(c *gin.Context) {
 		src.RemoveLike(c, db)
+	})
+
+	r.GET("/articles/search/:keyword", func(c *gin.Context) {
+		src.GetArticlesByKeyword(c, db)
+	})
+
+	r.POST("/articles/multiples", func(c *gin.Context) {
+		src.GetMultipleArticlesFromIds(c, db)
+	})
+
+	r.GET("/articles/user/stats", func(c *gin.Context) {
+		src.GetUserStats(c, db)
+	})
+	
+	r.PUT("/articles/authorname", func(c *gin.Context) {
+		src.ChangeArticlesAuthorname(c, db)
 	})
 
 	return r

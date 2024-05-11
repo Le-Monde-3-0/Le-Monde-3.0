@@ -1,4 +1,4 @@
-FROM golang:1.19
+FROM golang:1.20
 
 WORKDIR /app
 
@@ -6,8 +6,8 @@ COPY . .
 
 RUN go mod download
 
-RUN go build . 
+RUN go build -o articles .
 
 EXPOSE 8082
 
-CMD ["./main"]
+CMD ["./articles"]

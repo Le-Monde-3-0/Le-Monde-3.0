@@ -1,169 +1,6 @@
 basePath: /api/v1
 definitions:
-  articles.ArticleInput:
-    properties:
-      authorname:
-        type: string
-      content:
-        type: string
-      draft:
-        type: boolean
-      subtitle:
-        type: string
-      title:
-        type: string
-      topic:
-        type: string
-    required:
-    - authorname
-    - content
-    - subtitle
-    - title
-    type: object
-  articles.Bookmark:
-    properties:
-      articles:
-        items:
-          type: integer
-        type: array
-      description:
-        type: string
-      id:
-        type: integer
-      title:
-        type: string
-      userId:
-        type: integer
-    type: object
-  articles.BookmarkInput:
-    properties:
-      description:
-        type: string
-      title:
-        type: string
-    required:
-    - title
-    type: object
-  articles.ChangeUserMailInput:
-    properties:
-      email:
-        type: string
-      newemail:
-        type: string
-      password:
-        type: string
-    type: object
-  articles.ChangeUserMailResponse:
-    properties:
-      created:
-        example: User email changed
-        type: string
-    type: object
-  articles.ChangeUserNameResponse:
-    properties:
-      created:
-        example: User name changed
-        type: string
-    type: object
-  articles.ChangeUserPasswordInput:
-    properties:
-      email:
-        type: string
-      newpassword:
-        type: string
-      password:
-        type: string
-    type: object
-  articles.ChangeUserPasswordResponse:
-    properties:
-      created:
-        example: User password changed
-        type: string
-    type: object
-  articles.ChangeUsernameInput:
-    properties:
-      email:
-        type: string
-      newusername:
-        type: string
-      password:
-        type: string
-    type: object
-  articles.EditArticleInput:
-    properties:
-      content:
-        type: string
-      subtitle:
-        type: string
-      title:
-        type: string
-      topic:
-        type: string
-    required:
-    - content
-    - subtitle
-    - title
-    type: object
-  articles.IsArticleDraftResponse:
-    properties:
-      "true":
-        example: Article is draft
-        type: string
-    type: object
-  articles.LikesResponse:
-    properties:
-      accounts:
-        items:
-          type: integer
-        type: array
-      amount:
-        type: integer
-    type: object
-  articles.LoginInput:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  articles.LoginResponse:
-    properties:
-      token:
-        example: XXXXXXXXXXXXXXXXXXXX
-        type: string
-    type: object
-  articles.RegisterInput:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-      username:
-        type: string
-    required:
-    - email
-    - password
-    - username
-    type: object
-  articles.RegisterResponse:
-    properties:
-      created:
-        example: User created successfully
-        type: string
-    type: object
-  http.HTTPError:
-    properties:
-      code:
-        example: 400
-        type: integer
-      message:
-        example: status bad request
-        type: string
-    type: object
-  main_router_articles.Article:
+  core.Article:
     properties:
       authorName:
         type: string
@@ -186,28 +23,211 @@ definitions:
       userId:
         type: integer
     type: object
-  main_router_articles.DeletedResponse:
+  core.ArticleInput:
     properties:
-      delete:
-        example: all articles have been successfully deleted
+      authorname:
         type: string
-    type: object
-  main_router_bookmarks.Article:
-    properties:
       content:
         type: string
-      id:
-        type: integer
-      likes:
+      draft:
+        type: boolean
+      subtitle:
+        type: string
+      title:
+        type: string
+      topic:
+        type: string
+    required:
+    - authorname
+    - content
+    - subtitle
+    - title
+    type: object
+  core.Bookmark:
+    properties:
+      articles:
         items:
           type: integer
         type: array
+      description:
+        type: string
+      id:
+        type: integer
       title:
         type: string
       userId:
         type: integer
     type: object
-  main_router_bookmarks.DeletedResponse:
+  core.BookmarkInput:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  core.EditArticleInput:
+    properties:
+      content:
+        type: string
+      subtitle:
+        type: string
+      title:
+        type: string
+      topic:
+        type: string
+    required:
+    - content
+    - subtitle
+    - title
+    type: object
+  core.GetArticlesTopicRespond:
+    properties:
+      "true":
+        example: TestTopic
+        type: string
+    type: object
+  core.HTTPError400:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: status bad request
+        type: string
+    type: object
+  core.HTTPError401:
+    properties:
+      code:
+        example: 401
+        type: integer
+      message:
+        example: Unauthorized
+        type: string
+    type: object
+  core.HTTPError403:
+    properties:
+      code:
+        example: 403
+        type: integer
+      message:
+        example: forbidden
+        type: string
+    type: object
+  core.HTTPError404:
+    properties:
+      code:
+        example: 404
+        type: integer
+      message:
+        example: not found
+        type: string
+    type: object
+  core.HTTPError409:
+    properties:
+      code:
+        example: 409
+        type: integer
+      message:
+        example: conflict
+        type: string
+    type: object
+  core.HTTPError422:
+    properties:
+      code:
+        example: 422
+        type: integer
+      message:
+        example: unprocessable Content
+        type: string
+    type: object
+  core.HTTPError500:
+    properties:
+      code:
+        example: 500
+        type: integer
+      message:
+        example: internal server error
+        type: string
+    type: object
+  core.IsArticleDraftResponse:
+    properties:
+      "true":
+        example: Article is draft
+        type: string
+    type: object
+  core.LikesResponse:
+    properties:
+      accounts:
+        items:
+          type: integer
+        type: array
+      amount:
+        type: integer
+    type: object
+  core.LoginInput:
+    properties:
+      identifier:
+        type: string
+      password:
+        type: string
+    required:
+    - identifier
+    - password
+    type: object
+  core.LoginResponse:
+    properties:
+      token:
+        example: XXXXXXXXXXXXXXXXXXXX
+        type: string
+    type: object
+  core.MultipleArticlesIdsInput:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  core.RegisterInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  core.RegisterResponse:
+    properties:
+      created:
+        example: User created successfully
+        type: string
+    type: object
+  core.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      isPrivate:
+        type: boolean
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  core_router_articles.DeletedResponse:
+    properties:
+      delete:
+        example: all articles have been successfully deleted
+        type: string
+    type: object
+  core_router_bookmarks.DeletedResponse:
     properties:
       delete:
         example: all articles have been successfully deleted
@@ -241,15 +261,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main_router_articles.DeletedResponse'
+            $ref: '#/definitions/core_router_articles.DeletedResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - articles
     get:
@@ -263,16 +283,16 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/main_router_articles.Article'
+              $ref: '#/definitions/core.Article'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - articles
     post:
@@ -285,50 +305,26 @@ paths:
         name: ArticleInput
         required: true
         schema:
-          $ref: '#/definitions/articles.ArticleInput'
+          $ref: '#/definitions/core.ArticleInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main_router_articles.Article'
+            $ref: '#/definitions/core.Article'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/core.HTTPError409'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
-      tags:
-      - articles
-    put:
-      consumes:
-      - application/json
-      description: Edit an article
-      parameters:
-      - description: Params to edit an article
-        in: body
-        name: EditArticleInput
-        required: true
-        schema:
-          $ref: '#/definitions/articles.EditArticleInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/main_router_articles.Article'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/http.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - articles
   /articles/:id:
@@ -342,15 +338,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main_router_articles.DeletedResponse'
+            $ref: '#/definitions/core_router_articles.DeletedResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - articles
     get:
@@ -363,41 +363,73 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main_router_articles.Article'
+            $ref: '#/definitions/core.Article'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - articles
-  /articles/:id/draft:
-    get:
+    put:
       consumes:
       - application/json
-      description: Check if the given article is a Draft
+      description: Edit an article
+      parameters:
+      - description: Params to edit an article
+        in: body
+        name: EditArticleInput
+        required: true
+        schema:
+          $ref: '#/definitions/core.EditArticleInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/articles.IsArticleDraftResponse'
+            $ref: '#/definitions/core.Article'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.HTTPError400'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.HTTPError'
-        "422":
-          description: Unprocessable Entity
-          schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
+      tags:
+      - articles
+  /articles/:id/draft:
+    get:
+      consumes:
+      - application/json
+      description: Get all topics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/core.IsArticleDraftResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/core.HTTPError422'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - articles
     put:
@@ -410,15 +442,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main_router_articles.Article'
+            $ref: '#/definitions/core.Article'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - articles
   /articles/:id/likes:
@@ -432,15 +464,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main_router_articles.Article'
+            $ref: '#/definitions/core.Article'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - articles
     get:
@@ -453,15 +489,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/articles.LikesResponse'
+            $ref: '#/definitions/core.LikesResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - articles
     post:
@@ -474,15 +514,97 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main_router_articles.Article'
+            $ref: '#/definitions/core.Article'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
+      tags:
+      - articles
+  /articles/:id/topic:
+    get:
+      consumes:
+      - application/json
+      description: Get the topic of a Article
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/core.GetArticlesTopicRespond'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
+      tags:
+      - articles
+  /articles/latest/created:
+    get:
+      consumes:
+      - application/json
+      description: Retrived articles created in the last two hours
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/core.Article'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.HTTPError400'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/core.HTTPError401'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
+      tags:
+      - articles
+  /articles/latest/modified:
+    get:
+      consumes:
+      - application/json
+      description: Retrived articles modified in the last two hours
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/core.Article'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.HTTPError400'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/core.HTTPError401'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - articles
   /articles/liked:
@@ -493,20 +615,20 @@ paths:
       produces:
       - application/json
       responses:
+        "10":
+          description: ""
+          schema:
+            $ref: '#/definitions/core.HTTPError400'
         "200":
           description: OK
           schema:
             items:
-              $ref: '#/definitions/main_router_articles.Article'
+              $ref: '#/definitions/core.Article'
             type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/http.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - articles
   /articles/me:
@@ -521,19 +643,78 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/main_router_articles.Article'
+              $ref: '#/definitions/core.Article'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - articles
-  /articles/topic:
+  /articles/multiples:
+    post:
+      consumes:
+      - application/json
+      description: Get Articles by there Ids
+      parameters:
+      - description: "\tIds of the Articles research"
+        in: body
+        name: MultipleArticlesIdsInput
+        required: true
+        schema:
+          $ref: '#/definitions/core.MultipleArticlesIdsInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/core.Article'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
+      tags:
+      - articles
+  /articles/search/:keyword:
+    post:
+      consumes:
+      - application/json
+      description: Find Articles by a keyword and search if it correspond
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/core.Article'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/core.HTTPError401'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
+      tags:
+      - articles
+  /articles/topic/:topic:
     get:
       consumes:
       - application/json
@@ -545,16 +726,64 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/main_router_articles.Article'
+              $ref: '#/definitions/core.Article'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
+      tags:
+      - articles
+  /articles/topics:
+    get:
+      consumes:
+      - application/json
+      description: Get all articles by topic
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/core.Article'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.HTTPError400'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
+      tags:
+      - articles
+  /articles/topics/example:
+    get:
+      consumes:
+      - application/json
+      description: Return random ideas of topics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - articles
   /bookmarks:
@@ -568,15 +797,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main_router_bookmarks.DeletedResponse'
+            $ref: '#/definitions/core_router_bookmarks.DeletedResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - bookmarks
     get:
@@ -590,16 +823,20 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/articles.Bookmark'
+              $ref: '#/definitions/core.Bookmark'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - bookmarks
     post:
@@ -612,22 +849,26 @@ paths:
         name: BookmarkInput
         required: true
         schema:
-          $ref: '#/definitions/articles.BookmarkInput'
+          $ref: '#/definitions/core.BookmarkInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/articles.Bookmark'
+            $ref: '#/definitions/core.Bookmark'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/core.HTTPError409'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - bookmarks
   /bookmarks/:id:
@@ -641,15 +882,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/main_router_bookmarks.DeletedResponse'
+            $ref: '#/definitions/core_router_bookmarks.DeletedResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - bookmarks
     get:
@@ -662,15 +907,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/articles.Bookmark'
+            $ref: '#/definitions/core.Bookmark'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/core.HTTPError403'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - bookmarks
     put:
@@ -683,22 +936,30 @@ paths:
         name: BookmarkInput
         required: true
         schema:
-          $ref: '#/definitions/articles.BookmarkInput'
+          $ref: '#/definitions/core.BookmarkInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/articles.Bookmark'
+            $ref: '#/definitions/core.Bookmark'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/core.HTTPError403'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - bookmarks
   /bookmarks/:id/articles:
@@ -712,15 +973,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/articles.Bookmark'
+            $ref: '#/definitions/core.Bookmark'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - bookmarks
     get:
@@ -734,16 +999,20 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/main_router_bookmarks.Article'
+              $ref: '#/definitions/core.Article'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - bookmarks
   /bookmarks/:id/articles/:id-article:
@@ -757,15 +1026,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/articles.Bookmark'
+            $ref: '#/definitions/core.Bookmark'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - bookmarks
   /bookmarks/:id/articles/id-article:
@@ -779,15 +1052,45 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/articles.Bookmark'
+            $ref: '#/definitions/core.Bookmark'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
+      tags:
+      - bookmarks
+  /bookmarks/:id/visibility:
+    post:
+      consumes:
+      - application/json
+      description: Change the visibility of a bookmark
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/core.Bookmark'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/core.HTTPError404'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - bookmarks
   /login:
@@ -801,82 +1104,48 @@ paths:
         name: LoginInput
         required: true
         schema:
-          $ref: '#/definitions/articles.LoginInput'
+          $ref: '#/definitions/core.LoginInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/articles.LoginResponse'
+            $ref: '#/definitions/core.LoginResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - authentication
-  /mail:
-    put:
+  /me/stats:
+    get:
       consumes:
       - application/json
-      description: Change the mail of a user
-      parameters:
-      - description: Params to change user mail
-        in: body
-        name: ChangeUserMailInput
-        required: true
-        schema:
-          $ref: '#/definitions/articles.ChangeUserMailInput'
+      description: Get user stats
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/articles.ChangeUserMailResponse'
-        "400":
-          description: Bad Request
+            items:
+              $ref: '#/definitions/core.Article'
+            type: array
+        "404":
+          description: Not Found
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError404'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
-      - authentication
-  /password:
-    put:
-      consumes:
-      - application/json
-      description: Change the password of a user
-      parameters:
-      - description: Params to change user password
-        in: body
-        name: ChangeUserPasswordInput
-        required: true
-        schema:
-          $ref: '#/definitions/articles.ChangeUserPasswordInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/articles.ChangeUserPasswordResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/http.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/http.HTTPError'
-      tags:
-      - authentication
+      - articles
   /register:
     post:
       consumes:
@@ -888,51 +1157,92 @@ paths:
         name: RegisterInput
         required: true
         schema:
-          $ref: '#/definitions/articles.RegisterInput'
+          $ref: '#/definitions/core.RegisterInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/articles.RegisterResponse'
+            $ref: '#/definitions/core.RegisterResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError400'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/core.HTTPError409'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - authentication
-  /username:
-    put:
+  /users/:id:
+    get:
       consumes:
       - application/json
-      description: Change the name of a user
-      parameters:
-      - description: Params to change user name
-        in: body
-        name: ChangeUsernameInput
-        required: true
-        schema:
-          $ref: '#/definitions/articles.ChangeUsernameInput'
+      description: Return a user's information
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/articles.ChangeUserNameResponse'
+            $ref: '#/definitions/core.User'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError403'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/http.HTTPError'
+            $ref: '#/definitions/core.HTTPError500'
+      tags:
+      - authentication
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: Return the connected user's information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/core.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.HTTPError400'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
+      tags:
+      - authentication
+  /users/me/visibility:
+    post:
+      consumes:
+      - application/json
+      description: Change the visibility of a user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/core.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/core.HTTPError403'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/core.HTTPError500'
       tags:
       - authentication
 securityDefinitions:

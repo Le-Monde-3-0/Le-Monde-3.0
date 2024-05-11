@@ -1,4 +1,4 @@
-package router
+package bookmarks
 
 import (
 	"github.com/gin-contrib/cors"
@@ -7,6 +7,9 @@ import (
 	src "main/sources"
 )
 
+/*
+Router implements the routes of the microservice
+*/
 func Router(db *gorm.DB) *gin.Engine {
 
 	r := gin.Default()
@@ -25,6 +28,10 @@ func Router(db *gorm.DB) *gin.Engine {
 
 	r.POST("/bookmarks/:id/articles/:id-article", func(c *gin.Context) {
 		src.AddArticleInBookmark(c, db)
+	})
+
+	r.POST("/bookmarks/:id/visibility", func(c *gin.Context) {
+		src.ChangeBookmarkVisibility(c, db)
 	})
 
 	r.GET("/bookmarks", func(c *gin.Context) {

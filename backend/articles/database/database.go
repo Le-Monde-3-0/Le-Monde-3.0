@@ -1,4 +1,4 @@
-package database
+package articles
 
 import (
 	"gorm.io/driver/sqlite"
@@ -7,6 +7,9 @@ import (
 	src "main/sources"
 )
 
+/*
+DatabaseInit initializes the database for the microservice
+*/
 func DatabaseInit() *gorm.DB {
 	db, err := gorm.Open(sqlite.Open("database/articles.db"), &gorm.Config{})
 	if err != nil {
@@ -14,6 +17,8 @@ func DatabaseInit() *gorm.DB {
 	}
 
 	db.AutoMigrate(&src.Article{})
+	db.AutoMigrate(&src.RecordView{})
+	db.AutoMigrate(&src.RecordLike{})
 
 	return db
 }

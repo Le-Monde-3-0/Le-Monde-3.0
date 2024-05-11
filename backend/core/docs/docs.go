@@ -42,63 +42,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/main_router_articles.Article"
+                                "$ref": "#/definitions/core.Article"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Edit an article",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "articles"
-                ],
-                "parameters": [
-                    {
-                        "description": "Params to edit an article",
-                        "name": "EditArticleInput",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/articles.EditArticleInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/main_router_articles.Article"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -121,7 +78,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/articles.ArticleInput"
+                            "$ref": "#/definitions/core.ArticleInput"
                         }
                     }
                 ],
@@ -129,19 +86,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main_router_articles.Article"
+                            "$ref": "#/definitions/core.Article"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError409"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -161,19 +124,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main_router_articles.DeletedResponse"
+                            "$ref": "#/definitions/core_router_articles.DeletedResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -195,19 +158,74 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main_router_articles.Article"
+                            "$ref": "#/definitions/core.Article"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Edit an article",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "parameters": [
+                    {
+                        "description": "Params to edit an article",
+                        "name": "EditArticleInput",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/core.EditArticleInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/core.Article"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -227,19 +245,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main_router_articles.DeletedResponse"
+                            "$ref": "#/definitions/core_router_articles.DeletedResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -247,7 +271,7 @@ const docTemplate = `{
         },
         "/articles/:id/draft": {
             "get": {
-                "description": "Check if the given article is a Draft",
+                "description": "Get all topics",
                 "consumes": [
                     "application/json"
                 ],
@@ -261,25 +285,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/articles.IsArticleDraftResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.IsArticleDraftResponse"
                         }
                     },
                     "422": {
                         "description": "Unprocessable Entity",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError422"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -299,19 +317,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main_router_articles.Article"
+                            "$ref": "#/definitions/core.Article"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -333,19 +351,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/articles.LikesResponse"
+                            "$ref": "#/definitions/core.LikesResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -365,19 +389,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main_router_articles.Article"
+                            "$ref": "#/definitions/core.Article"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -397,19 +427,145 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main_router_articles.Article"
+                            "$ref": "#/definitions/core.Article"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/:id/topic": {
+            "get": {
+                "description": "Get the topic of a Article",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/core.GetArticlesTopicRespond"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/latest/created": {
+            "get": {
+                "description": "Retrived articles created in the last two hours",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/core.Article"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError401"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/latest/modified": {
+            "get": {
+                "description": "Retrived articles modified in the last two hours",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/core.Article"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError401"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -428,25 +584,25 @@ const docTemplate = `{
                     "articles"
                 ],
                 "responses": {
+                    "10": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/main_router_articles.Article"
+                                "$ref": "#/definitions/core.Article"
                             }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -470,26 +626,117 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/main_router_articles.Article"
+                                "$ref": "#/definitions/core.Article"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
             }
         },
-        "/articles/topic": {
+        "/articles/multiples": {
+            "post": {
+                "description": "Get Articles by there Ids",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "parameters": [
+                    {
+                        "description": "\tIds of the Articles research",
+                        "name": "MultipleArticlesIdsInput",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/core.MultipleArticlesIdsInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/core.Article"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/search/:keyword": {
+            "post": {
+                "description": "Find Articles by a keyword and search if it correspond",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/core.Article"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError401"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/topic/:topic": {
             "get": {
                 "description": "Get all articles by topic",
                 "consumes": [
@@ -507,20 +754,94 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/main_router_articles.Article"
+                                "$ref": "#/definitions/core.Article"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/topics": {
+            "get": {
+                "description": "Get all articles by topic",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/core.Article"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
+                        }
+                    }
+                }
+            }
+        },
+        "/articles/topics/example": {
+            "get": {
+                "description": "Return random ideas of topics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -544,20 +865,26 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/articles.Bookmark"
+                                "$ref": "#/definitions/core.Bookmark"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -580,7 +907,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/articles.BookmarkInput"
+                            "$ref": "#/definitions/core.BookmarkInput"
                         }
                     }
                 ],
@@ -588,19 +915,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/articles.Bookmark"
+                            "$ref": "#/definitions/core.Bookmark"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError409"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -620,19 +953,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main_router_bookmarks.DeletedResponse"
+                            "$ref": "#/definitions/core_router_bookmarks.DeletedResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -654,19 +993,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/articles.Bookmark"
+                            "$ref": "#/definitions/core.Bookmark"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError403"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -689,7 +1040,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/articles.BookmarkInput"
+                            "$ref": "#/definitions/core.BookmarkInput"
                         }
                     }
                 ],
@@ -697,19 +1048,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/articles.Bookmark"
+                            "$ref": "#/definitions/core.Bookmark"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError403"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -729,19 +1092,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/main_router_bookmarks.DeletedResponse"
+                            "$ref": "#/definitions/core_router_bookmarks.DeletedResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -765,20 +1134,26 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/main_router_bookmarks.Article"
+                                "$ref": "#/definitions/core.Article"
                             }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -798,19 +1173,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/articles.Bookmark"
+                            "$ref": "#/definitions/core.Bookmark"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -832,19 +1213,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/articles.Bookmark"
+                            "$ref": "#/definitions/core.Bookmark"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -866,19 +1253,65 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/articles.Bookmark"
+                            "$ref": "#/definitions/core.Bookmark"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
+                        }
+                    }
+                }
+            }
+        },
+        "/bookmarks/:id/visibility": {
+            "post": {
+                "description": "Change the visibility of a bookmark",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bookmarks"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/core.Bookmark"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError404"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -903,7 +1336,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/articles.LoginInput"
+                            "$ref": "#/definitions/core.LoginInput"
                         }
                     }
                 ],
@@ -911,27 +1344,27 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/articles.LoginResponse"
+                            "$ref": "#/definitions/core.LoginResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
             }
         },
-        "/mail": {
-            "put": {
-                "description": "Change the mail of a user",
+        "/me/stats": {
+            "get": {
+                "description": "Get user stats",
                 "consumes": [
                     "application/json"
                 ],
@@ -939,81 +1372,28 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "authentication"
-                ],
-                "parameters": [
-                    {
-                        "description": "Params to change user mail",
-                        "name": "ChangeUserMailInput",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/articles.ChangeUserMailInput"
-                        }
-                    }
+                    "articles"
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/articles.ChangeUserMailResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/core.Article"
+                            }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/password": {
-            "put": {
-                "description": "Change the password of a user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "authentication"
-                ],
-                "parameters": [
-                    {
-                        "description": "Params to change user password",
-                        "name": "ChangeUserPasswordInput",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/articles.ChangeUserPasswordInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/articles.ChangeUserPasswordResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -1038,7 +1418,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/articles.RegisterInput"
+                            "$ref": "#/definitions/core.RegisterInput"
                         }
                     }
                 ],
@@ -1046,27 +1426,33 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/articles.RegisterResponse"
+                            "$ref": "#/definitions/core.RegisterResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError409"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
             }
         },
-        "/username": {
-            "put": {
-                "description": "Change the name of a user",
+        "/users/:id": {
+            "get": {
+                "description": "Return a user's information",
                 "consumes": [
                     "application/json"
                 ],
@@ -1076,34 +1462,91 @@ const docTemplate = `{
                 "tags": [
                     "authentication"
                 ],
-                "parameters": [
-                    {
-                        "description": "Params to change user name",
-                        "name": "ChangeUsernameInput",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/articles.ChangeUsernameInput"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/articles.ChangeUserNameResponse"
+                            "$ref": "#/definitions/core.User"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError403"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/http.HTTPError"
+                            "$ref": "#/definitions/core.HTTPError500"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me": {
+            "get": {
+                "description": "Return the connected user's information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/core.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError400"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me/visibility": {
+            "post": {
+                "description": "Change the visibility of a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/core.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError403"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/core.HTTPError500"
                         }
                     }
                 }
@@ -1111,252 +1554,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "articles.ArticleInput": {
-            "type": "object",
-            "required": [
-                "authorname",
-                "content",
-                "subtitle",
-                "title"
-            ],
-            "properties": {
-                "authorname": {
-                    "type": "string"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "draft": {
-                    "type": "boolean"
-                },
-                "subtitle": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "topic": {
-                    "type": "string"
-                }
-            }
-        },
-        "articles.Bookmark": {
-            "type": "object",
-            "properties": {
-                "articles": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "articles.BookmarkInput": {
-            "type": "object",
-            "required": [
-                "title"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "articles.ChangeUserMailInput": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "newemail": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "articles.ChangeUserMailResponse": {
-            "type": "object",
-            "properties": {
-                "created": {
-                    "type": "string",
-                    "example": "User email changed"
-                }
-            }
-        },
-        "articles.ChangeUserNameResponse": {
-            "type": "object",
-            "properties": {
-                "created": {
-                    "type": "string",
-                    "example": "User name changed"
-                }
-            }
-        },
-        "articles.ChangeUserPasswordInput": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "newpassword": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "articles.ChangeUserPasswordResponse": {
-            "type": "object",
-            "properties": {
-                "created": {
-                    "type": "string",
-                    "example": "User password changed"
-                }
-            }
-        },
-        "articles.ChangeUsernameInput": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "newusername": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "articles.EditArticleInput": {
-            "type": "object",
-            "required": [
-                "content",
-                "subtitle",
-                "title"
-            ],
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "subtitle": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "topic": {
-                    "type": "string"
-                }
-            }
-        },
-        "articles.IsArticleDraftResponse": {
-            "type": "object",
-            "properties": {
-                "true": {
-                    "type": "string",
-                    "example": "Article is draft"
-                }
-            }
-        },
-        "articles.LikesResponse": {
-            "type": "object",
-            "properties": {
-                "accounts": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "amount": {
-                    "type": "integer"
-                }
-            }
-        },
-        "articles.LoginInput": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "articles.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "type": "string",
-                    "example": "XXXXXXXXXXXXXXXXXXXX"
-                }
-            }
-        },
-        "articles.RegisterInput": {
-            "type": "object",
-            "required": [
-                "email",
-                "password",
-                "username"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "articles.RegisterResponse": {
-            "type": "object",
-            "properties": {
-                "created": {
-                    "type": "string",
-                    "example": "User created successfully"
-                }
-            }
-        },
-        "http.HTTPError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 400
-                },
-                "message": {
-                    "type": "string",
-                    "example": "status bad request"
-                }
-            }
-        },
-        "main_router_articles.Article": {
+        "core.Article": {
             "type": "object",
             "properties": {
                 "authorName": {
@@ -1391,29 +1589,49 @@ const docTemplate = `{
                 }
             }
         },
-        "main_router_articles.DeletedResponse": {
+        "core.ArticleInput": {
             "type": "object",
+            "required": [
+                "authorname",
+                "content",
+                "subtitle",
+                "title"
+            ],
             "properties": {
-                "delete": {
-                    "type": "string",
-                    "example": "all articles have been successfully deleted"
-                }
-            }
-        },
-        "main_router_bookmarks.Article": {
-            "type": "object",
-            "properties": {
+                "authorname": {
+                    "type": "string"
+                },
                 "content": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
+                "draft": {
+                    "type": "boolean"
                 },
-                "likes": {
+                "subtitle": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "topic": {
+                    "type": "string"
+                }
+            }
+        },
+        "core.Bookmark": {
+            "type": "object",
+            "properties": {
+                "articles": {
                     "type": "array",
                     "items": {
                         "type": "integer"
                     }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "title": {
                     "type": "string"
@@ -1423,7 +1641,258 @@ const docTemplate = `{
                 }
             }
         },
-        "main_router_bookmarks.DeletedResponse": {
+        "core.BookmarkInput": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "core.EditArticleInput": {
+            "type": "object",
+            "required": [
+                "content",
+                "subtitle",
+                "title"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "subtitle": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "topic": {
+                    "type": "string"
+                }
+            }
+        },
+        "core.GetArticlesTopicRespond": {
+            "type": "object",
+            "properties": {
+                "true": {
+                    "type": "string",
+                    "example": "TestTopic"
+                }
+            }
+        },
+        "core.HTTPError400": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "message": {
+                    "type": "string",
+                    "example": "status bad request"
+                }
+            }
+        },
+        "core.HTTPError401": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 401
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Unauthorized"
+                }
+            }
+        },
+        "core.HTTPError403": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 403
+                },
+                "message": {
+                    "type": "string",
+                    "example": "forbidden"
+                }
+            }
+        },
+        "core.HTTPError404": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 404
+                },
+                "message": {
+                    "type": "string",
+                    "example": "not found"
+                }
+            }
+        },
+        "core.HTTPError409": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 409
+                },
+                "message": {
+                    "type": "string",
+                    "example": "conflict"
+                }
+            }
+        },
+        "core.HTTPError422": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 422
+                },
+                "message": {
+                    "type": "string",
+                    "example": "unprocessable Content"
+                }
+            }
+        },
+        "core.HTTPError500": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 500
+                },
+                "message": {
+                    "type": "string",
+                    "example": "internal server error"
+                }
+            }
+        },
+        "core.IsArticleDraftResponse": {
+            "type": "object",
+            "properties": {
+                "true": {
+                    "type": "string",
+                    "example": "Article is draft"
+                }
+            }
+        },
+        "core.LikesResponse": {
+            "type": "object",
+            "properties": {
+                "accounts": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "amount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "core.LoginInput": {
+            "type": "object",
+            "required": [
+                "identifier",
+                "password"
+            ],
+            "properties": {
+                "identifier": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "core.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "example": "XXXXXXXXXXXXXXXXXXXX"
+                }
+            }
+        },
+        "core.MultipleArticlesIdsInput": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "core.RegisterInput": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "core.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "created": {
+                    "type": "string",
+                    "example": "User created successfully"
+                }
+            }
+        },
+        "core.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isPrivate": {
+                    "type": "boolean"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "core_router_articles.DeletedResponse": {
+            "type": "object",
+            "properties": {
+                "delete": {
+                    "type": "string",
+                    "example": "all articles have been successfully deleted"
+                }
+            }
+        },
+        "core_router_bookmarks.DeletedResponse": {
             "type": "object",
             "properties": {
                 "delete": {

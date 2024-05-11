@@ -1,29 +1,28 @@
 up:
-	 sudo docker-compose up
+	 docker compose up
 
 down:
-	 sudo docker-compose down
+	 docker compose down
 
 build:
-	 sudo docker-compose up --build
+	 docker compose up --build
 
 tests:
-	cd admin ; go test -cover ./router
+	cd auth ; go test -cover ./router
 	cd articles ; go test -cover ./router
 	cd bookmarks ; go test -cover ./router
 
 coverages:
-	cd admin ; go test -coverprofile=coverage.out ./... ;  go tool cover -html=coverage.out
+	cd auth ; go test -coverprofile=coverage.out ./... ;  go tool cover -html=coverage.out
 	cd articles ; go test -coverprofile=coverage.out ./... ;  go tool cover -html=coverage.out
 	cd bookmarks ; go test -coverprofile=coverage.out ./... ;  go tool cover -html=coverage.out
 
 doc:
-	cd core ; swag init ; go build ; ./main
+	cd core ; swag init ; go build ; ./core
 clean:
-	sudo rm -rf data
 	rm -rf core/coverage.out
-	rm -rf admin/coverage.out
-	rm -rf articles/router/fakeAdmin.db
+	rm -rf auth/coverage.out
+	rm -rf articles/router/fakeAuth.db
 	rm -rf articles/coverage.out
 	rm -rf articles/router/fakeArticles.db
 	rm -rf bookmarks/coverage.out

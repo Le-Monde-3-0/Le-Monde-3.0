@@ -1,15 +1,19 @@
-package sources
+package articles
 
 import (
+	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 )
 
+/*
+DeleteAllArticles deletes all the articles of the connected user
+*/
 func DeleteAllArticles(c *gin.Context, db *gorm.DB) {
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -23,8 +27,11 @@ func DeleteAllArticles(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{"delete": "All articles have been successfully deleted"})
 }
 
+/*
+DeleteArticle deletes one of the articles of the connected user
+*/
 func DeleteArticle(c *gin.Context, db *gorm.DB) {
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -35,8 +42,7 @@ func DeleteArticle(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"delete": "Article id could not be retrieved"})
 		return
 	}
-
-	result := db.Where(Article{UserId: userId, Id: int32(id)}).Delete(&Article{})
+	result := db.Where(Article{UserId: userId, Id: uint(id)}).Delete(&Article{})
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
 		return
@@ -47,11 +53,14 @@ func DeleteArticle(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{"delete": "Article has been successfully deleted"})
 }
 
+/*
+RemoveLike removes the like of a given post from the connected user
+*/
 func RemoveLike(c *gin.Context, db *gorm.DB) {
 	article := new(Article)
 	i := 0
 
-	userId, err := getUserId(c)
+	userId, err := utils.GetUserId(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -62,7 +71,7 @@ func RemoveLike(c *gin.Context, db *gorm.DB) {
 		panic(err)
 	}
 
-	result := db.Where(Article{Id: int32(id)}).Find(&article)
+	result := db.Where(Article{Id: uint(id)}).Find(&article)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
 		return
@@ -72,7 +81,7 @@ func RemoveLike(c *gin.Context, db *gorm.DB) {
 	}
 
 	for _, value := range article.Likes {
-		if value != userId {
+		if value.UserId != userId {
 			article.Likes[i] = value
 			i++
 		}
