@@ -18,7 +18,7 @@ coverages:
 	cd bookmarks ; go test -coverprofile=coverage.out ./... ;  go tool cover -html=coverage.out
 
 doc:
-	cd core ; swag init ; go build ; ./main
+	cd core ; swag init ; go build ; ./core
 clean:
 	rm -rf core/coverage.out
 	rm -rf auth/coverage.out

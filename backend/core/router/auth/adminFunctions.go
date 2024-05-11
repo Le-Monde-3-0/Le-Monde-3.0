@@ -188,8 +188,8 @@ func ChangeUserVisibility(c *gin.Context, logger *zap.Logger) {
 // @Produce json
 // @Param ChangeUserPasswordInput body ChangeUserPasswordInput true "Params to change user password"
 // @Success 200 {object} ChangeUserPasswordResponse
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      500  {object}  HTTPError500
 // @Router /password [put]
 func ChangeUserPassword(c *gin.Context, logger *zap.Logger) {
 	var ChangeUserPasswordParams ChangeUserPasswordInput
@@ -215,8 +215,8 @@ func ChangeUserPassword(c *gin.Context, logger *zap.Logger) {
 // @Produce json
 // @Param ChangeUsernameInput body ChangeUsernameInput true "Params to change user name"
 // @Success 200 {object} ChangeUserNameResponse
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      500  {object}  HTTPError500
 // @Router /username [put]
 func ChangeUserName(c *gin.Context, logger *zap.Logger) {
 	var ChangeUsernameParams ChangeUsernameInput
@@ -242,8 +242,8 @@ func ChangeUserName(c *gin.Context, logger *zap.Logger) {
 // @Produce json
 // @Param ChangeUserMailInput body ChangeUserMailInput true "Params to change user mail"
 // @Success 200 {object} ChangeUserMailResponse
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      500  {object}  HTTPError500
 // @Router /mail [put]
 func ChangeUserMail(c *gin.Context, logger *zap.Logger) {
 	var changeUserMailParams ChangeUserMailInput
@@ -268,8 +268,8 @@ func ChangeUserMail(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} User
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      500  {object}  HTTPError500
 // @Router /users/:username [get]
 func GetUserInfoByUsername(c *gin.Context, logger *zap.Logger) {
 	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPut, "http://auth-lemonde3-0:8081/users/"+c.Param("username"), nil)

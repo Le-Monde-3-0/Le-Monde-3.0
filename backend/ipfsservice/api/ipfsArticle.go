@@ -2,7 +2,7 @@ package api
 
 import (
 	"time"
-	"github.com/lib/pq"
+	// "github.com/lib/pq"
 )
 
 //* Article struct for IPFS file
@@ -18,7 +18,7 @@ type IPFSArticle struct {
 	ModificationDate time.Time `json:"modification_date"`
 	Likes int32 `json:"likes"`
 	TotalViews int32 `json:"TotalViews"`
-    DailyViews pq.Int32Array `json:"DailyViews"`
-    DailyLikes pq.Int32Array `json:"DailyLikes"`
+    // DailyViews pq.Int32Array `json:"DailyViews"`
+    // DailyLikes pq.Int32Array `json:"DailyLikes"`
 }
 

@@ -4,20 +4,19 @@ import (
 	src "auth/sources"
 	"bytes"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/assert/v2"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
-)
+	"time"
 
-var db *gorm.DB
-var user src.User
-var router *gin.Engine
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/assert/v2"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+)
 
 func fakeDB() *gorm.DB {
 	if _, err := os.Stat("fakeAuth.db"); err == nil {
@@ -36,14 +35,29 @@ func fakeDB() *gorm.DB {
 	return db
 }
 
+var db *gorm.DB
+var token string
+var user src.User
+var router *gin.Engine
+
+func generateFakeToken() (string, error) {
+	claims := jwt.MapClaims{}
+	claims["authorized"] = true
+	claims["user_id"] = 1
+	claims["exp"] = time.Now().Add(time.Hour * time.Duration(1)).Unix()
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(os.Getenv("secret_key")))
+}
+
 func setUp() {
 	db = fakeDB()
-
+	token, _ = generateFakeToken()
 	user = src.User{
 		Id:       1,
 		Email:    "test@test.com",
 		Username: "Bob",
 		Password: "$2a$10$CZ4GTkQUTzM32wYykH5msuHuh5tZtnRpRZGEsBlk2Vhu4tsiSn1B2",
+		IsPrivate: false,
 	}
 	router = Router(db)
 }
@@ -120,6 +134,9 @@ func TestChangeUserUsername(t *testing.T) {
 	if err != nil {
 		log.Fatalf("impossible to build request: %s", err)
 	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, 201, w.Code)
@@ -151,6 +168,10 @@ func TestChangeUserMail(t *testing.T) {
 	if err != nil {
 		log.Fatalf("impossible to build request: %s", err)
 	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, 201, w.Code)
@@ -182,7 +203,7 @@ func TestGetUserInfoByUsername(t *testing.T) {
 	assert.Equal(t, user, responseUser)
 }
 
-func ChangeUserPassword(t *testing.T) {
+func TestChangeUserPassword(t *testing.T) {
 	setUp()
 
 	result := db.Create(&user)
@@ -206,8 +227,115 @@ func ChangeUserPassword(t *testing.T) {
 	if err != nil {
 		log.Fatalf("impossible to build request: %s", err)
 	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+	
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, 201, w.Code)
 	assert.Equal(t, "{\"created\":\"User password changed\"}", w.Body.String())
+}
+
+func TestCheckUser(t *testing.T) {
+	setUp()
+
+	result := db.Create(&user)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	rest,_ := src.CheckUser("test@test.com", "pass", db)
+
+	assert.Equal(t, rest, true)
+}
+
+func TestGetMyInfo(t *testing.T) {
+	setUp()
+
+	result := db.Create(&user)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/users/me", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+	
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 200, w.Code)
+
+	var responseUser src.User
+	err = json.Unmarshal([]byte(w.Body.String()), &responseUser)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+	assert.Equal(t, user, responseUser)
+}
+
+func TestGetUser(t *testing.T) {
+	setUp()
+
+	result := db.Create(&user)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/users/users/1", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+	
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 200, w.Code)
+
+	var responseUser src.User
+	err = json.Unmarshal([]byte(w.Body.String()), &responseUser)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+	assert.Equal(t, user, responseUser)
+}
+
+func TestChangeUserVisibility(t *testing.T) {
+	setUp()
+
+	result := db.Create(&user)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("POST", "/users/me/visibility", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+	
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 200, w.Code)
+
+	user.IsPrivate = true
+
+	var responseUser src.User
+	err = json.Unmarshal([]byte(w.Body.String()), &responseUser)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+
+	assert.Equal(t, user.IsPrivate, responseUser.IsPrivate)
 }

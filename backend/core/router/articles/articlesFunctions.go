@@ -2,12 +2,13 @@ package core
 
 import (
 	"net/http"
+	"time"
 
 	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
-	"github.com/lib/pq"
 	"go.uber.org/zap"
 )
+
 
 type ArticleInput struct {
 	Title    string `json:"title" binding:"required"`
@@ -25,7 +26,7 @@ type EditArticleInput struct {
 }
 
 type MultipleArticlesIdsInput struct {
-	Ids pq.Int32Array `json:"ids" binging:"required"`
+	Ids []int32 `json:"ids" binging:"required"`
 }
 
 type DraftStateInput struct {
@@ -154,16 +155,16 @@ func GetMyArticles(c *gin.Context, logger *zap.Logger) {
 	c.Data(statusCode, "application/json", responseBody)
 }
 
-// GetMyArticles godoc
+// GetLastCreatedArticles godoc
 // @Schemes
 // @Description Retrived articles created in the last two hours
 // @Tags articles
 // @Accept json
 // @Produce json
 // @Success 200 {object} []Article
-// @Failure      400  {object}  req.HTTPError
-// @Failure      401  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      401  {object}  HTTPError401
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/latest/created [get]
 func GetLastCreatedArticles(c *gin.Context, logger *zap.Logger) {
 	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/latest/created", nil)
@@ -174,16 +175,16 @@ func GetLastCreatedArticles(c *gin.Context, logger *zap.Logger) {
 	c.Data(statusCode, "application/json", responseBody)
 }
 
-// GetMyArticles godoc
+// GetLastModifiedArticles godoc
 // @Schemes
 // @Description Retrived articles modified in the last two hours
 // @Tags articles
 // @Accept json
 // @Produce json
 // @Success 200 {object} []Article
-// @Failure      400  {object}  req.HTTPError
-// @Failure      401  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      401  {object}  HTTPError401
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/latest/modified [get]
 func GetLastModifiedArticles(c *gin.Context, logger *zap.Logger) {
 	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/latest/modified", nil)
@@ -356,6 +357,11 @@ type HTTPError400 struct {
 	Message string `json:"message" example:"status bad request"`
 }
 
+type HTTPError401 struct {
+	Code    int    `json:"code" example:"401"`
+	Message string `json:"message" example:"Unauthorized"`
+}
+
 type HTTPError403 struct {
 	Code    int    `json:"code" example:"403"`
 	Message string `json:"message" example:"forbidden"`
@@ -371,6 +377,11 @@ type HTTPError409 struct {
 	Message string `json:"message" example:"conflict"`
 }
 
+type HTTPError422 struct {
+	Code    int    `json:"code" example:"422"`
+	Message string `json:"message" example:"unprocessable Content"`
+}
+
 type HTTPError500 struct {
 	Code    int    `json:"code" example:"500"`
 	Message string `json:"message" example:"internal server error"`
@@ -383,9 +394,9 @@ type HTTPError500 struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} []Article
-// @Failure      400  {object}  req.HTTPError
-// @Failure      404  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/topic/:topic [get]
 func GetArticlesByTopic(c *gin.Context, logger *zap.Logger) {
 
@@ -404,8 +415,8 @@ func GetArticlesByTopic(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} []Article
-// @Failure      400  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      400  {object}  HTTPError400
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/topics [get]
 func GetAllTopics(c *gin.Context, logger *zap.Logger) {
 
@@ -417,15 +428,15 @@ func GetAllTopics(c *gin.Context, logger *zap.Logger) {
 	c.Data(statusCode, "application/json", responseBody)
 }
 
-// GetArticlesByTopic godoc
+// IsArticleDraft godoc
 // @Schemes
 // @Description Get all topics
 // @Tags articles
 // @Accept json
 // @Produce json
 // @Success 200 {object} IsArticleDraftResponse
-// @Failure 422 {object} req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure 422 {object} HTTPError422
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/:id/draft [get]
 func IsArticleDraft(c *gin.Context, logger *zap.Logger) {
 	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/draft", nil)
@@ -443,8 +454,8 @@ func IsArticleDraft(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} Article
-// @Failure      404  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/:id/draft [put]
 func ChangeDraftState(c *gin.Context, logger *zap.Logger) {
 	var changeDraftStateParams DraftStateInput
@@ -469,9 +480,9 @@ func ChangeDraftState(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} []Article
-// @Failure      401  {object}  req.HTTPError
-// @Failure      404  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      401  {object}  HTTPError401
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/search/:keyword [post]
 func GetArticlesByKeyword(c *gin.Context, logger *zap.Logger) {
 	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/search/"+c.Param("keyword"), nil)
@@ -489,8 +500,8 @@ func GetArticlesByKeyword(c *gin.Context, logger *zap.Logger) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GetArticlesTopicRespond
-// @Failure      404  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/:id/topic [get]
 func GetArticlesTopic(c *gin.Context, logger *zap.Logger) {
 	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/topic", nil)
@@ -509,8 +520,8 @@ func GetArticlesTopic(c *gin.Context, logger *zap.Logger) {
 // @Produce json
 // @Param MultipleArticlesIdsInput body MultipleArticlesIdsInput true "	Ids of the Articles research"
 // @Success 200 {object} []Article
-// @Failure      404  {object}  req.HTTPError
-// @Failure      500  {object}  req.HTTPError
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
 // @Router /articles/multiples [post]
 func GetMultipleArticlesFromIds(c *gin.Context, logger *zap.Logger) {
 	var multipleArticlesIds MultipleArticlesIds
@@ -534,4 +545,40 @@ type GetArticlesTopicRespond struct {
 
 type IsArticleDraftResponse struct {
 	Ok string `json:"true" example:"Article is draft"`
+}
+
+type DailyInfo struct {
+	Date   time.Time
+	Daily  int
+	Summed int
+}
+
+type TimeRecord struct {
+	Total int
+	Daily []DailyInfo
+}
+
+type UserStats struct {
+	Likes TimeRecord
+	Views TimeRecord
+}
+
+// GetUserStats godoc
+// @Schemes
+// @Description Get user stats
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Success 200 {object} UserStats
+// @Failure      404  {object}  HTTPError404
+// @Failure      500  {object}  HTTPError500
+// @Router /user/stats [get]
+func GetUserStats(c *gin.Context, logger *zap.Logger) {
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/user/stats", nil)
+	if err != nil {
+		c.String(statusCode, "Error making the request")
+		logger.Error(err.Error())
+		return
+	}
+	c.Data(statusCode, "application/json", responseBody)
 }

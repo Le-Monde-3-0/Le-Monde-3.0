@@ -2,6 +2,7 @@ package articles
 
 import (
 	"errors"
+	"fmt"
 	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
@@ -17,6 +18,22 @@ import (
 type LikesResponse struct {
 	Amount   int
 	Accounts pq.Int32Array `gorm:"type:integer[]"`
+}
+
+type DailyInfo struct {
+	Date   time.Time
+	Daily  int
+	Summed int
+}
+
+type TimeRecord struct {
+	Total int
+	Daily []DailyInfo
+}
+
+type UserStats struct {
+	Likes TimeRecord
+	Views TimeRecord
 }
 
 func GetLastCreatedArticles(c *gin.Context, db *gorm.DB) {
@@ -49,13 +66,66 @@ func GetLastModifiedArticles(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, articles)
 }
 
-func addIfNotPresent(arr pq.Int32Array, key int32) pq.Int32Array {
-	for _, val := range arr {
-		if val == key {
-			return arr
+func addRecordLike(articleID uint, key int32, db *gorm.DB) []RecordLike {
+	var records []RecordLike
+
+	result := db.Where(RecordLike{ArticleID: articleID}).Find(&records)
+	if result.Error != nil {
+		fmt.Print(result.Error.Error())
+		return nil
+	}
+
+	for _, val := range records {
+		if val.UserId == key {
+			return records
 		}
 	}
-	return append(arr, key)
+	records = append(records, RecordLike{UserId: key, LikeTime: time.Now()})
+
+	return records
+}
+
+func getRecordLike(articleID uint, db *gorm.DB) []RecordLike {
+	var records []RecordLike
+
+	result := db.Where(RecordLike{ArticleID: articleID}).Find(&records)
+	if result.Error != nil {
+		fmt.Print(result.Error.Error())
+		return nil
+	}
+
+	return records
+}
+
+func getRecordView(articleID uint, db *gorm.DB) []RecordView {
+	var records []RecordView
+
+	result := db.Where(RecordView{ArticleID: articleID}).Find(&records)
+	if result.Error != nil {
+		fmt.Print(result.Error.Error())
+		return nil
+	}
+
+	return records
+}
+
+func addRecordView(articleID uint, key int32, db *gorm.DB) []RecordView {
+	var records []RecordView
+
+	result := db.Where(RecordView{ArticleID: articleID}).Find(&records)
+	if result.Error != nil {
+		fmt.Print(result.Error.Error())
+		return nil
+	}
+
+	for _, val := range records {
+		if val.UserId == key {
+			return records
+		}
+	}
+	records = append(records, RecordView{UserId: key, LikeTime: time.Now()})
+
+	return records
 }
 
 func GetAllArticles(c *gin.Context, db *gorm.DB) {
@@ -77,6 +147,27 @@ func GetAllArticles(c *gin.Context, db *gorm.DB) {
 		if hasUserLikedArticle(int64(userId), &(*articles)[i]) {
 			(*articles)[i].HasConnectedUserLiked = true
 		}
+
+		(*articles)[i].Views = getRecordView((*articles)[i].Id, db)
+		(*articles)[i].Likes = getRecordLike((*articles)[i].Id, db)
+	}
+
+	c.JSON(http.StatusOK, articles)
+}
+
+func GetIPFSAllArticles(c *gin.Context, db *gorm.DB) {
+	articles := new([]Article)
+
+	result := db.Where(Article{}).Find(&articles)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
+		return
+	}
+
+	for i := range *articles {
+
+		(*articles)[i].Views = getRecordView((*articles)[i].Id, db)
+		(*articles)[i].Likes = getRecordLike((*articles)[i].Id, db)
 	}
 
 	c.JSON(http.StatusOK, articles)
@@ -105,17 +196,23 @@ func GetArticle(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	article.Views = addRecordView(article.Id, userId, db)
+	article.Likes = getRecordLike(article.Id, db)
+	if err := db.Save(&article).Error; err != nil {
+		fmt.Print(err.Error())
+	}
 
 	if hasUserLikedArticle(int64(userId), article) {
 		article.HasConnectedUserLiked = true
 	}
+
 	c.JSON(http.StatusOK, article)
 }
 
 func hasUserLikedArticle(userId int64, article *Article) bool {
 
 	for _, value := range article.Likes {
-		if value == int32(userId) {
+		if value.UserId == int32(userId) {
 			return true
 		}
 	}
@@ -164,7 +261,7 @@ func GetMyLikedArticles(c *gin.Context, db *gorm.DB) {
 	filteredArticles = []Article{}
 	for _, article := range articles {
 		for _, like := range article.Likes {
-			if like == userId {
+			if like.UserId == userId {
 				filteredArticles = append(filteredArticles, article)
 				break
 			}
@@ -195,7 +292,7 @@ func GetLikesInfo(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	c.JSON(http.StatusOK, LikesResponse{len(article.Likes), article.Likes})
+	c.JSON(http.StatusOK, LikesResponse{len(article.Likes), nil})
 }
 
 func GetRandomTopics(c *gin.Context) {
@@ -340,4 +437,123 @@ func GetArticlesTopic(c *gin.Context, db *gorm.DB) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"topic": article.Topic})
+}
+
+func isSameDay(date1, date2 time.Time) bool {
+	return date1.Year() == date2.Year() && date1.Month() == date2.Month() && date1.Day() == date2.Day()
+}
+
+func AddLikeRecord(article Article, userStats UserStats) UserStats {
+	for _, articleLikesRecord := range article.Likes {
+		found := false
+		for _, userArticleRecord := range userStats.Likes.Daily {
+			if isSameDay(articleLikesRecord.LikeTime, userArticleRecord.Date) {
+				userArticleRecord.Daily += 1
+				found = true
+			}
+		}
+		if !found {
+			userStats.Likes.Daily = append(userStats.Likes.Daily, DailyInfo{
+				Date:  articleLikesRecord.LikeTime,
+				Daily: 1,
+			})
+		}
+
+	}
+	return userStats
+}
+
+func AddViewRecord(article Article, userStats UserStats) UserStats {
+	for _, articleViewsRecord := range article.Views {
+		found := false
+		for index, userArticleRecord := range userStats.Views.Daily {
+			if isSameDay(articleViewsRecord.LikeTime, userArticleRecord.Date) {
+				userStats.Views.Daily[index].Daily += 1
+				found = true
+				continue
+			}
+		}
+		if !found {
+			userStats.Views.Daily = append(userStats.Views.Daily, DailyInfo{
+				Date:  articleViewsRecord.LikeTime,
+				Daily: 1,
+			})
+		}
+	}
+	return userStats
+}
+
+func GetUserStats(c *gin.Context, db *gorm.DB) {
+	var userStats UserStats
+	userStats.Likes = TimeRecord{}
+	userStats.Views = TimeRecord{}
+	userStats.Likes.Daily = []DailyInfo{}
+	userStats.Views.Daily = []DailyInfo{}
+
+	articles := new([]Article)
+
+	userId, err := utils.GetUserId(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	result := db.Where(Article{UserId: userId}).Find(&articles)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
+		return
+	}
+
+	for _, article := range *articles {
+		article.Likes = getRecordLike(article.Id, db)
+		article.Views = getRecordView(article.Id, db)
+		userStats.Views.Total += len(article.Views)
+		userStats.Likes.Total += len(article.Likes)
+		userStats = AddViewRecord(article, userStats)
+		userStats = AddLikeRecord(article, userStats)
+	}
+	if len(userStats.Likes.Daily) != 0 {
+		userStats.Likes.Daily[0].Summed = userStats.Likes.Daily[0].Daily
+	}
+	if len(userStats.Views.Daily) != 0 {
+		userStats.Views.Daily[0].Summed = userStats.Views.Daily[0].Daily
+
+	}
+
+	for i := 1; i < len(userStats.Views.Daily); i++ {
+		userStats.Views.Daily[i].Summed = userStats.Views.Daily[i-1].Summed + userStats.Views.Daily[i].Daily
+	}
+
+	for i := 1; i < len(userStats.Likes.Daily); i++ {
+		userStats.Likes.Daily[i].Summed = userStats.Likes.Daily[i-1].Summed + userStats.Likes.Daily[i].Daily
+	}
+	c.JSON(http.StatusOK, userStats)
+}
+
+type ArticleIds struct {
+	Ids pq.Int32Array
+}
+
+func GetMultipleArticlesFromIds(c *gin.Context, db *gorm.DB) {
+	var articles []Article
+
+	articleIds := ArticleIds{}
+	if err := c.ShouldBindJSON(&articleIds); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid arguments"})
+		return
+	}
+
+	for _, id := range articleIds.Ids {
+		
+		var article Article
+		db.Where(Article{Id: uint(id)}).Find(&article)
+
+		article.Views = getRecordView(article.Id, db)
+		article.Likes = getRecordLike(article.Id, db)
+
+		if article.Id != 0 {
+			articles = append(articles, article)
+		}
+	}
+	c.JSON(http.StatusOK, articles)
 }

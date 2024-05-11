@@ -3,7 +3,6 @@ package articles
 import (
 	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
-	"github.com/lib/pq"
 	"gorm.io/gorm"
 	"net/http"
 	"strconv"
@@ -42,7 +41,8 @@ func AddArticle(c *gin.Context, db *gorm.DB) {
 		return
 	}
 	article.UserId = userId
-	article.Likes = pq.Int32Array{}
+	article.Likes = []RecordLike{}
+	article.Views = []RecordView{}
 	article.AuthorName = username
 
 	result := db.Create(&article)
@@ -79,34 +79,10 @@ func AddLike(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
 		return
 	}
-	article.Likes = addIfNotPresent(article.Likes, userId)
+	article.Likes = addRecordLike(article.Id, userId, db)
 	db.Save(&article)
 
 	article.HasConnectedUserLiked = true
 
 	c.JSON(http.StatusOK, article)
-}
-
-type ArticleIds struct {
-	Ids pq.Int32Array
-}
-
-func GetMultipleArticlesFromIds(c *gin.Context, db *gorm.DB) {
-	var articles []Article
-
-	articleIds := ArticleIds{}
-	if err := c.ShouldBindJSON(&articleIds); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid arguments"})
-		return
-	}
-
-	for _, id := range articleIds.Ids {
-		var article Article
-		db.Where(Article{Id: uint(id)}).Find(&article)
-
-		if article.Id != 0 {
-			articles = append(articles, article)
-		}
-	}
-	c.JSON(http.StatusOK, articles)
 }

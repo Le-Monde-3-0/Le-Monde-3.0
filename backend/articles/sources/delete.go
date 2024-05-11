@@ -81,7 +81,7 @@ func RemoveLike(c *gin.Context, db *gorm.DB) {
 	}
 
 	for _, value := range article.Likes {
-		if value != userId {
+		if value.UserId != userId {
 			article.Likes[i] = value
 			i++
 		}

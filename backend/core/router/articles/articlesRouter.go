@@ -33,6 +33,10 @@ func ApplyArticlesRoutes(public *gin.RouterGroup, protected *gin.RouterGroup, lo
 		GetLikesInfo(c, logger)
 	})
 
+	protected.GET("/user/stats", func(c *gin.Context) {
+		GetUserStats(c, logger)
+	})
+
 	public.GET("/articles/topics/example", func(c *gin.Context) {
 		GetRandomTopics(c, logger)
 	})
