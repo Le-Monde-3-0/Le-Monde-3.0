@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"github.com/lib/pq"
+	// utils "github.com/Le-Monde-3-0/utils/sources"
+	// "github.com/lib/pq"
 
 	adtos "github.com/Le-Monde-3-0/articles_dtos/sources"
 )
@@ -27,7 +28,7 @@ func MakeHTTPRequest(method string, url string, requestBody interface{}) ([]byte
 
 	request.Header.Set("Content-Type", "application/json")
 	// ! need to fin a fix
-	request.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjkyMjMzNzE5NzQ3MTkxNzkwMDcsInVzZXJfaWQiOjMsInVzZXJuYW1lIjoiQW50d2VlZW5lIn0.9u1U-Etbhb11Gkhuj9t0Oc9KLze7KiHm1YI2jL9nrgM")
+	
 
 	client := &http.Client{}
 	response, err := client.Do(request)
@@ -60,14 +61,13 @@ func BindtoUsableArticles(bindArticle adtos.ArticleResponse) IPFSArticle {
 	article.CreationDate = bindArticle.CreatedAt
 	article.ModificationDate = bindArticle.UpdatedAt
 	article.Likes = int32(len(bindArticle.Likes))
+	article.TotalViews = int32(len(bindArticle.Views))
 	
-	
-	// article.TotalViews = bindArticle.stats.TotalViews || bindArticle.TotalViews
-	// article.DailyViews = bindArticle.stats.DailyViews || bindArticle.DailyViews
-	// article.DailyLikes = bindArticle.stats.DailyLikes || bindArticle.DailyLikes
-	article.TotalViews = 0
-	article.DailyViews = pq.Int32Array{0}
-	article.DailyLikes = pq.Int32Array{0}
+	// article.DailyViews = bindArticle.DailyViews
+	// article.DailyLikes = bindArticle.stats.DailyLikes || bindArticle.DailyLikes 
+
+	// article.DailyViews = pq.Int32Array{0}
+	// article.DailyLikes = pq.Int32Array{0}
 	return article
 }
 
@@ -88,8 +88,7 @@ func TreatArticles(bindArticles []adtos.ArticleResponse) []IPFSArticle{
 func GetAllArticles() []IPFSArticle {
 	var articles []IPFSArticle
 
-	// responseBody, _, err := MakeHTTPRequest(http.MethodGet, "http://articles-lemonde3-0:8082/articles", nil)
-	responseBody, _, err := MakeHTTPRequest(http.MethodGet, "http://localhost:8082/articles", nil)
+	responseBody, _, err := MakeHTTPRequest(http.MethodGet, "http://articles-lemonde3-0:8082/ipfs/articles", nil)
 	if err != nil {
 		fmt.Println(err.Error())
 		return articles
@@ -107,8 +106,7 @@ func GetAllArticles() []IPFSArticle {
 func GetModifiedArticles() []IPFSArticle {
 	var articles []IPFSArticle
 
-	// responseBody, _, err := MakeHTTPRequest(http.MethodGet, "http://articles-lemonde3-0:8082/articles/latest/modified", nil)
-	responseBody, _, err := MakeHTTPRequest(http.MethodGet, "http://localhost:8082/articles/latest/modified", nil)
+	responseBody, _, err := MakeHTTPRequest(http.MethodGet, "http://articles-lemonde3-0:8082/articles/latest/modified", nil)
 	if err != nil {
 		return articles
 	}
@@ -125,8 +123,7 @@ func GetModifiedArticles() []IPFSArticle {
 func GetArticleInfo() []IPFSArticle {
 	var articles []IPFSArticle
 
-	// responseBody, _, err := MakeHTTPRequest(http.MethodGet, "http://articles-lemonde3-0:8082/articles/latest/created", nil)
-	responseBody, _, err := MakeHTTPRequest(http.MethodGet, "http://localhost:8082/articles/latest/created", nil)
+	responseBody, _, err := MakeHTTPRequest(http.MethodGet, "http://articles-lemonde3-0:8082/articles/latest/created", nil)
 	if err != nil {
 		return articles
 	}

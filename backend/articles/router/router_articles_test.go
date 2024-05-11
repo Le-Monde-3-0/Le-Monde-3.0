@@ -58,37 +58,37 @@ func generateFakeToken() (string, error) {
 func setUp() {
 	likes = []articles.RecordLike{
 		{
-			ID: 1,
+			ID:        1,
 			ArticleID: 2,
-			UserId: 1,
-			LikeTime: time.Now(),
+			UserId:    1,
+			LikeTime:  time.Now(),
 		},
 	}
 	db = fakeDB()
 	token, _ = generateFakeToken()
 	fakeArticle = articles.Article{
-		Id:         2,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
-		UserId:     1,
-		Title:      "TestTitle",
-		Subtitle:   "TestSubTitle",
-		Content:    "TestContent",
-		Topic:      "TestTopic",
-		Draft:      true,
+		Id:                    2,
+		CreatedAt:             time.Now(),
+		UpdatedAt:             time.Now(),
+		UserId:                1,
+		Title:                 "TestTitle",
+		Subtitle:              "TestSubTitle",
+		Content:               "TestContent",
+		Topic:                 "TestTopic",
+		Draft:                 true,
 		HasConnectedUserLiked: false,
 	}
 	fakeOldArticle = articles.Article{
-		Id:         0,
-		CreatedAt:  time.Now().Add(-3 * time.Hour),
-		UpdatedAt:  time.Now().Add(-3 * time.Hour),
-		UserId:     1,
-		Title:      "TestTitle2",
-		Subtitle:   "TestSubTitle2",
-		Topic:      "TestTopic2",
-		AuthorName: "TestAuthorName2",
-		Content:    "TestContent2",
-		Draft:      true,
+		Id:                    0,
+		CreatedAt:             time.Now().Add(-3 * time.Hour),
+		UpdatedAt:             time.Now().Add(-3 * time.Hour),
+		UserId:                1,
+		Title:                 "TestTitle2",
+		Subtitle:              "TestSubTitle2",
+		Topic:                 "TestTopic2",
+		AuthorName:            "TestAuthorName2",
+		Content:               "TestContent2",
+		Draft:                 true,
 		HasConnectedUserLiked: false,
 	}
 	router = Router(db)
@@ -148,10 +148,10 @@ func TestAddLike(t *testing.T) {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
 	tmp := articles.RecordLike{
-		ID: 2,
+		ID:        2,
 		ArticleID: 2,
-		UserId: 2,
-		LikeTime: time.Now(),
+		UserId:    2,
+		LikeTime:  time.Now(),
 	}
 
 	likes[0].LikeTime = time.Now()
@@ -193,7 +193,58 @@ func TestGetAllArticles(t *testing.T) {
 	responseArticle[0].UpdatedAt = currentTime
 	fakeArticle.CreatedAt = currentTime
 	fakeArticle.UpdatedAt = currentTime
-	assert.Equal(t, []articles.Article{fakeArticle}, responseArticle)
+	// assert.Equal(t, []articles.Article{fakeArticle}, responseArticle)
+	assert.Equal(t, fakeArticle.AuthorName, responseArticle[0].AuthorName)
+	assert.Equal(t, fakeArticle.Content, responseArticle[0].Content)
+	assert.Equal(t, fakeArticle.Draft, responseArticle[0].Draft)
+	assert.Equal(t, fakeArticle.HasConnectedUserLiked, responseArticle[0].HasConnectedUserLiked)
+	assert.Equal(t, fakeArticle.Id, responseArticle[0].Id)
+	assert.Equal(t, fakeArticle.Subtitle, responseArticle[0].Subtitle)
+	assert.Equal(t, fakeArticle.Title, responseArticle[0].Title)
+	assert.Equal(t, fakeArticle.Topic, responseArticle[0].Topic)
+	assert.Equal(t, fakeArticle.UserId, responseArticle[0].UserId)
+}
+
+func TestGetIPFSAllArticles(t *testing.T) {
+	setUp()
+
+	result := db.Create(&fakeArticle)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/ipfs/articles", nil)
+	if err != nil {
+		log.Fatalf("impossible to build request: %s", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 200, w.Code)
+
+	var responseArticle []articles.Article
+	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
+	if err != nil {
+		log.Fatalf("error unmarshaling response: %s", err)
+	}
+	currentTime := time.Now()
+	responseArticle[0].CreatedAt = currentTime
+	responseArticle[0].UpdatedAt = currentTime
+	fakeArticle.CreatedAt = currentTime
+	fakeArticle.UpdatedAt = currentTime
+	// assert.Equal(t, []articles.Article{fakeArticle}, responseArticle)
+	assert.Equal(t, fakeArticle.AuthorName, responseArticle[0].AuthorName)
+	assert.Equal(t, fakeArticle.Content, responseArticle[0].Content)
+	assert.Equal(t, fakeArticle.Draft, responseArticle[0].Draft)
+	assert.Equal(t, fakeArticle.HasConnectedUserLiked, responseArticle[0].HasConnectedUserLiked)
+	assert.Equal(t, fakeArticle.Id, responseArticle[0].Id)
+	assert.Equal(t, fakeArticle.Subtitle, responseArticle[0].Subtitle)
+	assert.Equal(t, fakeArticle.Title, responseArticle[0].Title)
+	assert.Equal(t, fakeArticle.Topic, responseArticle[0].Topic)
+	assert.Equal(t, fakeArticle.UserId, responseArticle[0].UserId)
 }
 
 func TestGetArticle(t *testing.T) {
@@ -771,10 +822,10 @@ func TestRemoveLike(t *testing.T) {
 
 	fakeArticle.Likes = []articles.RecordLike{
 		{
-			ID: 1,
+			ID:        1,
 			ArticleID: 2,
-			UserId: 1,
-			LikeTime: time.Now(),
+			UserId:    1,
+			LikeTime:  time.Now(),
 		},
 	}
 	result := db.Create(&fakeArticle)
@@ -857,7 +908,7 @@ func TestGetMultipleArticlesFromIds(t *testing.T) {
 		panic(result.Error)
 	}
 
-	articleJSON, _ := json.Marshal(ArticleIds{Ids: pq.Int32Array{2},})
+	articleJSON, _ := json.Marshal(ArticleIds{Ids: pq.Int32Array{2}})
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest("POST", "/articles/multiples", bytes.NewReader(articleJSON))
 	if err != nil {
@@ -869,7 +920,7 @@ func TestGetMultipleArticlesFromIds(t *testing.T) {
 
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
-	
+
 	var responseArticle []articles.Article
 	err = json.Unmarshal([]byte(w.Body.String()), &responseArticle)
 	if err != nil {

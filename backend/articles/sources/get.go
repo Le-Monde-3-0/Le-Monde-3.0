@@ -147,6 +147,27 @@ func GetAllArticles(c *gin.Context, db *gorm.DB) {
 		if hasUserLikedArticle(int64(userId), &(*articles)[i]) {
 			(*articles)[i].HasConnectedUserLiked = true
 		}
+
+		(*articles)[i].Views = getRecordView((*articles)[i].Id, db)
+		(*articles)[i].Likes = getRecordLike((*articles)[i].Id, db)
+	}
+
+	c.JSON(http.StatusOK, articles)
+}
+
+func GetIPFSAllArticles(c *gin.Context, db *gorm.DB) {
+	articles := new([]Article)
+
+	result := db.Where(Article{}).Find(&articles)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interacting with database"})
+		return
+	}
+
+	for i := range *articles {
+
+		(*articles)[i].Views = getRecordView((*articles)[i].Id, db)
+		(*articles)[i].Likes = getRecordLike((*articles)[i].Id, db)
 	}
 
 	c.JSON(http.StatusOK, articles)
@@ -527,15 +548,8 @@ func GetMultipleArticlesFromIds(c *gin.Context, db *gorm.DB) {
 		var article Article
 		db.Where(Article{Id: uint(id)}).Find(&article)
 
-		// article.Views = addRecordView(article.Id, userId, db)
-		// article.Likes = getRecordLike(article.Id, db)
-		// if err := db.Save(&article).Error; err != nil {
-		// 	fmt.Print(err.Error())
-		// }
-
-		// if hasUserLikedArticle(int64(userId), article) {
-		// 	article.HasConnectedUserLiked = true
-		// }
+		article.Views = getRecordView(article.Id, db)
+		article.Likes = getRecordLike(article.Id, db)
 
 		if article.Id != 0 {
 			articles = append(articles, article)

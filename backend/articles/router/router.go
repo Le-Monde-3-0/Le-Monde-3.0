@@ -34,6 +34,10 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.GetAllArticles(c, db)
 	})
 
+	r.GET("/ipfs/articles", func(c *gin.Context) {
+		src.GetIPFSAllArticles(c, db)
+	})
+
 	r.GET("/articles/:id", func(c *gin.Context) {
 		src.GetArticle(c, db)
 	})

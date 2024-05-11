@@ -2,11 +2,13 @@ package core
 
 import (
 	"net/http"
+	"time"
 
 	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
+
 
 type ArticleInput struct {
 	Title    string `json:"title" binding:"required"`
@@ -545,16 +547,32 @@ type IsArticleDraftResponse struct {
 	Ok string `json:"true" example:"Article is draft"`
 }
 
+type DailyInfo struct {
+	Date   time.Time
+	Daily  int
+	Summed int
+}
+
+type TimeRecord struct {
+	Total int
+	Daily []DailyInfo
+}
+
+type UserStats struct {
+	Likes TimeRecord
+	Views TimeRecord
+}
+
 // GetUserStats godoc
 // @Schemes
 // @Description Get user stats
 // @Tags articles
 // @Accept json
 // @Produce json
-// @Success 200 {object} []Article
+// @Success 200 {object} UserStats
 // @Failure      404  {object}  HTTPError404
 // @Failure      500  {object}  HTTPError500
-// @Router /me/stats [get]
+// @Router /user/stats [get]
 func GetUserStats(c *gin.Context, logger *zap.Logger) {
 	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/user/stats", nil)
 	if err != nil {
