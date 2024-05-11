@@ -22,172 +22,84 @@ import {
 	Tooltip,
 	VStack,
 	useDisclosure,
-	useToast,
 } from '@chakra-ui/react';
-import { useAuthContext } from 'contexts/auth';
-
-import Bookmark from 'types/bookmark';
-import services from 'services';
-import { AxiosError } from 'axios';
-import SearchInput from 'components/Inputs/SearchInput';
 import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
+import { useAuthContext } from 'contexts/auth';
+import { useUserContext } from 'contexts/user';
+import { useUIContext } from 'contexts/ui';
+import SearchInput from 'components/Inputs/SearchInput';
+
 const MarquePages = (): JSX.Element => {
-	const toast = useToast();
 	const navigate = useNavigate();
 	const { auth } = useAuthContext();
+	const { requestResponseToast } = useUIContext();
+	const { user, addBookmark, deleteBookmark, getBookmarks, updateBookmark } = useUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [search, setSearch] = useState('');
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const [bookmarks, setBookmarks] = useState<Bookmark[] | undefined>(undefined);
 	const [title, setTitle] = useState('');
 	const [description, setDescription] = useState('');
 	const [action, setAction] = useState<'create' | 'update'>('create');
 	const [bookmarkIdToUpdate, setBookmarkIdToUpdate] = useState<number | undefined>(undefined);
 
-	const getBookmarks = async () => {
+	const uiGetBookmarks = async () => {
 		try {
-			const res = await services.bookmarks.getAll({ token: auth.accessToken! });
-			console.log(res.data);
-			setBookmarks(res.data);
+			const res = await getBookmarks();
+			requestResponseToast(res);
 		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
+			console.error(error);
 		}
 	};
 
-	const createBookmark = async () => {
+	const uiCreateBookmark = async () => {
 		try {
-			const res = await services.bookmarks.create({ token: auth.accessToken!, title, description });
-			console.log(res.data);
-			toast({
-				title: 'Votre marque-page a été créé !',
-				status: 'success',
-				duration: 9000,
-				isClosable: true,
-			});
-			onClose();
-			setTitle('');
-			setDescription('');
-			setBookmarks([res.data, ...bookmarks!]);
-		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					if (status === 400) {
-						toast({
-							title: 'Paramètres invalides.',
-							description: 'Veuillez en renseigner de nouveaux.',
-							status: 'error',
-							duration: 9000,
-							isClosable: true,
-						});
-					}
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
+			const res = await addBookmark({ title, description });
+			requestResponseToast(res, true);
+			if (res.status === 'success') {
+				onClose();
+				setTitle('');
+				setDescription('');
 			}
+		} catch (error) {
+			console.error(error);
 		}
 	};
 
-	const hardDelete = async (bookmarkId: number) => {
+	const uiDeleteBookmark = async (bookmarkId: number) => {
 		try {
-			const res = await services.bookmarks.delete({ token: auth.accessToken!, bookmarkId });
-			console.log(res);
-			setBookmarks([...bookmarks!.filter((p) => p.Id !== bookmarkId)]);
+			const res = await deleteBookmark(bookmarkId);
+			requestResponseToast(res, true);
 		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
+			console.error(error);
 		}
 	};
 
-	const updateBookmark = async (bookmarkId: number) => {
+	const uiUpdateBookmark = async (bookmarkId: number) => {
 		try {
-			const res = await services.bookmarks.update({ token: auth.accessToken!, bookmarkId, title, description });
-			console.log(res.data);
-			toast({
-				title: 'Votre marque-page a été modifié !',
-				status: 'success',
-				duration: 9000,
-				isClosable: true,
-			});
-			onClose();
-			setTitle('');
-			setDescription('');
-			setAction('create');
-			setBookmarkIdToUpdate(undefined);
-			setBookmarks([res.data, ...bookmarks!.filter((b) => b.Id !== bookmarkId)]);
-		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					if (status === 400) {
-						toast({
-							title: 'Paramètres invalides.',
-							description: 'Veuillez en renseigner de nouveaux.',
-							status: 'error',
-							duration: 9000,
-							isClosable: true,
-						});
-					}
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
+			const res = await updateBookmark({ bookmarkId, title, description });
+			requestResponseToast(res, true);
+			if (res.status === 'success') {
+				onClose();
+				setTitle('');
+				setDescription('');
+				setAction('create');
+				setBookmarkIdToUpdate(undefined);
 			}
+		} catch (error) {
+			console.error(error);
 		}
 	};
 
 	useEffect(() => {
-		if (auth.accessToken) {
-			getBookmarks();
-		}
+		uiGetBookmarks();
+		console.log('coucou');
 	}, [auth]);
 
-	if (!bookmarks) {
+	if (!user.bookmarks) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
-					<CircularProgress size="120px" isIndeterminate color="black" />
+					<CircularProgress size="120px" isIndeterminate color="yellow" />
 				</VStack>
 			</>
 		);
@@ -209,9 +121,9 @@ const MarquePages = (): JSX.Element => {
 						Nouveau marque-page
 					</Button>
 				</Stack>
-				<Tag bg="yellow">
-					{bookmarks.filter((b) => (search !== '' ? b.Title.includes(search) : true)).length} marque-page
-					{bookmarks.filter((b) => (search !== '' ? b.Title.includes(search) : true)).length !== 1 && 's'}
+				<Tag bg="primary.yellow">
+					{user.bookmarks.filter((b) => (search !== '' ? b.Title.includes(search) : true)).length} marque-page
+					{user.bookmarks.filter((b) => (search !== '' ? b.Title.includes(search) : true)).length !== 1 && 's'}
 				</Tag>
 				<Grid
 					templateColumns={{
@@ -222,7 +134,7 @@ const MarquePages = (): JSX.Element => {
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
 				>
-					{bookmarks
+					{user.bookmarks
 						.filter((b) => (search !== '' ? b.Title.includes(search) : true))
 						.map((bookmark, index) => (
 							<GridItem key={`${index.toString()}`}>
@@ -269,7 +181,7 @@ const MarquePages = (): JSX.Element => {
 										</Tooltip>
 										<Tooltip label="Supprimer le marque-page">
 											<span>
-												<DeleteIcon onClick={() => hardDelete(bookmark.Id)} color="black" />
+												<DeleteIcon onClick={() => uiDeleteBookmark(bookmark.Id)} color="black" />
 											</span>
 										</Tooltip>
 									</HStack>
@@ -319,9 +231,9 @@ const MarquePages = (): JSX.Element => {
 							variant="primary-yellow"
 							onClick={() => {
 								if (action === 'create') {
-									createBookmark();
+									uiCreateBookmark();
 								} else {
-									updateBookmark(bookmarkIdToUpdate!);
+									uiUpdateBookmark(bookmarkIdToUpdate!);
 								}
 							}}
 						>

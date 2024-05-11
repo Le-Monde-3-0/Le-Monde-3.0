@@ -1,5 +1,5 @@
 import { servicesURL } from 'services';
-import Bookmark from 'types/bookmark';
+import { Bookmark } from 'types/bookmark';
 
 const get = async ({ token, bookmarkId }: { token: string; bookmarkId: number }) =>
 	servicesURL.get<Bookmark>(`/bookmarks/${bookmarkId}`, {

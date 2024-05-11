@@ -18,145 +18,73 @@ import {
 	Tooltip,
 	VStack,
 	useDisclosure,
-	useToast,
 } from '@chakra-ui/react';
 import { AddIcon, CloseIcon } from '@chakra-ui/icons';
-import { AxiosError } from 'axios';
 
-import services from 'services';
 import { useAuthContext } from 'contexts/auth';
+import { useUserContext } from 'contexts/user';
+import { useUIContext } from 'contexts/ui';
 import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
-import { Article } from 'types/article';
-import Bookmark from 'types/bookmark';
 
 const Favoris = (): JSX.Element => {
-	const toast = useToast();
 	const { auth } = useAuthContext();
+	const { requestResponseToast } = useUIContext();
+	const { user, addArticleToBookmark, getLikedArticles, getBookmarks, unlikeArticle } = useUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [search, setSearch] = useState('');
-	const [articles, setArticles] = useState<Article[] | undefined>(undefined);
-	const [bookmarks, setBookmarks] = useState<Bookmark[] | undefined>(undefined);
 	const [articleToAdd, setArticleToAdd] = useState<number | undefined>(undefined);
 
-	const getArticles = async () => {
+	const uiGetLikedArticles = async () => {
 		try {
-			const res = await services.articles.liked({ token: auth.accessToken! });
-			setArticles(res.data);
+			const res = await getLikedArticles();
+			requestResponseToast(res);
 		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
+			console.error(error);
 		}
 	};
 
-	const unlike = async (articleId: number) => {
+	const uiUnlikeArticle = async (articleId: number) => {
 		try {
-			const res = await services.articles.unlike({ token: auth.accessToken!, articleId });
-			console.log(res);
-			setArticles([...articles!.filter((a) => a.Id !== articleId)]);
+			const res = await unlikeArticle(articleId);
+			requestResponseToast(res, true);
 		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
+			console.error(error);
 		}
 	};
 
-	const getBookmarks = async () => {
+	const uiGetBookmarks = async () => {
 		try {
-			const res = await services.bookmarks.getAll({ token: auth.accessToken! });
-			console.log(res.data);
-			setBookmarks(res.data);
+			const res = await getBookmarks();
+			requestResponseToast(res);
 		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
+			console.error(error);
 		}
 	};
 
-	const addArticleToBookmark = async (bookmarkId: number) => {
+	const uiAddArticleToBookmark = async (bookmarkId: number) => {
 		try {
-			const res = await services.bookmarks.addArticle({
-				token: auth.accessToken!,
-				bookmarkId,
-				articleId: articleToAdd!,
-			});
-			console.log(res.data);
-			toast({
-				title: "L'article a été ajouté au marque-page",
-				status: 'success',
-				duration: 9000,
-				isClosable: true,
-			});
-			onClose();
-			setArticleToAdd(undefined);
-		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
+			const res = await addArticleToBookmark(bookmarkId, articleToAdd!);
+			requestResponseToast(res);
+			if (res.status === 'success') {
+				onClose();
+				setArticleToAdd(undefined);
 			}
+		} catch (error) {
+			console.error(error);
 		}
 	};
 
 	useEffect(() => {
-		if (auth.accessToken) {
-			getArticles();
-			getBookmarks();
-		}
+		uiGetLikedArticles();
+		uiGetBookmarks();
 	}, [auth]);
 
-	if (!articles || !bookmarks) {
+	if (!user.likedArticles || !user.bookmarks) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
-					<CircularProgress size="120px" isIndeterminate color="black" />
+					<CircularProgress size="120px" isIndeterminate color="yellow" />
 				</VStack>
 			</>
 		);
@@ -173,16 +101,16 @@ const Favoris = (): JSX.Element => {
 					onChange={(e) => setSearch(e.target.value)}
 					variant="primary-1"
 				/>
-				<Tag bg="yellow">
-					{articles.length} favori
-					{articles.length !== 1 && 's'}
+				<Tag bg="primary.yellow">
+					{user.likedArticles.length} favori
+					{user.likedArticles.length !== 1 && 's'}
 				</Tag>
 				<Grid
 					templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
 				>
-					{articles
+					{user.likedArticles
 						.filter((a) => (search !== '' ? a.Title.includes(search) : true))
 						.map((article, index) => (
 							<GridItem key={`${index.toString()}`}>
@@ -207,11 +135,12 @@ const Favoris = (): JSX.Element => {
 										</Tooltip>,
 										<Tooltip label="Supprimer des favoris">
 											<span>
-												<CloseIcon onClick={() => unlike(article.Id)} color="black" />
+												<CloseIcon onClick={() => uiUnlikeArticle(article.Id)} color="black" />
 											</span>
 										</Tooltip>,
 									]}
 									likes={article.Likes.length}
+									views={article.TotalViews}
 								/>
 							</GridItem>
 						))}
@@ -231,10 +160,10 @@ const Favoris = (): JSX.Element => {
 					<ModalCloseButton color="white" />
 					<ModalBody>
 						<Text variant="p" mb="8px">
-							{bookmarks.length} marque-page{bookmarks.length !== 1 && 's'}
+							{user.bookmarks.length} marque-page{user.bookmarks.length !== 1 && 's'}
 						</Text>
 						<VStack spacing="8px" mb="12px">
-							{bookmarks.map((bookmark, index) => (
+							{user.bookmarks.map((bookmark, index) => (
 								<HStack
 									key={`${index.toString()}`}
 									w="100%"
@@ -245,7 +174,7 @@ const Favoris = (): JSX.Element => {
 									borderRadius="sm"
 									cursor="pointer"
 									_hover={{ opacity: 0.9 }}
-									onClick={() => addArticleToBookmark(bookmark.Id)}
+									onClick={() => uiAddArticleToBookmark(bookmark.Id)}
 								>
 									<Text variant="link" color="black !important" cursor="pointer" _hover={{ opacity: '0.8' }}>
 										{bookmark.Title}

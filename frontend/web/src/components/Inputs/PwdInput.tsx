@@ -29,7 +29,7 @@ const PwdInput = ({
 				<Button
 					h="1.75rem"
 					size="sm"
-					_focus={{ outline: 'solid 3px', outlineColor: 'yellow', outlineOffset: '0px' }}
+					_focus={{ outline: 'solid 3px', outlineColor: 'primary.yellow', outlineOffset: '0px' }}
 					onClick={handleClick}
 				>
 					{show ? 'Cacher' : 'Voir'}

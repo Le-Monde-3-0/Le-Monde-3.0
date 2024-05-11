@@ -1,101 +1,87 @@
+import { DeleteIcon, EditIcon, ViewOffIcon } from '@chakra-ui/icons';
+import {
+	CircularProgress,
+	Collapse,
+	Grid,
+	GridItem,
+	HStack,
+	Modal,
+	ModalBody,
+	ModalCloseButton,
+	ModalContent,
+	ModalHeader,
+	ModalOverlay,
+	Tag,
+	Tooltip,
+	VStack,
+} from '@chakra-ui/react';
+import ArticleCard from 'components/Cards/ArticleCard';
+import { Chart } from 'components/Chart/Chart';
+import SearchInput from 'components/Inputs/SearchInput';
+import { useAuthContext } from 'contexts/auth';
+import { useUIContext } from 'contexts/ui';
+import { useUserContext } from 'contexts/user';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { CircularProgress, Grid, GridItem, HStack, Tag, Tooltip, VStack, useToast } from '@chakra-ui/react';
-import { DeleteIcon, ViewOffIcon } from '@chakra-ui/icons';
-import { AxiosError } from 'axios';
 
-import services from 'services';
-import { useAuthContext } from 'contexts/auth';
-import SearchInput from 'components/Inputs/SearchInput';
-import ArticleCard from 'components/Cards/ArticleCard';
-import { Article } from 'types/article';
+import Editor from '../components/Editor/Editor';
 
 const Publications = (): JSX.Element => {
 	const [search, setSearch] = useState('');
-	const toast = useToast();
 	const { auth } = useAuthContext();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const [publications, setPublications] = useState<Article[] | undefined>(undefined);
+	const { requestResponseToast } = useUIContext();
+	const { user, switchArticleDraftState, deleteArticle, getArticles } = useUserContext();
+	const [editor, setEditor] = useState<boolean>(false);
+	const [article, setArticle] = useState({ title: '', topic: '', content: '' });
+	const [isViewChartDisplayed, setViewChartDisplay] = useState(false);
+	const [isLikeChartDisplayed, setLikeChartDisplay] = useState(false);
 
-	const me = async () => {
+	let totalViews = 0;
+	for (let i = 0; i < user.publishedArticles.length; i++) {
+		console.log(user.publishedArticles[i].TotalViews);
+		totalViews += user.publishedArticles[i].TotalViews;
+	}
+
+	const toggleViewChartDisplay = () => {
+		setViewChartDisplay(!isViewChartDisplayed);
+	};
+
+	const toggleLikeChartDisplay = () => {
+		setLikeChartDisplay(!isLikeChartDisplayed);
+	};
+
+	const uiGetArticles = async () => {
 		try {
-			const res = await services.articles.me({ token: auth.accessToken! });
-			console.log(res.data);
-			setPublications(res.data.filter((a) => a.Draft === false));
+			const res = await getArticles();
+			requestResponseToast(res);
 		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
+			console.error(error);
 		}
 	};
 
-	const hardDelete = async (articleId: number) => {
+	const uiDeleteArticle = async (articleId: number) => {
 		try {
-			const res = await services.articles.delete({ token: auth.accessToken!, articleId });
-			console.log(res);
-			setPublications([...publications!.filter((p) => p.Id !== articleId)]);
+			const res = await deleteArticle(articleId);
+			requestResponseToast(res, true);
 		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
+			console.error(error);
 		}
 	};
 
-	const publishDraft = async (articleId: number) => {
+	const uiSwitchArticleDraftState = async (articleId: number) => {
 		try {
-			const res = await services.articles.changeDraftState({ token: auth.accessToken!, articleId, state: true });
-			console.log(res);
-			setPublications([...publications!.filter((p) => p.Id !== articleId)]);
+			const res = await switchArticleDraftState(articleId);
+			requestResponseToast(res, true);
 		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
+			console.error(error);
 		}
 	};
 
 	useEffect(() => {
-		if (auth.accessToken) {
-			me();
-		}
+		uiGetArticles();
 	}, [auth]);
 
-	if (!publications) {
+	if (!user.publishedArticles) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
@@ -117,20 +103,19 @@ const Publications = (): JSX.Element => {
 					variant="primary-1"
 				/>
 				<HStack>
-					<Tag bg="yellow">
-						{publications.filter((p) => (search !== '' ? p.Title.includes(search) : true)).length} publication
-						{publications.length !== 1 && 's'}
+					<Tag bg="primary.yellow">
+						{user.publishedArticles.filter((p) => (search !== '' ? p.Title.includes(search) : true)).length} publication
+						{user.publishedArticles.length !== 1 && 's'}
 					</Tag>
-					<Tag bg="blue">
-						{publications
+					<Tag bg="primary.blue" onClick={toggleLikeChartDisplay} cursor="pointer">
+						{user.publishedArticles
 							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
 							.map((p) => p.Likes.length)
 							.reduce((a, v) => a + v, 0)}{' '}
 						like
-						{publications
-							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
-							.map((p) => p.Likes.length)
-							.reduce((a, v) => a + v, 0) !== 1 && 's'}
+					</Tag>
+					<Tag bg="primary.blue" onClick={toggleViewChartDisplay} cursor="pointer">
+						{totalViews} view
 					</Tag>
 				</HStack>
 				<Grid
@@ -138,7 +123,19 @@ const Publications = (): JSX.Element => {
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
 				>
-					{publications
+					<Collapse in={isLikeChartDisplayed} animateOpacity>
+						<Chart yLabel="Likes" data={user.overallDailyTotalLikes} />
+					</Collapse>
+					<Collapse in={isViewChartDisplayed} animateOpacity>
+						<Chart yLabel="Vues" data={user.overallDailyTotalViews} />
+					</Collapse>
+				</Grid>
+				<Grid
+					templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
+					gap={{ base: 2, lg: 4 }}
+					w="100%"
+				>
+					{user.publishedArticles
 						.filter((p) => (search !== '' ? p.Title.includes(search) : true))
 						.map((publication, index) => (
 							<GridItem key={`${index.toString()}`}>
@@ -150,23 +147,54 @@ const Publications = (): JSX.Element => {
 									topic={publication.Topic}
 									content={publication.Content}
 									actions={[
+										<Tooltip label="Éditer l'article">
+											<span>
+												<EditIcon
+													onClick={() => {
+														setEditor(true);
+														setArticle({
+															title: publication.Title,
+															topic: publication.Topic,
+															content: publication.Content,
+														});
+													}}
+													color="black"
+												/>
+											</span>
+										</Tooltip>,
+
 										<Tooltip label="Archiver dans les brouillons">
 											<span>
-												<ViewOffIcon onClick={() => publishDraft(publication.Id)} color="black" />
+												<ViewOffIcon onClick={() => uiSwitchArticleDraftState(publication.Id)} color="black" />
 											</span>
 										</Tooltip>,
 										<Tooltip label="Supprimer définitivement">
 											<span>
-												<DeleteIcon onClick={() => hardDelete(publication.Id)} color="black" />
+												<DeleteIcon onClick={() => uiDeleteArticle(publication.Id)} color="black" />
 											</span>
 										</Tooltip>,
 									]}
 									likes={publication.Likes.length}
+									views={publication.TotalViews}
 									view="publisher"
 								/>
 							</GridItem>
 						))}
 				</Grid>
+				<Modal isOpen={editor} size="full" onClose={() => setEditor(false)}>
+					<ModalOverlay />
+					<ModalContent bg="black">
+						<ModalHeader color="gray.100">Brouillon</ModalHeader>
+						<ModalCloseButton />
+						<ModalBody>
+							<Editor
+								placeholderTitle={article.title}
+								placeholderTopic={article.topic}
+								placeholderContent={article.content}
+							/>
+						</ModalBody>
+					</ModalContent>
+				</Modal>
 			</VStack>
 		</>
 	);

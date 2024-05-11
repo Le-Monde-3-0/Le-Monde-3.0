@@ -1,26 +1,28 @@
+import { Badge, Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react';
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Badge, Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react';
 
 const ArticleCard = ({
+	author,
+	content,
+	date,
 	id,
 	title,
-	author,
-	date,
-	topic,
-	content,
-	actions,
 	likes,
+	views,
+	topic,
+	actions,
 	view = 'reader',
 }: {
-	id: number;
-	title: string;
 	author: string;
-	date: string;
-	topic: string;
 	content: string;
-	actions: JSX.Element[];
+	date: string;
+	id: number;
 	likes: number;
+	views: number;
+	title: string;
+	topic: string;
+	actions: JSX.Element[];
 	view?: 'publisher' | 'reader';
 }): JSX.Element => {
 	const navigate = useNavigate();
@@ -43,6 +45,9 @@ const ArticleCard = ({
 						</Badge>
 						<Badge colorScheme="green" borderRadius="xsm">
 							{likes} like{likes !== 1 && 's'}
+						</Badge>
+						<Badge colorScheme="blue" borderRadius="xsm">
+							{views} view{views !== 1 && 's'}
 						</Badge>
 					</HStack>
 					<HStack spacing="8px">

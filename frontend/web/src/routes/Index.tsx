@@ -15,35 +15,41 @@ import Decouvertes from 'pages/Decouvertes';
 import NouvelArticle from 'pages/NouvelArticle';
 import Publications from 'pages/Publications';
 import Brouillons from 'pages/Brouillons';
-import Statistiques from 'pages/Statistiques';
 import Reglages from 'pages/Reglages';
+import IpfsConfig from 'pages/IpfsConfig';
 import AuthProvider from 'providers/Auth';
+import IpfsProvider from 'providers/Ipfs';
+import UIProvider from 'providers/UI';
 
 const Routes = (): JSX.Element => (
 	<BrowserRouter>
-		<AuthProvider>
-			<RouterRoutes>
-				<Route path="/" element={<AuthRoute />}>
-					<Route path="/" element={<HomePage />} />
-					<Route path="/inscription" element={<InscriptionPage />} />
-					<Route path="/connexion" element={<ConnexionPage />} />
-				</Route>
-				<Route path="/" element={<PrivateRoute />}>
-					<Route path="/favoris" element={<Favoris />} />
-					<Route path="/articles/:articleId" element={<Article />} />
-					<Route path="/marque-pages" element={<MarquePages />} />
-					<Route path="/marque-page/:bookmarkId" element={<MarquePage />} />
-					<Route path="/nouveautes" element={<Nouveautes />} />
-					<Route path="/decouvertes" element={<Decouvertes />} />
-					<Route path="/nouvel-article" element={<NouvelArticle />} />
-					<Route path="/publications" element={<Publications />} />
-					<Route path="/brouillons" element={<Brouillons />} />
-					<Route path="/statistiques" element={<Statistiques />} />
-					<Route path="/reglages" element={<Reglages />} />
-				</Route>
-				<Route path="*" element={<Navigate replace to="/favoris" />} />
-			</RouterRoutes>
-		</AuthProvider>
+		<UIProvider>
+			<IpfsProvider>
+				<AuthProvider>
+					<RouterRoutes>
+						<Route path="/" element={<AuthRoute />}>
+							<Route path="/" element={<HomePage />} />
+							<Route path="/inscription" element={<InscriptionPage />} />
+							<Route path="/connexion" element={<ConnexionPage />} />
+						</Route>
+						<Route path="/" element={<PrivateRoute />}>
+							<Route path="/favoris" element={<Favoris />} />
+							<Route path="/articles/:articleId" element={<Article />} />
+							<Route path="/marque-pages" element={<MarquePages />} />
+							<Route path="/marque-page/:bookmarkId" element={<MarquePage />} />
+							<Route path="/nouveautes" element={<Nouveautes />} />
+							<Route path="/decouvertes" element={<Decouvertes />} />
+							<Route path="/nouvel-article" element={<NouvelArticle />} />
+							<Route path="/publications" element={<Publications />} />
+							<Route path="/brouillons" element={<Brouillons />} />
+							<Route path="/reglages" element={<Reglages />} />
+							<Route path="/ipfs-config" element={<IpfsConfig />} />
+						</Route>
+						<Route path="*" element={<Navigate replace to="/favoris" />} />
+					</RouterRoutes>
+				</AuthProvider>
+			</IpfsProvider>
+		</UIProvider>
 	</BrowserRouter>
 );
 

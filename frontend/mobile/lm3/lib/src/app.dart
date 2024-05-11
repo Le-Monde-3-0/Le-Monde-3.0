@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
       },
     );
     return MaterialApp.router(
+      theme: ThemeData.dark(),
       routerConfig: router,
     );
   }

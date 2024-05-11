@@ -1,5 +1,5 @@
 import { servicesURL } from 'services';
-import Bookmark from 'types/bookmark';
+import { Bookmark } from 'types/bookmark';
 
 const update = async ({
 	token,

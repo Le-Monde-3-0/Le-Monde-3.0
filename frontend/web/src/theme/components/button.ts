@@ -25,27 +25,27 @@ const button = {
 			color: 'black',
 		},
 		'primary-yellow': {
-			bg: 'yellow',
+			bg: 'primary.yellow',
 			...defaultPrimary,
 		},
 		'primary-blue': {
-			bg: 'blue',
+			bg: 'primary.blue',
 			...defaultPrimary,
 		},
 		'primary-purple': {
-			bg: 'purple',
+			bg: 'primary.purple',
 			...defaultPrimary,
 		},
 		'primary-orange': {
-			bg: 'orange',
+			bg: 'primary.orange',
 			...defaultPrimary,
 		},
 		'secondary-yellow': {
 			bg: 'black',
 			border: '1px',
 			borderStyle: 'dashed',
-			borderColor: 'yellow',
-			color: 'yellow',
+			borderColor: 'primary.yellow',
+			color: 'primary.yellow',
 			px: '24px',
 		},
 		// 'secondary-2': {

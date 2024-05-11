@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { AddIcon, CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons';
 import {
 	Badge,
 	CircularProgress,
+	Collapse,
+	Grid,
 	HStack,
 	Modal,
 	ModalBody,
@@ -13,232 +13,129 @@ import {
 	ModalHeader,
 	ModalOverlay,
 	Text,
-	VStack,
 	useDisclosure,
-	useToast,
+	VStack,
 } from '@chakra-ui/react';
-import { AddIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons';
-import { AxiosError } from 'axios';
-
-import services from 'services';
+import { Chart } from 'components/Chart/Chart';
 import { useAuthContext } from 'contexts/auth';
+import { useUIContext } from 'contexts/ui';
+import { useUserContext } from 'contexts/user';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Article } from 'types/article';
-import Bookmark from 'types/bookmark';
+import frenchDate from 'utils/frenchDate';
+import { generateDailyStats } from 'utils/generateDailyStats';
+
+import Editor from '../components/Editor/Editor';
 
 const ArticlePage = (): JSX.Element => {
-	const toast = useToast();
 	const navigate = useNavigate();
 	const { articleId } = useParams();
 	const { auth } = useAuthContext();
+	const { requestResponseToast } = useUIContext();
+	const { user, addArticleToBookmark, getArticle, getBookmarks, getLikedArticles, likeArticle, unlikeArticle } =
+		useUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const [editor, setEditor] = useState(false);
 	const [article, setArticle] = useState<Article | undefined>(undefined);
-	const [bookmarks, setBookmarks] = useState<Bookmark[] | undefined>(undefined);
 	const [isLiked, setIsLiked] = useState(false);
+	const [isViewChartDisplayed, setViewChartDisplay] = useState(false);
+	const [isLikeChartDisplayed, setLikeChartDisplay] = useState(false);
 
-	const frenchDate = (date: Date) => {
-		const mois = [
-			'Janvier',
-			'Février',
-			'Mars',
-			'Avril',
-			'Mai',
-			'Juin',
-			'Juillet',
-			'Août',
-			'Septembre',
-			'Octobre',
-			'Novembre',
-			'Décembre',
-		];
-
-		const year = date.getFullYear();
-		const dayNumber = date.getDate();
-		const month = mois[date.getMonth()];
-		const weekday = date.toLocaleDateString('fr-FR', { weekday: 'long' });
-
-		const capitalize = (word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-		return `${capitalize(weekday)}, le ${dayNumber} ${month} ${year}`;
+	const toggleViewChartDisplay = () => {
+		setViewChartDisplay(!isViewChartDisplayed);
+		console.log(article?.DailyViews);
 	};
 
-	const read = async () => {
+	const toggleLikeChartDisplay = () => {
+		setLikeChartDisplay(!isLikeChartDisplayed);
+	};
+
+	const uiGetArticle = async () => {
 		try {
-			const res = await services.articles.read({ token: auth.accessToken!, articleId: +articleId! });
-			console.log(res.data);
-			setArticle(res.data);
-		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					if (status === 404) {
-						toast({
-							title: 'Article inconnu.',
-							description: 'Veuillez en renseigner un autre.',
-							status: 'error',
-							duration: 9000,
-							isClosable: true,
-						});
-						navigate('/favoris');
-					}
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
+			const res = await getArticle(+articleId!);
+			requestResponseToast(res);
+			if (res.code === 404) {
+				navigate('/favoris');
+			} else if (res.data !== undefined && res.status === 'success') {
+				res.data.TotalViews = Math.floor(Math.random() * 1000);
+				res.data.DailyViews = generateDailyStats(res.data.TotalViews);
+				res.data.DailyLikes = generateDailyStats(Math.floor(Math.random() * 1000));
+				setArticle(res.data);
 			}
+		} catch (error: unknown) {
+			console.error(error);
 		}
 	};
 
-	const liked = async () => {
+	const uiGetLikedArticles = async () => {
 		try {
-			const res = await services.articles.liked({ token: auth.accessToken! });
-			console.log(res.data);
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			if (res.data.find((a: any) => +a.Id === +articleId!)) {
+			const res = await getLikedArticles();
+			requestResponseToast(res);
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const uiLikeArticle = async () => {
+		try {
+			const res = await likeArticle(+articleId!);
+			requestResponseToast(res);
+			if (res.status === 'success') {
 				setIsLiked(true);
 			}
 		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
+			console.error(error);
 		}
 	};
 
-	const like = async () => {
+	const uiUnlikeArticle = async () => {
 		try {
-			const res = await services.articles.like({ token: auth.accessToken!, articleId: +articleId! });
-			console.log(res.data);
-			setIsLiked(true);
-			// C'est pourri ça mais il faut l'id du user pour faire mieux
-			setArticle({ ...article!, Likes: [...article!.Likes, 1] });
-		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
+			const res = await unlikeArticle(+articleId!);
+			requestResponseToast(res);
+			if (res.status === 'success') {
+				setIsLiked(false);
 			}
+		} catch (error) {
+			console.error(error);
 		}
 	};
 
-	const unlike = async () => {
+	const uiGetBookmarks = async () => {
 		try {
-			const res = await services.articles.unlike({ token: auth.accessToken!, articleId: +articleId! });
-			console.log(res.data);
-			setIsLiked(false);
-			// C'est pourri ça mais il faut l'id du user pour faire mieux
-			setArticle({ ...article!, Likes: [...article!.Likes.slice(1)] });
+			const res = await getBookmarks();
+			requestResponseToast(res);
 		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
+			console.error(error);
 		}
 	};
 
-	const getBookmarks = async () => {
+	const uiAddArticleToBookmark = async (bookmarkId: number) => {
 		try {
-			const res = await services.bookmarks.getAll({ token: auth.accessToken! });
-			console.log(res.data);
-			setBookmarks(res.data);
-		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
+			const res = await addArticleToBookmark(bookmarkId, +articleId!);
+			requestResponseToast(res);
+			if (res.status === 'success') {
+				onClose();
 			}
-		}
-	};
-
-	const addArticleToBookmark = async (bookmarkId: number) => {
-		try {
-			const res = await services.bookmarks.addArticle({
-				token: auth.accessToken!,
-				bookmarkId,
-				articleId: +articleId!,
-			});
-			console.log(res.data);
-			toast({
-				title: "L'article a été ajouté au marque-page",
-				status: 'success',
-				duration: 9000,
-				isClosable: true,
-			});
-			onClose();
 		} catch (error) {
-			console.log(error);
-			if (error instanceof AxiosError) {
-				if (error.response && error.response.status !== 500) {
-					const status = error.response!.status;
-					console.log(status);
-				} else {
-					toast({
-						title: 'Erreur du service interne.',
-						description: 'Veuillez réessayer ultérieurement.',
-						status: 'error',
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-			}
+			console.error(error);
 		}
 	};
 
 	useEffect(() => {
-		if (auth.accessToken) {
-			read();
-			liked();
-			getBookmarks();
-		}
+		uiGetArticle();
+		uiGetLikedArticles();
+		uiGetBookmarks();
 	}, [auth]);
 
-	if (!article || !bookmarks) {
+	useEffect(() => {
+		if (user.likedArticles.find((a) => a.Id === +articleId!)) {
+			setIsLiked(true);
+		}
+	}, [user]);
+
+	if (!article || !user.bookmarks) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
@@ -259,12 +156,22 @@ const ArticlePage = (): JSX.Element => {
 							fontSize={{ base: 'small', lg: 'md' }}
 							cursor="pointer"
 							borderRadius="xsm"
-							onClick={() => (isLiked ? unlike() : like())}
+							onClick={() => (isLiked ? uiUnlikeArticle() : uiLikeArticle())}
 						>
 							{isLiked ? <CheckIcon /> : <CloseIcon />} Favoris
 						</Badge>
 						<Badge fontSize={{ base: 'small', lg: 'md' }} cursor="pointer" borderRadius="xsm" onClick={onOpen}>
 							<AddIcon /> Marque-page
+						</Badge>
+						<Badge
+							fontSize={{ base: 'small', lg: 'md' }}
+							cursor="pointer"
+							borderRadius="xsm"
+							onClick={() => {
+								setEditor(true);
+							}}
+						>
+							<EditIcon /> Modifier
 						</Badge>
 					</HStack>
 					<VStack align="left" spacing="0px" w="100%">
@@ -273,10 +180,39 @@ const ArticlePage = (): JSX.Element => {
 							<Badge colorScheme="red" fontSize={{ base: 'small', lg: 'md' }} borderRadius="xsm">
 								{article.Topic}
 							</Badge>
-							<Badge colorScheme="green" fontSize={{ base: 'small', lg: 'md' }} borderRadius="xsm">
+							<Badge
+								colorScheme="green"
+								fontSize={{ base: 'small', lg: 'md' }}
+								borderRadius="xsm"
+								onClick={toggleLikeChartDisplay}
+								cursor={'pointer'}
+							>
 								{article.Likes.length} like{article.Likes.length !== 1 && 's'}
 							</Badge>
+							<Badge
+								colorScheme="blue"
+								fontSize={{ base: 'small', lg: 'md' }}
+								borderRadius="xsm"
+								cursor="pointer"
+								onClick={toggleViewChartDisplay}
+							>
+								{article.TotalViews} view{article.TotalViews !== 1 && 's'}
+							</Badge>
 						</HStack>
+						{/* <HStack> */}
+						<Grid
+							templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
+							gap={{ base: 2, lg: 4 }}
+							w="100%"
+						>
+							<Collapse in={isLikeChartDisplayed} animateOpacity>
+								<Chart yLabel="Likes" data={article.DailyLikes} />
+							</Collapse>
+							<Collapse in={isViewChartDisplayed} animateOpacity>
+								<Chart yLabel="Vues" data={article.DailyViews} />
+							</Collapse>
+						</Grid>
+						{/* </HStack> */}
 					</VStack>
 					<Text variant="p" whiteSpace="pre-line">
 						{article.Content}
@@ -287,7 +223,20 @@ const ArticlePage = (): JSX.Element => {
 					<Text variant="p">{frenchDate(new Date(article.CreatedAt))}</Text>
 				</VStack>
 			</VStack>
-
+			<Modal isOpen={editor} size="full" onClose={() => setEditor(false)}>
+				<ModalOverlay />
+				<ModalContent bg="black">
+					<ModalHeader color="gray.100">Brouillon</ModalHeader>
+					<ModalCloseButton />
+					<ModalBody>
+						<Editor
+							placeholderTitle={article.Title}
+							placeholderTopic={article.Topic}
+							placeholderContent={article.Content}
+						/>
+					</ModalBody>
+				</ModalContent>
+			</Modal>
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent bg="gray.900">
@@ -295,10 +244,10 @@ const ArticlePage = (): JSX.Element => {
 					<ModalCloseButton color="white" />
 					<ModalBody>
 						<Text variant="p" mb="8px">
-							{bookmarks.length} marque-page{bookmarks.length !== 1 && 's'}
+							{user.bookmarks.length} marque-page{user.bookmarks.length !== 1 && 's'}
 						</Text>
 						<VStack spacing="8px" mb="12px">
-							{bookmarks.map((bookmark, index) => (
+							{user.bookmarks.map((bookmark, index) => (
 								<HStack
 									key={`${index.toString()}`}
 									w="100%"
@@ -309,7 +258,7 @@ const ArticlePage = (): JSX.Element => {
 									borderRadius="sm"
 									cursor="pointer"
 									_hover={{ opacity: 0.9 }}
-									onClick={() => addArticleToBookmark(bookmark.Id)}
+									onClick={() => uiAddArticleToBookmark(bookmark.Id)}
 								>
 									<Text variant="link" color="black !important" cursor="pointer" _hover={{ opacity: '0.8' }}>
 										{bookmark.Title}

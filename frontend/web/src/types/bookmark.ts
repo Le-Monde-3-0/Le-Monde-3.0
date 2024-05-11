@@ -1,4 +1,4 @@
-type Bookmark = {
+export type Bookmark = {
 	Articles: number[];
 	Description: string;
 	Id: number;
@@ -7,5 +7,3 @@ type Bookmark = {
 	CreatedAt: Date;
 	UpdatedAt: Date;
 };
-
-export default Bookmark;
