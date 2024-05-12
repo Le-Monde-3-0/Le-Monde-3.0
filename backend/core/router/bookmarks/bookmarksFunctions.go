@@ -304,7 +304,7 @@ func DeleteAllArticlesBookmark(c *gin.Context, logger *zap.Logger) {
 // @Router /bookmarks/:id/articles/id-article [delete]
 func DeleteArticleBookmark(c *gin.Context, logger *zap.Logger) {
 
-	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodDelete, "http://bookmarks-lemonde3-0:8084/bookmarks/"+c.Param("id")+"/"+c.Param("id-article"), nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodDelete, "http://bookmarks-lemonde3-0:8084/bookmarks/"+c.Param("id")+"/articles/"+c.Param("id-article"), nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		logger.Error(err.Error())

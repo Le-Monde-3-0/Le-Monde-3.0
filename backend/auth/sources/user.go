@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
 	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -250,7 +251,7 @@ func ChangeUsername(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error while fetching database"})
 	}
 
-	var body =ChangeArticlesAuthornameObject{}
+	var body = ChangeArticlesAuthornameObject{}
 	body.Oldname = u.Username
 	body.Newname = input.NewUsername
 
@@ -317,6 +318,7 @@ func GetUserInfoByUsername(c *gin.Context, db *gorm.DB) {
 
 	if user.Username == "" {
 		c.JSON(http.StatusNotFound, gin.H{"error": "No user with this username"})
+		return
 	}
 
 	c.JSON(http.StatusOK, user)

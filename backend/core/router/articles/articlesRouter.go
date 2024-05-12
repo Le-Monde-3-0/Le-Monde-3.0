@@ -51,7 +51,7 @@ func ApplyArticlesRoutes(public *gin.RouterGroup, protected *gin.RouterGroup, lo
 	protected.GET("/articles/latest/modified", func (c *gin.Context) {
 		GetLastModifiedArticles(c, logger)
 	})
-	protected.GET("/articles/topic/:topic", func (c *gin.Context) {
+	protected.GET("/articles/topics/:topic", func (c *gin.Context) {
 		GetArticlesByTopic(c, logger)
 	})
 	protected.GET("/articles/topics", func (c *gin.Context) {

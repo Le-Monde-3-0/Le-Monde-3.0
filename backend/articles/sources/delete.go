@@ -53,12 +53,28 @@ func DeleteArticle(c *gin.Context, db *gorm.DB) {
 	c.JSON(http.StatusOK, gin.H{"delete": "Article has been successfully deleted"})
 }
 
+func delRecordLike(articleID uint, key int32, db *gorm.DB) bool {
+	var records []RecordLike
+
+	result := db.Where(RecordLike{ArticleID: articleID}).Find(&records)
+	if result.Error != nil {
+		return false
+	}
+
+	for _, val := range records {
+		if val.UserId == key {
+			db.Where(RecordLike{UserId: val.UserId}).Delete(&RecordLike{})
+			return true
+		}
+	}
+	return false
+}
+
 /*
 RemoveLike removes the like of a given post from the connected user
 */
 func RemoveLike(c *gin.Context, db *gorm.DB) {
 	article := new(Article)
-	i := 0
 
 	userId, err := utils.GetUserId(c)
 	if err != nil {
@@ -80,13 +96,19 @@ func RemoveLike(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	for _, value := range article.Likes {
-		if value.UserId != userId {
-			article.Likes[i] = value
-			i++
-		}
+	if !delRecordLike(article.Id, userId, db) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "article not found"})
 	}
-	article.Likes = article.Likes[:i]
-	db.Save(&article)
+
+	article.Likes = getRecordLike(article.Id, db)
+	article.Views = getRecordView(article.Id, db)
+	// for _, value := range article.Likes {
+	// 	if value.UserId != userId {
+	// 		article.Likes[i] = value
+	// 		i++
+	// 	}
+	// }
+	// article.Likes = article.Likes[:i]
+	// db.Save(&article)
 	c.JSON(http.StatusOK, article)
 }

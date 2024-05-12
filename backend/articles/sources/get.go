@@ -234,13 +234,18 @@ func GetMyArticles(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	var treatedArticle []Article
+	treatedArticle = []Article{}
 	for _, article := range *articles {
 		if hasUserLikedArticle(int64(userId), &article) {
 			article.HasConnectedUserLiked = true
 		}
+		article.Likes = getRecordLike(article.Id, db)
+		article.Views = getRecordView(article.Id, db)
+		treatedArticle = append(treatedArticle, article)
 	}
 
-	c.JSON(http.StatusOK, articles)
+	c.JSON(http.StatusOK, treatedArticle)
 }
 
 func GetMyLikedArticles(c *gin.Context, db *gorm.DB) {
@@ -260,8 +265,11 @@ func GetMyLikedArticles(c *gin.Context, db *gorm.DB) {
 	var filteredArticles []Article
 	filteredArticles = []Article{}
 	for _, article := range articles {
-		for _, like := range article.Likes {
+		likes := getRecordLike(article.Id, db)
+		for _, like := range likes {
 			if like.UserId == userId {
+				article.Likes = getRecordLike(article.Id, db)
+				article.Views = getRecordView(article.Id, db)
 				filteredArticles = append(filteredArticles, article)
 				break
 			}
@@ -291,6 +299,7 @@ func GetLikesInfo(c *gin.Context, db *gorm.DB) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Article not found"})
 		return
 	}
+	article.Likes =  getRecordLike(article.Id, db)
 
 	c.JSON(http.StatusOK, LikesResponse{len(article.Likes), nil})
 }

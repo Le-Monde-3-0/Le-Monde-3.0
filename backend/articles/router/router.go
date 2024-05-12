@@ -64,7 +64,7 @@ func Router(db *gorm.DB) *gin.Engine {
 
 	r.GET("/articles/topics/example", src.GetRandomTopics)
 
-	r.GET("/articles/topic/:topic", func(c *gin.Context) {
+	r.GET("/articles/topics/:topic", func(c *gin.Context) {
 		src.GetArticlesByTopic(c, db)
 	})
 

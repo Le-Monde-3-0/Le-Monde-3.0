@@ -1,11 +1,12 @@
 package core
 
 import (
+	"net/http"
+
 	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 type RegisterInput struct {
@@ -20,19 +21,19 @@ type LoginInput struct {
 }
 
 type ChangeUserPasswordInput struct {
-	Email string `json:"email" binding="required"`
-	Password string `json:"password" binding="required"`
+	Email       string `json:"email" binding="required"`
+	Password    string `json:"password" binding="required"`
 	NewPassword string `json:"newpassword" binding="required"`
 }
 
 type ChangeUsernameInput struct {
-	Email string `json:"email" binding="required"`
-	Password string `json:"password" binding="required"`
+	Email       string `json:"email" binding="required"`
+	Password    string `json:"password" binding="required"`
 	NewUsername string `json:"newusername" binding="required"`
 }
 
 type ChangeUserMailInput struct {
-	Email string `json:"email" binding="required"`
+	Email    string `json:"email" binding="required"`
 	Password string `json:"password" binding="required"`
 	NewEmail string `json:"newemail" binding="required"`
 }
@@ -151,7 +152,7 @@ func GetMyInfo(c *gin.Context, logger *zap.Logger) {
 // @Failure      500  {object}  HTTPError500
 // @Router /users/:id [get]
 func GetUser(c *gin.Context, logger *zap.Logger) {
-	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://auth-lemonde3-0:8081/users/"+c.Param("id"), nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://auth-lemonde3-0:8081/users/users/"+c.Param("id"), nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		return
@@ -178,7 +179,6 @@ func ChangeUserVisibility(c *gin.Context, logger *zap.Logger) {
 	}
 	c.Data(statusCode, "application/json", responseBody)
 }
-
 
 // Change User Password godoc
 // @Schemes
@@ -272,7 +272,7 @@ func ChangeUserMail(c *gin.Context, logger *zap.Logger) {
 // @Failure      500  {object}  HTTPError500
 // @Router /users/:username [get]
 func GetUserInfoByUsername(c *gin.Context, logger *zap.Logger) {
-	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPut, "http://auth-lemonde3-0:8081/users/"+c.Param("username"), nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPut, "http://auth-lemonde3-0:8081/users/username/"+c.Param("username"), nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		return
