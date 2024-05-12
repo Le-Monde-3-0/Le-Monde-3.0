@@ -392,7 +392,7 @@ type HTTPError500 struct {
 // @Failure      400  {object}  HTTPError400
 // @Failure      404  {object}  HTTPError404
 // @Failure      500  {object}  HTTPError500
-// @Router /articles/topic/:topic [get]
+// @Router /articles/topics/:topic [get]
 func GetArticlesByTopic(c *gin.Context, logger *zap.Logger) {
 
 	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/topics/"+c.Param("topic"), nil)
@@ -405,7 +405,7 @@ func GetArticlesByTopic(c *gin.Context, logger *zap.Logger) {
 
 // GetAllTopics godoc
 // @Schemes
-// @Description Get all articles by topic
+// @Description Get all articles topics
 // @Tags articles
 // @Accept json
 // @Produce json
@@ -425,7 +425,7 @@ func GetAllTopics(c *gin.Context, logger *zap.Logger) {
 
 // IsArticleDraft godoc
 // @Schemes
-// @Description Get all topics
+// @Description Change draft state
 // @Tags articles
 // @Accept json
 // @Produce json

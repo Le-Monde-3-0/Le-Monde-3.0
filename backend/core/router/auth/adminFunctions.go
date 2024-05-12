@@ -150,7 +150,7 @@ func GetMyInfo(c *gin.Context, logger *zap.Logger) {
 // @Failure      400  {object}  HTTPError400
 // @Failure      400  {object}  HTTPError403
 // @Failure      500  {object}  HTTPError500
-// @Router /users/:id [get]
+// @Router /users/users/:id [get]
 func GetUser(c *gin.Context, logger *zap.Logger) {
 	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://auth-lemonde3-0:8081/users/users/"+c.Param("id"), nil)
 	if err != nil {
@@ -270,7 +270,7 @@ func ChangeUserMail(c *gin.Context, logger *zap.Logger) {
 // @Success 200 {object} User
 // @Failure      400  {object}  HTTPError400
 // @Failure      500  {object}  HTTPError500
-// @Router /users/:username [get]
+// @Router /users/username/:username [get]
 func GetUserInfoByUsername(c *gin.Context, logger *zap.Logger) {
 	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPut, "http://auth-lemonde3-0:8081/users/username/"+c.Param("username"), nil)
 	if err != nil {
