@@ -15,10 +15,6 @@ type EditedArticle struct {
 	Topic    string `json:"topic"`
 }
 
-type ChangeDraftStateObject struct {
-	Draft bool `json:"draft" binding="required"`
-}
-
 /*
 EditArticle allows a user to edit one of its article
 */
@@ -62,6 +58,9 @@ func EditArticle(c *gin.Context, db *gorm.DB) {
 	if hasUserLikedArticle(id, article) {
 		article.HasConnectedUserLiked = true
 	}
+	article.Likes = getRecordLike(article.Id, db)
+	article.Views = getRecordView(article.Id, db)
+
 	c.JSON(http.StatusOK, article)
 }
 
@@ -83,13 +82,11 @@ func ChangeDraftState(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	newDraftState := ChangeDraftStateObject{}
-	if err := c.ShouldBindJSON(&newDraftState); err != nil {
-		c.JSON(400, gin.H{"error": "Invalid arguments"})
-		return
-	}
-	article.Draft = newDraftState.Draft
+	article.Draft = !article.Draft
+	article.Likes = getRecordLike(article.Id, db)
+	article.Views = getRecordView(article.Id, db)
 	db.Save(&article)
+	
 	c.JSON(http.StatusOK, article)
 }
 

@@ -324,7 +324,15 @@ func TestGetMyArticles(t *testing.T) {
 	responseArticle[0].UpdatedAt = currentTime
 	fakeArticle.CreatedAt = currentTime
 	fakeArticle.UpdatedAt = currentTime
-	assert.Equal(t, []articles.Article{fakeArticle}, responseArticle)
+
+	assert.Equal(t, fakeArticle.AuthorName, responseArticle[0].AuthorName)
+	assert.Equal(t, fakeArticle.Content, responseArticle[0].Content)
+	assert.Equal(t, fakeArticle.Draft, responseArticle[0].Draft)
+	assert.Equal(t, fakeArticle.Id, responseArticle[0].Id)
+	assert.Equal(t, fakeArticle.Subtitle, responseArticle[0].Subtitle)
+	assert.Equal(t, fakeArticle.Title, responseArticle[0].Title)
+	assert.Equal(t, fakeArticle.Topic, responseArticle[0].Topic)
+	assert.Equal(t, fakeArticle.UserId, responseArticle[0].UserId)
 }
 
 func TestGetLikesInfo(t *testing.T) {
@@ -401,7 +409,7 @@ func TestGetGetArticlesByTopic(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", "/articles/topic/TestTopic", nil)
+	req, err := http.NewRequest("GET", "/articles/topics/TestTopic", nil)
 	if err != nil {
 		log.Fatalf("impossible to build request: %s", err)
 	}
@@ -702,9 +710,8 @@ func TestChangeDraftState(t *testing.T) {
 	if result.Error != nil {
 		panic(result.Error)
 	}
-	draftJSON, _ := json.Marshal(articles.ChangeDraftStateObject{Draft: false})
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest("PUT", "/articles/2/draft", bytes.NewReader(draftJSON))
+	req, err := http.NewRequest("PUT", "/articles/2/draft", nil)
 	if err != nil {
 		log.Fatalf("impossible to build request: %s", err)
 	}

@@ -1,6 +1,7 @@
 package bookmarks
 
 import (
+	adtos "github.com/Le-Monde-3-0/articles_dtos/sources"
 	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
@@ -88,7 +89,25 @@ func AddArticleInBookmark(c *gin.Context, db *gorm.DB) {
 	}
 	bookmark.Articles = addIfNotPresent(bookmark.Articles, int32(articleId))
 	db.Save(&bookmark)
-	c.JSON(http.StatusOK, bookmark)
+
+	var responseBody []adtos.ArticleResponse
+		responseBody, err = GetArticlesForBookmark(c, bookmark.Articles)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error getting articles for bookmark"})
+			return
+		}
+	returnedBookmark := ReturnedBookmark{
+		Id:          bookmark.Id,
+		CreatedAt:   bookmark.CreatedAt,
+		UpdatedAt:   bookmark.UpdatedAt,
+		DeletedAt:   bookmark.DeletedAt,
+		UserId:      bookmark.UserId,
+		Title:       bookmark.Title,
+		Description: bookmark.Description,
+		Articles:    responseBody,
+	}
+
+	c.JSON(http.StatusOK, returnedBookmark)
 }
 
 /*

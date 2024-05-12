@@ -3,14 +3,15 @@ package bookmarks
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
+	"strconv"
+	"time"
+
 	adtos "github.com/Le-Monde-3-0/articles_dtos/sources"
 	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/gin-gonic/gin"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 type ReturnedBookmark struct {
@@ -91,6 +92,9 @@ func GetBookmark(c *gin.Context, db *gorm.DB) {
 
 	returnedBookmark := ReturnedBookmark{
 		Id:          bookmark.Id,
+		CreatedAt:   bookmark.CreatedAt,
+		UpdatedAt:   bookmark.UpdatedAt,
+		DeletedAt:   bookmark.DeletedAt,
 		UserId:      bookmark.UserId,
 		Title:       bookmark.Title,
 		Description: bookmark.Description,
@@ -138,6 +142,9 @@ func GetAllBookmarks(c *gin.Context, db *gorm.DB) {
 
 		returnedBookmark := ReturnedBookmark{
 			Id:          bookmark.Id,
+			CreatedAt:   bookmark.CreatedAt,
+			UpdatedAt:   bookmark.UpdatedAt,
+			DeletedAt:   bookmark.DeletedAt,
 			UserId:      bookmark.UserId,
 			Title:       bookmark.Title,
 			Description: bookmark.Description,

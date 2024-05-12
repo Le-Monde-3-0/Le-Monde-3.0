@@ -9,7 +9,6 @@ import (
 	"go.uber.org/zap"
 )
 
-
 type ArticleInput struct {
 	Title    string `json:"title" binding:"required"`
 	SubTitle string `json:"subtitle" binding:"required"`
@@ -27,10 +26,6 @@ type EditArticleInput struct {
 
 type MultipleArticlesIdsInput struct {
 	Ids []int32 `json:"ids" binging:"required"`
-}
-
-type DraftStateInput struct {
-	Draft bool `json:"draft" binding:"required"`
 }
 
 type MultipleArticlesIds struct {
@@ -299,7 +294,7 @@ func EditArticle(c *gin.Context, logger *zap.Logger) {
 // @Router /articles [delete]
 func DeleteAllArticles(c *gin.Context, logger *zap.Logger) {
 
-	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodDelete, "http://articles-lemonde3-0:8082/articles/me", nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodDelete, "http://articles-lemonde3-0:8082/articles", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		logger.Error(err.Error())
@@ -397,10 +392,10 @@ type HTTPError500 struct {
 // @Failure      400  {object}  HTTPError400
 // @Failure      404  {object}  HTTPError404
 // @Failure      500  {object}  HTTPError500
-// @Router /articles/topic/:topic [get]
+// @Router /articles/topics/:topic [get]
 func GetArticlesByTopic(c *gin.Context, logger *zap.Logger) {
 
-	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/topic", nil)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/topics/"+c.Param("topic"), nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		return
@@ -410,7 +405,7 @@ func GetArticlesByTopic(c *gin.Context, logger *zap.Logger) {
 
 // GetAllTopics godoc
 // @Schemes
-// @Description Get all articles by topic
+// @Description Get all articles topics
 // @Tags articles
 // @Accept json
 // @Produce json
@@ -430,7 +425,7 @@ func GetAllTopics(c *gin.Context, logger *zap.Logger) {
 
 // IsArticleDraft godoc
 // @Schemes
-// @Description Get all topics
+// @Description Change draft state
 // @Tags articles
 // @Accept json
 // @Produce json
@@ -458,14 +453,7 @@ func IsArticleDraft(c *gin.Context, logger *zap.Logger) {
 // @Failure      500  {object}  HTTPError500
 // @Router /articles/:id/draft [put]
 func ChangeDraftState(c *gin.Context, logger *zap.Logger) {
-	var changeDraftStateParams DraftStateInput
-
-	if err := c.ShouldBindJSON(&changeDraftStateParams); err != nil {
-		c.String(http.StatusBadRequest, "Invalid request body")
-		return
-	}
-
-	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPut, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/draft", changeDraftStateParams)
+	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodPut, "http://articles-lemonde3-0:8082/articles/"+c.Param("id")+"/draft", nil)
 	if err != nil {
 		c.String(statusCode, "Error making the request")
 		return
@@ -483,7 +471,7 @@ func ChangeDraftState(c *gin.Context, logger *zap.Logger) {
 // @Failure      401  {object}  HTTPError401
 // @Failure      404  {object}  HTTPError404
 // @Failure      500  {object}  HTTPError500
-// @Router /articles/search/:keyword [post]
+// @Router /articles/search/:keyword [get]
 func GetArticlesByKeyword(c *gin.Context, logger *zap.Logger) {
 	responseBody, statusCode, err := utils.MakeHTTPRequest(c, http.MethodGet, "http://articles-lemonde3-0:8082/articles/search/"+c.Param("keyword"), nil)
 	if err != nil {

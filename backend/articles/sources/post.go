@@ -83,6 +83,7 @@ func AddLike(c *gin.Context, db *gorm.DB) {
 	db.Save(&article)
 
 	article.HasConnectedUserLiked = true
+	article.Views = getRecordView(article.Id, db)
 
 	c.JSON(http.StatusOK, article)
 }
