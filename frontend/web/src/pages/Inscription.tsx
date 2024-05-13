@@ -31,7 +31,7 @@ const Inscription = (): JSX.Element => {
 			const registerRes = await register({ email, password: pwd, username });
 			requestResponseToast(registerRes);
 			if (registerRes.status === 'success') {
-				const loginRes = await login({ email, password: pwd });
+				const loginRes = await login({ identifier: email, password: pwd });
 				requestResponseToast(loginRes);
 			}
 		} catch (error) {

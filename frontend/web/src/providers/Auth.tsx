@@ -37,10 +37,10 @@ const AuthProvider = ({ children }: { children: JSX.Element }) => {
 		setAccessToken: (accessToken: string) => setAuth((a) => ({ ...a, accessToken })),
 		toggleOfflineState: () => setAuth((a) => ({ ...a, offline: !a.offline })),
 
-		login: async ({ email, password }: { email: string; password: string }) =>
+		login: async ({ identifier, password }: { identifier: string; password: string }) =>
 			handleRequest({
 				request: async () => {
-					const res = await services.auth.login({ email, password });
+					const res = await services.auth.login({ identifier, password });
 					authContextValue.setAccessToken(res.data.token);
 					return res;
 				},
