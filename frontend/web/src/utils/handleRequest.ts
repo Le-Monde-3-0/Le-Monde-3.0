@@ -96,6 +96,7 @@ const handleRequestTable: { [key: string]: RequestResponse<never>[] } = {
 	getLikedArticles: [okResponse('Articles aimés récupérés.')],
 	getArticle: [okResponse('Article récupéré.'), notFoundError()],
 	getBookmark: [okResponse('Marque-page récupéré.'), notFoundError()],
+	getBookmarkArticles: [okResponse('Articles récupérés.')],
 	addArticle: [createdResponse('Article créé.'), badRequestError()],
 	switchArticleDraftState: [okResponse("Status de l'article changé."), badRequestError()],
 	deleteArticle: [okResponse('Article supprimé.'), notFoundError()],
@@ -106,6 +107,7 @@ const handleRequestTable: { [key: string]: RequestResponse<never>[] } = {
 	updateBookmark: [okResponse('Marque-page modifié.'), badRequestError()],
 	deleteBookmark: [okResponse('Marque-page supprimé.')],
 	addArticleToBookmark: [okResponse('Article ajouté au marque-page.')],
+	removeArticleFromBookmark: [okResponse('Article supprimé du marque-page.')],
 };
 
 const handleRequest = async <Type>({

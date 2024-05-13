@@ -142,6 +142,17 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			}),
 		}));
 
+	const removeArticleFromBookmarkData = (bookmarkId: number, articleId: number) =>
+		setUser((u) => ({
+			...u,
+			bookmarks: user.bookmarks.map((b) => {
+				if (b.Id === bookmarkId) {
+					b.Articles = b.Articles.filter((a) => a !== articleId);
+				}
+				return b;
+			}),
+		}));
+
 	useEffect(() => {
 		const localStorageUser = localStorage.getItem('user');
 		if (localStorageUser) setUser(JSON.parse(localStorageUser));
@@ -260,7 +271,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				request: auth.offline
 					? undefined
 					: async () => {
-							const res = await services.bookmarks.get({ token: auth.accessToken!, bookmarkId: bookmarkId });
+							const res = await services.bookmarks.get({ token: auth.accessToken!, bookmarkId });
 							return res;
 					  },
 				action: auth.offline
@@ -273,6 +284,33 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 					  }
 					: undefined,
 				name: 'getBookmark',
+			}),
+
+		getBookmarkArticles: async (bookmarkId: number) =>
+			handleRequest({
+				request: auth.offline
+					? undefined
+					: async () => {
+							const res = await services.bookmarks.getArticles({ token: auth.accessToken!, bookmarkId });
+							return res;
+					  },
+				action: auth.offline
+					? () => {
+							const articlesId = user.bookmarks.find((b) => b.Id === bookmarkId)?.Articles;
+							if (articlesId === undefined) {
+								return {
+									status: 404,
+									data: undefined,
+								};
+							}
+							const articles = ipfs.data.articles.filter((a) => articlesId.includes(a.Id));
+							return {
+								status: articles ? 200 : 404,
+								data: articles,
+							};
+					  }
+					: undefined,
+				name: 'getBookmarkArticles',
 			}),
 
 		addArticle: ({
@@ -479,6 +517,29 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 					  }
 					: undefined,
 				name: 'addArticleToBookmark',
+			}),
+
+		removeArticleFromBookmark: async (bookmarkId: number, articleId: number) =>
+			handleRequest({
+				request: auth.offline
+					? undefined
+					: async () => {
+							const res = await services.bookmarks.removeArticle({ token: auth.accessToken!, bookmarkId, articleId });
+							removeArticleFromBookmarkData(bookmarkId, articleId);
+							return res;
+					  },
+				action: auth.offline
+					? () => {
+							const article = ipfs.data.articles.find((a) => a.Id === articleId);
+							const bookmark = user.bookmarks.find((b) => b.Id === bookmarkId);
+							if (article && bookmark) removeArticleFromBookmarkData(bookmarkId, articleId);
+							return {
+								status: article && bookmark ? 200 : 400,
+								data: article,
+							};
+					  }
+					: undefined,
+				name: 'removeArticleFromBookmark',
 			}),
 	};
 

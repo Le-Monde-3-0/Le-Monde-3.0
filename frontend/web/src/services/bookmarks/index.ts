@@ -2,7 +2,7 @@ import create from './create';
 import update from './update';
 import hardDelete from './delete';
 import { get, getAll } from './get';
-import { addArticle, removeArticle } from './articles';
+import { addArticle, getArticles, removeArticle } from './articles';
 
 const bookmarksService = {
 	create,
@@ -10,6 +10,7 @@ const bookmarksService = {
 	get,
 	getAll,
 	delete: hardDelete,
+	getArticles,
 	addArticle,
 	removeArticle,
 };
