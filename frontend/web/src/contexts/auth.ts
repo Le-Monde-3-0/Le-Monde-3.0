@@ -22,7 +22,7 @@ type AuthContextType = {
 	//
 	// Methods to interact with the services
 	//
-	login: ({ email, password }: { email: string; password: string }) => Promise<RequestResponse<LoginType>>;
+	login: ({ identifier, password }: { identifier: string; password: string }) => Promise<RequestResponse<LoginType>>;
 	register: ({
 		email,
 		username,

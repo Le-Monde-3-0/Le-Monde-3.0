@@ -92,7 +92,6 @@ const MarquePages = (): JSX.Element => {
 
 	useEffect(() => {
 		uiGetBookmarks();
-		console.log('coucou');
 	}, [auth]);
 
 	if (!user.bookmarks) {

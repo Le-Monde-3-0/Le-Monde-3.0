@@ -1,5 +1,22 @@
 import { AxiosError, AxiosResponse } from 'axios';
 
+const englishErrorMapping = [
+	{
+		english: 'an account with this username already exists',
+		french: "Nom d'utilisateur déjà existant.",
+	},
+	{
+		english: 'an account with this email already exists',
+		french: 'Email déjà existant.',
+	},
+	{
+		english: 'No message provided from the backend',
+		french: 'Pas de message renvoyé par le backend',
+	},
+];
+
+const findFrenchMapping = (englishError: string) => englishErrorMapping.find((e) => e.english === englishError)?.french;
+
 type RequestResponse<Type> = {
 	code: number;
 	status: 'error' | 'info' | 'warning' | 'success' | 'loading';
@@ -56,6 +73,14 @@ const notFoundError = (subMessage?: string): RequestResponse<never> => ({
 	data: undefined,
 });
 
+const conflictError = (subMessage?: string): RequestResponse<never> => ({
+	code: 409,
+	status: 'error',
+	message: 'Conflit',
+	subMessage,
+	data: undefined,
+});
+
 const internalError: RequestResponse<never> = {
 	code: 500,
 	status: 'error',
@@ -66,14 +91,14 @@ const internalError: RequestResponse<never> = {
 
 const handleRequestTable: { [key: string]: RequestResponse<never>[] } = {
 	login: [okResponse('Connexion réussie.'), badRequestError()],
-	register: [createdResponse('Inscription réussie.'), badRequestError()],
+	register: [createdResponse('Inscription réussie.'), badRequestError(), conflictError()],
 	getArticles: [okResponse('Articles récupérés.')],
 	getLikedArticles: [okResponse('Articles aimés récupérés.')],
 	getArticle: [okResponse('Article récupéré.'), notFoundError()],
 	getBookmark: [okResponse('Marque-page récupéré.'), notFoundError()],
 	addArticle: [createdResponse('Article créé.'), badRequestError()],
-	switchArticleDraftState: [okResponse("Status de l'article changé"), badRequestError()],
-	deleteArticle: [okResponse('Article publié supprimé.'), notFoundError()],
+	switchArticleDraftState: [okResponse("Status de l'article changé."), badRequestError()],
+	deleteArticle: [okResponse('Article supprimé.'), notFoundError()],
 	likeArticle: [okResponse('Article aimé.')],
 	unlikeArticle: [okResponse('Article dé-aimé.')],
 	getBookmarks: [okResponse('Marque-pages récupérés.')],
@@ -104,8 +129,9 @@ const handleRequest = async <Type>({
 			const errorCode = error.response ? error.response.status : 0;
 			if (errorCode === 500) return internalError;
 			const errorMessage = error.response?.data.error || 'No message provided from the backend';
+			const frenchErrorMessage = findFrenchMapping(errorMessage);
 			const output = handleRequestTable[name].find((r) => r.code === errorCode);
-			return output ? { ...output, subMessage: errorMessage } : unhandledResponse;
+			return output ? { ...output, subMessage: frenchErrorMessage } : unhandledResponse;
 		}
 		return unknowError;
 	}

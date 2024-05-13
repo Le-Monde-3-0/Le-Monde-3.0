@@ -199,7 +199,6 @@ const ArticlePage = (): JSX.Element => {
 								{article.TotalViews} view{article.TotalViews !== 1 && 's'}
 							</Badge>
 						</HStack>
-						{/* <HStack> */}
 						<Grid
 							templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
 							gap={{ base: 2, lg: 4 }}
@@ -212,7 +211,6 @@ const ArticlePage = (): JSX.Element => {
 								<Chart yLabel="Vues" data={article.DailyViews} />
 							</Collapse>
 						</Grid>
-						{/* </HStack> */}
 					</VStack>
 					<Text variant="p" whiteSpace="pre-line">
 						{article.Content}

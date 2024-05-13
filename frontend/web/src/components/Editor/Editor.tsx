@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { Button, HStack, Input, Stack, Textarea, VStack } from '@chakra-ui/react';
+import { Button, HStack, Input, Select, Stack, Textarea, VStack } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 
 import { useUserContext } from 'contexts/user';
 import { useUIContext } from 'contexts/ui';
+import availableTopics from 'types/topic';
 
 const Editor = ({
 	placeholderTitle,
@@ -56,14 +57,22 @@ const Editor = ({
 					onChange={(e) => setTitle(e.target.value)}
 					value={title}
 				/>
-				<Input
+				<Select
 					w="25%"
 					id="nouvel-article-topic-input"
 					variant="primary-1"
-					placeholder="Sujet du nouvel article"
 					onChange={(e) => setTopic(e.target.value)}
 					value={topic}
-				/>
+					sx={{
+						'> option': {
+							background: '#212529',
+						},
+					}}
+				>
+					{availableTopics.map((t, index) => (
+						<option key={index}>{t}</option>
+					))}
+				</Select>
 			</HStack>
 			<Textarea
 				id="nouvel-article-content-textarea"

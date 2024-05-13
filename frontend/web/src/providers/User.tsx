@@ -238,7 +238,12 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 					? undefined
 					: async () => {
 							const res = await services.bookmarks.getAll({ token: auth.accessToken! });
-							setBookmarksData(res.data);
+							if (res.data === null) {
+								setBookmarksData([]);
+							} else {
+								const bookmarks = res.data.map((b) => (b.Articles === null ? { ...b, Articles: [] } : b));
+								setBookmarksData(bookmarks);
+							}
 							return res;
 					  },
 				action: auth.offline

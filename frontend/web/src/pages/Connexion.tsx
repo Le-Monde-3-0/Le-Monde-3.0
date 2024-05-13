@@ -16,7 +16,7 @@ const Connexion = (): JSX.Element => {
 
 	const connexion = async () => {
 		try {
-			const res = await login({ email: loginInput, password: pwdInut });
+			const res = await login({ identifier: loginInput, password: pwdInut });
 			requestResponseToast(res);
 		} catch (error) {
 			console.error(error);
