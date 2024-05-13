@@ -30,6 +30,7 @@ type UserContextType = {
 	getArticle: (articleId: number) => Promise<RequestResponse<Article>>;
 	getBookmarks: () => Promise<RequestResponse<Bookmark[]>>;
 	getBookmark: (bookmarkId: number) => Promise<RequestResponse<Bookmark>>;
+	getBookmarkArticles: (bookmarkId: number) => Promise<RequestResponse<Article[]>>;
 	addArticle: ({
 		title,
 		topic,
@@ -57,6 +58,7 @@ type UserContextType = {
 	}) => Promise<RequestResponse<Bookmark>>;
 	deleteBookmark: (bookmarkId: number) => Promise<RequestResponse<{ delete: string }>>;
 	addArticleToBookmark: (bookmarkId: number, articleId: number) => Promise<RequestResponse<Article>>;
+	removeArticleFromBookmark: (bookmarkId: number, articleId: number) => Promise<RequestResponse<Article>>;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
