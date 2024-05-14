@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
-import '../services/article_service.dart';
+import '../services/Article_service.dart';
 import '../models/article.dart';
 import '../shared/article_widget.dart';
 
-// Convertissez BrouillonsWidget en StatefulWidget
 class BrouillonsWidget extends StatefulWidget {
   @override
   _BrouillonsWidgetState createState() => _BrouillonsWidgetState();
@@ -18,25 +17,26 @@ class _BrouillonsWidgetState extends State<BrouillonsWidget> {
   @override
   void initState() {
     super.initState();
-    futureArticles = _getArticle();
+    futureArticles = _articleService.getMyDraftArticle();
   }
 
-  Future<List<ArticleModel>> _getArticle() async {
-    try {
-      var response = await _articleService.getMyArticle();
-      Iterable jsonResponse = response;
-      List<ArticleModel> articlesList = [];
-        for (var article in jsonResponse) {
-          if (article['Draft'] == true) {
-            articlesList.add(ArticleModel.fromJson(article));
-          }
-      }
-      return articlesList;
-    } catch (e) {
-      print(e.toString());
-      return [];
-    }
-  }
+  // Future<List<ArticleModel>> _getArticle() async {
+  //   try {
+  //     var response = await _articleService.getMyArticle();
+  //     Iterable jsonResponse = response;
+  //     List<ArticleModel> articlesList = [];
+  //       for (var article in jsonResponse) {
+  //         if (article['Draft'] == true) {
+  //           articlesList.add(ArticleModel.fromJson(article));
+  //         }
+  //     }
+  //     print(articlesList);
+  //     return articlesList;
+  //   } catch (e) {
+  //     print(e.toString());
+  //     return [];
+  //   }
+  // }
 
   String _truncateWithEllipsis(String text, int cutoff) {
     return (text.length <= cutoff) ? text : '${text.substring(0, cutoff)}...';

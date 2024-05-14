@@ -1,4 +1,3 @@
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -10,8 +9,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final router = GoRouter(
-      initialLocation: '/write',
+    final router = GoRouter( 
       routes: [
         ShellRoute(
           builder: (context, state, child) {
@@ -20,6 +18,7 @@ class MyApp extends StatelessWidget {
           routes: $appRoutes,
         ),
       ],
+      initialLocation: '/write',
       redirect: (context, state) async {
         var storage = FlutterSecureStorage();
         String? token = await storage.read(key: 'token');
@@ -30,7 +29,18 @@ class MyApp extends StatelessWidget {
       },
     );
     return MaterialApp.router(
-      theme: ThemeData.dark(),
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: Color.fromARGB(255, 16, 16, 16),
+        // textTheme: ThemeData.dark().textTheme.apply(
+        //   bodyColor: const Color.fromARGB(255, 0, 0, 0),
+        //   displayColor: Colors.white
+        // ),
+        // colorScheme: ThemeData.dark().colorScheme.copyWith(
+        //   primary: Color.fromARGB(255, 255, 255, 255),
+        //   onPrimary: Colors.white,
+        //   secondary: Color.fromARGB(255, 255, 255, 255)
+        // ),
+      ),
       routerConfig: router,
     );
   }

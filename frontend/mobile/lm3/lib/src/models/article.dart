@@ -9,7 +9,8 @@ class ArticleModel {
   final String content;
   final String topic;
   final bool draft;
-  final List<int> likes;
+  final List<dynamic> likes;
+  bool owner;
 
   ArticleModel({
     required this.id,
@@ -23,9 +24,10 @@ class ArticleModel {
     required this.topic,
     required this.draft,
     required this.likes,
+    this.owner = false,
   });
 
-  factory ArticleModel.fromJson(Map<String, dynamic> json) {
+  factory ArticleModel.fromJson(Map<String, dynamic> json, [bool owner = false]) {
     return ArticleModel(
       id: json['Id'] as int,
       createdAt: DateTime.parse(json['CreatedAt']),
@@ -37,10 +39,12 @@ class ArticleModel {
       content: json['Content'] as String,
       topic: json['Topic'] as String,
       draft: json['Draft'] as bool,
-      likes: List<int>.from(json['Likes']),
+      likes: List<dynamic>.from(json['Likes']),
+      owner: owner,
     );
   }
-  factory ArticleModel.fromMap(Map<String, dynamic> map) {
+
+  factory ArticleModel.fromMap(Map<String, dynamic> map,  [bool owner = false]) {
     return ArticleModel(
       id: map['Id'] as int,
       createdAt: DateTime.parse(map['CreatedAt']),
@@ -52,7 +56,8 @@ class ArticleModel {
       content: map['Content'] as String,
       topic: map['Topic'] as String,
       draft: map['Draft'] as bool,
-      likes: List<int>.from(map['Likes']),
+      likes: List<dynamic>.from(map['Likes']),
+      owner: owner,
     );
   }
 }

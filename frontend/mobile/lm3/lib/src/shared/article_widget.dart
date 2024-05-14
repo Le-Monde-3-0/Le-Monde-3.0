@@ -54,7 +54,7 @@ class ArticleWidget extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           child: Text(
-                            'Draft',
+                            'Brouillon',
                             style: TextStyle(
                               fontSize: 12.0,
                               color: Colors.white,

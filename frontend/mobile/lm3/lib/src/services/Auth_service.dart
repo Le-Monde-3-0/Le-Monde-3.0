@@ -2,15 +2,16 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class UserService {
-  Future<dynamic> login(String email, String password) async {
-    var url = Uri.parse('http://10.0.2.2:8081/login');
-    var body = json.encode({'Email': email, 'Password': password });
+  var baseUrl = 'http://20.13.168.88';
+
+  Future<dynamic> login(String identifier, String password) async {
+    var url = Uri.parse('${baseUrl}:8081/login');
+    var body = json.encode({'Identifier': identifier, 'Password': password });
     var response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
       body: body
     );
-
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
@@ -19,7 +20,7 @@ class UserService {
   }
 
   Future<dynamic> createUser(String email, String username, String password) async {
-    var url = Uri.parse('http://10.0.2.2:8081/register');
+    var url = Uri.parse('${baseUrl}:8081/register');
     var boody = json.encode({'Email': email,
                              'Username': username,
                              'Password': password }); 

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:lm3/src/models/user.dart';
 import 'auth_page.dart';
-import '../services/user_service.dart';
+import '../services/Auth_service.dart';
 
 class CreateProfilePage extends StatefulWidget {
   @override
@@ -42,7 +39,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Créer un Profil'),
+        title: Text('Créer un Compte'),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -52,12 +49,12 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               TextFormField(
-                decoration: InputDecoration(labelText: 'Username'),
+                decoration: InputDecoration(labelText: 'Nom d\'utilisateur'),
                 validator: (value) => value!.isEmpty ? 'Ce champ est obligatoire' : null,
                 onSaved: (value) => _name = value,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(labelText: 'Adresse Email'),
                 validator: (value) => !value!.contains('@') ? 'Email invalide' : null,
                 onSaved: (value) => _email = value,
               ),
@@ -69,7 +66,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
               ),
               ElevatedButton(
                 onPressed: _submitForm,
-                child: Text('Créer Profil'),
+                child: Text('Créer mon compte'),
               ),
             ],
           ),

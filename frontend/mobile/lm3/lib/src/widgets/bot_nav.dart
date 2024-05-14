@@ -1,40 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../router/router.dart';
-import '../screens/draft_page.dart';
-import '../screens/published_page.dart';
+import '../screens/user_draft_page.dart';
+import '../screens/user_published_page.dart';
 
 class BottomNav extends StatelessWidget {
   const BottomNav(this.child, {super.key});
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _calculateSelectedIndex(context),
-        onTap: (value) => _onBottomNavItemTap(value, context),
-        items: [
-          BottomNavigationBarItem(
-            icon: GestureDetector(
-              onLongPress: () => _showArticlesOptions(context),
-              child: const Icon(Icons.newspaper),
+    Widget build(BuildContext context) {
+      return Scaffold(
+        body: child,
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _calculateSelectedIndex(context),
+          onTap: (value) => _onBottomNavItemTap(value, context),
+          items: [
+            BottomNavigationBarItem(
+              icon: GestureDetector(
+                child: const Icon(Icons.newspaper),
+              ),
+              label: 'Articles',
             ),
-            label: 'articles',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.create),
-            label: 'write',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'profile',
-          ),
-        ],
-      ),
-    );
-  }
+            BottomNavigationBarItem(
+              icon: Icon(Icons.create),
+              label: 'Écrire',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
+              
+            ),
+          ],
+          selectedLabelStyle: TextStyle(fontSize: 17),
+          unselectedLabelStyle: TextStyle(fontSize: 14),
+          unselectedItemColor: const Color.fromARGB(255, 255, 255, 255),
+          selectedItemColor: Colors.white,
+          backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+        ),
+      );
+    }
 
   void _onBottomNavItemTap(int value, BuildContext context) {
     switch (value) {
@@ -49,50 +54,6 @@ class BottomNav extends StatelessWidget {
         break;
     }
   }
-
-  void _showArticlesOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.public),
-              title: Text("Mes publications"),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => PublishedWidget(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.drafts),
-              title: Text("Mes brouillons"),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => BrouillonsWidget(),
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.bar_chart),
-              title: Text("Statistiques"),
-              onTap: () {
-
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
 
   int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;

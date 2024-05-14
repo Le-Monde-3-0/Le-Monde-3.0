@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import '../services/article_service.dart';
 import '../shared/article_page_previsual.dart';
 import '../models/article.dart';
 
@@ -11,23 +10,10 @@ class WritePage extends StatefulWidget {
 
 class _WritePageState extends State<WritePage> {
   final _formKey = GlobalKey<FormState>();
-  // final ArticleService _articleService = ArticleService();
 
   final _articleTitle = TextEditingController();
   final _articleTheme = TextEditingController();
   final _articleContent = TextEditingController();
-
-  // void _submitArticle(bool draft) async {
-  //   try {
-  //     if (_formKey.currentState!.validate()) {
-  //       _formKey.currentState!.save();
-  //       var result = await _articleService.createArticle("@moi", _articleContent.text, "subtile", _articleTitle.text, _articleTheme.text, draft);
-  //       print(result);
-  //     }
-  //   } catch (e) {
-  //     print(e.toString());
-  //   }
-  // }
   
   @override
   Widget build(BuildContext context) {
@@ -35,11 +21,11 @@ class _WritePageState extends State<WritePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Création d\'un Article'),
+        title: const Text('Création d\'un Article'),
       ),
       body: SingleChildScrollView( 
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
             child: Column(
@@ -48,54 +34,59 @@ class _WritePageState extends State<WritePage> {
                 TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Titre de l\'article',
-                    labelStyle: TextStyle(color: Colors.blueGrey),
+                    labelStyle: const TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                     fillColor: Colors.white, 
                     filled: true,
                     border: OutlineInputBorder( 
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(color: Colors.blueGrey),
+                      borderSide: const BorderSide(color: const Color.fromARGB(255, 0, 0, 0)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      borderSide: const BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 2.0),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(color: Colors.red, width: 2.0),
+                      borderSide: const BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 2.0),
                     ),
-                    prefixIcon: Icon(Icons.title, color: Colors.blueGrey), 
-                    suffixIcon: Icon(Icons.edit, color: Colors.blueGrey),
+                    prefixIcon: const Icon(Icons.title, color: const Color.fromARGB(255, 0, 0, 0)), 
+                    suffixIcon: const Icon(Icons.edit, color: const Color.fromARGB(255, 0, 0, 0)),
                   ),
                   validator: (value) => value!.isEmpty ? 'Ce champ est obligatoire' : null,
                   controller: _articleTitle,
+                  style: const TextStyle(
+                    color:const Color.fromARGB(255, 0, 0, 0),
+                  ),
                 ),
                 SizedBox(height: 16.0),
                 TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Theme de l\'article',
-                    labelStyle: TextStyle(color: Colors.blueGrey),
+                    labelStyle: const TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                     fillColor: Colors.white, 
                     filled: true,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(color: Colors.blueGrey),
+                      borderSide: const BorderSide(color: const Color.fromARGB(255, 0, 0, 0)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                      borderSide: const BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 2.0),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(color: Colors.red, width: 2.0),
+                      borderSide: const BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 2.0),
                     ),
-                    prefixIcon: Icon(Icons.title, color: Colors.blueGrey),
-                    suffixIcon: Icon(Icons.edit, color: Colors.blueGrey),
+                    prefixIcon: const Icon(Icons.title, color: const Color.fromARGB(255, 0, 0, 0)),
+                    suffixIcon: const Icon(Icons.edit, color: const Color.fromARGB(255, 0, 0, 0)),
                   ),
                   validator: (value) => value!.isEmpty ? 'Ce champ est obligatoire' : null,
                   controller: _articleTheme,
-
-                ),
-                SizedBox(height: 16.0),
+                  style: TextStyle(
+                    color: const Color.fromARGB(255, 0, 0, 0),
+                  ),
+                ), 
+                const SizedBox(height: 16.0),
                 ConstrainedBox(
                   constraints: BoxConstraints(
                     minHeight: screenHeight / 2,
@@ -106,13 +97,13 @@ class _WritePageState extends State<WritePage> {
                       child: TextFormField(
                         decoration: InputDecoration(
                           labelText: 'Contenu de l\'article',
-                          labelStyle: TextStyle(color: Colors.blueGrey),
+                          labelStyle: const TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blueGrey, width: 1.0),
+                            borderSide: const BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 1.0),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: const Color.fromARGB(255, 243, 201, 33), width: 2.0),
+                            borderSide: const BorderSide(color: Color.fromARGB(255, 0, 0, 0), width: 2.0),
 
                             borderRadius: BorderRadius.circular(8.0),
                           ),
@@ -123,7 +114,9 @@ class _WritePageState extends State<WritePage> {
                         maxLines: null,
                         validator: (value) => value!.isEmpty ? 'Ce champ est obligatoire' : null,
                         controller: _articleContent,
-
+                        style: TextStyle(
+                          color: const Color.fromARGB(255, 0, 0, 0),
+                        ),
                       ),
                     ),
                   ),

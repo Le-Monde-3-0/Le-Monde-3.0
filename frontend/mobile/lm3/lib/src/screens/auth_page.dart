@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'profile_page.dart';
 import 'register_page.dart';
-import '../services/user_service.dart';
+import '../services/Auth_service.dart';
 import '../router/router.dart';
 
 class AuthPage extends StatefulWidget {
@@ -35,7 +35,7 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(title: Text('Connexion')),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -44,19 +44,19 @@ class _AuthPageState extends State<AuthPage> {
           children: <Widget>[
             TextFormField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(labelText: 'Adresse email ou nom d\'utilisateur'),
               keyboardType: TextInputType.emailAddress,
             ),
             TextFormField(
               controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(labelText: 'Mot de passe'),
               obscureText: true,
             ),
             ElevatedButton(
               onPressed: () {
                 _login(_emailController.text, _passwordController.text);
               },
-              child: Text('Login'),
+              child: Text('Se connecter'),
             ),
             TextButton(
               onPressed: () {
@@ -65,7 +65,7 @@ class _AuthPageState extends State<AuthPage> {
                   MaterialPageRoute(builder: (context) => CreateProfilePage()),
                 );
               },
-              child: Text('Create an Account'),
+              child: Text('Créer un compte'),
             ),
           ],
         ),

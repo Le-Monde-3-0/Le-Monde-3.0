@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/article.dart';
-import '../services/article_service.dart';
+import '../services/Article_service.dart';
 
 class ArticleDetailPrevisuPage extends StatelessWidget {
   final ArticleService _articleService = ArticleService();
@@ -11,7 +11,7 @@ class ArticleDetailPrevisuPage extends StatelessWidget {
   void _submitArticle(bool draft) async {
     try {
         var result = await _articleService.createArticle("@moi", article.content, "subtile", article.title, article.topic, draft);
-        print(result);
+
     } catch (e) {
       print(e.toString());
     }
@@ -77,6 +77,7 @@ class ArticleDetailPrevisuPage extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       _submitArticle(true);
+                      Navigator.of(context).pop();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 80, 80, 80),
@@ -93,6 +94,7 @@ class ArticleDetailPrevisuPage extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       _submitArticle(false);
+                      Navigator.of(context).pop();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 112, 243, 121),
@@ -101,7 +103,7 @@ class ArticleDetailPrevisuPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text('Poster'),
+                    child: const Text('Publier'),
                   ),
                 ),
               ],

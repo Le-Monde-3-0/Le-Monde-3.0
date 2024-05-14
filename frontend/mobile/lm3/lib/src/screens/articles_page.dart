@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
-import '../services/article_service.dart';
+import '../services/Article_service.dart';
 import '../models/article.dart';
 import '../shared/article_widget.dart';
 
@@ -16,46 +16,35 @@ class _ArticlesPageState extends State<ArticlesPage> {
   final ArticleService _articleService = ArticleService();
   String _selectedTopic = 'À la Une';
   
-  Future<List<ArticleModel>> _getArticle() async {
+  Future<List<ArticleModel>> _getArticles() async {
     try {
-      var response = await _articleService.getArticle();
-      Iterable jsonResponse = response;
-      // List<ArticleModel> articlesList = jsonResponse.map((model) => ArticleModel.fromJson(model)).toList();
-      //faire la meme chose que la ligne ci-dessus mais reverse la liste
-      List<ArticleModel> articlesList = [];
-      for (var article in jsonResponse) {
-        articlesList.insert(0, ArticleModel.fromJson(article));
-      }
-
-
-      return articlesList;
+      var response = await _articleService.getArticles();
+      return response;
     } catch (e) {
-      print(e.toString());
-      return [];
+      throw Exception('erreur lors du chargement des articles');
     }
   }
 
   late Future<List<ArticleModel>> futureArticles;
-
   @override
   void initState() {
     super.initState();
-    futureArticles = _getArticle();
+    futureArticles = _getArticles();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.dark(),
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: Color.fromARGB(255, 16, 16, 16)
+      ),
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Le Monde 3.0', style: TextStyle(fontFamily: 'LeMonde', fontSize: 30.0, fontWeight: FontWeight.bold, color: Colors.white)),
+          title: const Text('Le Monde 3.0', style: TextStyle(fontFamily: 'LeMonde', fontSize: 30.0, fontWeight: FontWeight.bold, color: Colors.white)),
         ),
         body: Column(
           children: [
           SizedBox(width: 1106.0),
-            //TDOD ajouter un barre de recherche
-
           Container(
               height: 40.0,
               child: ListView(
@@ -65,17 +54,17 @@ class _ArticlesPageState extends State<ArticlesPage> {
                   topicButton('À la Une'),
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text('|', style: TextStyle(color: Colors.white, fontSize: 24)),
+                    child: const Text('|', style: TextStyle(color: Colors.white, fontSize: 24)),
                   ),
-                  topicButton('Politique'),
-                  topicButton('Géo-politique'),
                   topicButton('Société'),
-                  topicButton('Par Pays'),
-                  topicButton('Économie'),
-                  topicButton('Culture'),
                   topicButton('Sport'),
+                  topicButton('Politique'),
+                  topicButton('Économie'),
+                  topicButton('Géo-politique'),
+                  topicButton('Culture'),
                   topicButton('Science'),
                   topicButton('Livres'),
+                  topicButton('Par Pays'),
                 ],
               ),
             ),
@@ -153,14 +142,22 @@ class _ArticlesPageState extends State<ArticlesPage> {
           return Center(child: Text('Aucun article disponible.'));
         } else {
           List<ArticleModel> myObjects = snapshot.data ?? [];
-          return ListView.builder(
-            itemCount: myObjects.length,
-            itemBuilder: (context, index) {
-              return ArticleWidget(article: myObjects[index]);
+          return RefreshIndicator(
+            onRefresh: () async {
+              setState(() {
+                futureArticles = _getArticles();
+              });
             },
+            child: ListView.builder(
+              itemCount: myObjects.length,
+              itemBuilder: (context, index) {
+                return ArticleWidget(article: myObjects[index]);
+              },
+            ),
           );
         }
       },
     );
   }
+
 }
