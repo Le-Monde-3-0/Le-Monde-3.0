@@ -5,7 +5,7 @@ const get = async ({ token, userId }: { token: string; userId: number }) =>
 		id: number;
 		email: string;
 		username: string;
-	}>(`/users/${userId}`, {
+	}>(`/users/users/${userId}`, {
 		headers: { Authorization: `Bearer ${token}` },
 	});
 

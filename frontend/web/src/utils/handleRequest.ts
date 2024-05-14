@@ -65,6 +65,14 @@ const badRequestError = (subMessage?: string): RequestResponse<never> => ({
 	data: undefined,
 });
 
+const notAuthError = (subMessage?: string): RequestResponse<never> => ({
+	code: 401,
+	status: 'error',
+	message: "Vous n'êtes pas connecté.",
+	subMessage: undefined,
+	data: undefined,
+});
+
 const notFoundError = (subMessage?: string): RequestResponse<never> => ({
 	code: 404,
 	status: 'error',
@@ -92,24 +100,24 @@ const internalError: RequestResponse<never> = {
 const handleRequestTable: { [key: string]: RequestResponse<never>[] } = {
 	login: [okResponse('Connexion réussie.'), badRequestError()],
 	register: [createdResponse('Inscription réussie.'), badRequestError(), conflictError()],
-	me: [okResponse('Profil récupéré.')],
-	getArticles: [okResponse('Articles récupérés.')],
-	getLikedArticles: [okResponse('Articles aimés récupérés.')],
-	getArticle: [okResponse('Article récupéré.'), notFoundError()],
-	getBookmark: [okResponse('Marque-page récupéré.'), notFoundError()],
-	getBookmarkArticles: [okResponse('Articles récupérés.')],
-	addArticle: [createdResponse('Article créé.'), badRequestError()],
-	switchArticleDraftState: [okResponse("Status de l'article changé."), badRequestError()],
-	deleteArticle: [okResponse('Article supprimé.'), notFoundError()],
-	likeArticle: [okResponse('Article aimé.')],
-	unlikeArticle: [okResponse('Article dé-aimé.')],
-	getBookmarks: [okResponse('Marque-pages récupérés.')],
-	addBookmark: [createdResponse('Marque-page créé.'), badRequestError()],
-	updateBookmark: [okResponse('Marque-page modifié.'), badRequestError()],
-	deleteBookmark: [okResponse('Marque-page supprimé.')],
-	addArticleToBookmark: [okResponse('Article ajouté au marque-page.')],
-	removeArticleFromBookmark: [okResponse('Article supprimé du marque-page.')],
-	getUserProfil: [okResponse('Profil utilisateur récupéré.'), notFoundError()],
+	me: [okResponse('Profil récupéré.'), notAuthError()],
+	getArticles: [okResponse('Articles récupérés.'), notAuthError()],
+	getLikedArticles: [okResponse('Articles aimés récupérés.'), notAuthError()],
+	getArticle: [okResponse('Article récupéré.'), notAuthError(), notFoundError()],
+	getBookmark: [okResponse('Marque-page récupéré.'), notAuthError(), notFoundError()],
+	getBookmarkArticles: [okResponse('Articles récupérés.'), notAuthError()],
+	addArticle: [createdResponse('Article créé.'), badRequestError(), notAuthError()],
+	switchArticleDraftState: [okResponse("Status de l'article changé."), badRequestError(), notAuthError()],
+	deleteArticle: [okResponse('Article supprimé.'), notAuthError(), notFoundError()],
+	likeArticle: [okResponse('Article aimé.'), notAuthError()],
+	unlikeArticle: [okResponse('Article dé-aimé.'), notAuthError()],
+	getBookmarks: [okResponse('Marque-pages récupérés.'), notAuthError()],
+	addBookmark: [createdResponse('Marque-page créé.'), badRequestError(), notAuthError()],
+	updateBookmark: [okResponse('Marque-page modifié.'), badRequestError(), notAuthError()],
+	deleteBookmark: [okResponse('Marque-page supprimé.'), notAuthError()],
+	addArticleToBookmark: [okResponse('Article ajouté au marque-page.'), notAuthError()],
+	removeArticleFromBookmark: [okResponse('Article supprimé du marque-page.'), notAuthError()],
+	getUserProfil: [okResponse('Profil utilisateur récupéré.'), notAuthError(), notFoundError()],
 };
 
 const handleRequest = async <Type>({
