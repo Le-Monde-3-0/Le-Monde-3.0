@@ -109,6 +109,7 @@ const handleRequestTable: { [key: string]: RequestResponse<never>[] } = {
 	deleteBookmark: [okResponse('Marque-page supprimé.')],
 	addArticleToBookmark: [okResponse('Article ajouté au marque-page.')],
 	removeArticleFromBookmark: [okResponse('Article supprimé du marque-page.')],
+	getUserProfil: [okResponse('Profil utilisateur récupéré.'), notFoundError()],
 };
 
 const handleRequest = async <Type>({
