@@ -146,29 +146,43 @@ class _ArticlesPageState extends State<ArticlesPage> {
   }
  
  Widget topicButton(Bookmark bookmark) {
-  return Container(
-    margin: EdgeInsets.only(left: 8.0),
-    child: TextButton(
-      onPressed: () {
-        setState(() {
-          _selectedTopic = bookmark.title;
-        });
-      },
-      child: Text(
-        bookmark.title ?? '',
-        style: TextStyle(
-          color: _selectedTopic == bookmark.title ? Colors.black : Colors.white,
+  return Row(
+    children: [
+      Container(
+        margin: EdgeInsets.only(left: 8.0),
+        child: TextButton(
+          onPressed: () {
+            setState(() {
+              _selectedTopic = bookmark.title;
+            });
+          },
+          child: Text(
+            bookmark.title ?? '',
+            style: TextStyle(
+              color: _selectedTopic == bookmark.title ? Colors.black : Colors.white,
+            ),
+          ),
+          style: TextButton.styleFrom(
+            backgroundColor: _selectedTopic == bookmark.title ? Colors.red : const Color.fromARGB(255, 0, 0, 0),
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+            minimumSize: Size(88, 30),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4.0),
+            ),
+          ),
         ),
       ),
-      style: TextButton.styleFrom(
-        backgroundColor: _selectedTopic == bookmark.title ? Colors.red : const Color.fromARGB(255, 0, 0, 0),
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-        minimumSize: Size(88, 30),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4.0),
-        ),
+      IconButton(
+        icon: Icon(Icons.delete),
+        color: Colors.white,
+        onPressed: () async {
+          await _bookmarkService.deleteBookmark(bookmark.id!);
+          setState(() {
+            _bookmarks.removeWhere((bm) => bm.id == bookmark.id);
+          });
+        },
       ),
-    ),
+    ],
   );
 }
 
