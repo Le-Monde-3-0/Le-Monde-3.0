@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../services/article_service.dart';
 import '../models/article.dart';
 import '../shared/article_widget.dart';
+import '../services/bookmarks_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ArticlesPage extends StatefulWidget {
-  const ArticlesPage({super.key});
+  const ArticlesPage({Key? key}) : super(key: key);
 
   @override
   State<ArticlesPage> createState() => _ArticlesPageState();
@@ -14,28 +17,29 @@ class ArticlesPage extends StatefulWidget {
 
 class _ArticlesPageState extends State<ArticlesPage> {
   final ArticleService _articleService = ArticleService();
-  String _selectedTopic = 'À la Une';
-  
-  Future<List<ArticleModel>> _getArticle() async {
+  final BookmarkService _bookmarkService = BookmarkService(client: http.Client(), storage: FlutterSecureStorage());
+  String? _selectedTopic = 'À la Une';
+  List<Bookmark> _bookmarks = [];
+
+  Future<Map<String, dynamic>> _getArticle() async {
     try {
+      // Appel à getAllBookmarks pour récupérer les marque-pages
+      _bookmarks = await _bookmarkService.getAllBookmarks();
+
       var response = await _articleService.getArticle();
-      Iterable jsonResponse = response;
-      // List<ArticleModel> articlesList = jsonResponse.map((model) => ArticleModel.fromJson(model)).toList();
-      //faire la meme chose que la ligne ci-dessus mais reverse la liste
       List<ArticleModel> articlesList = [];
-      for (var article in jsonResponse) {
-        articlesList.insert(0, ArticleModel.fromJson(article));
+      for (var article in response) {
+        articlesList.add(ArticleModel.fromJson(article));
       }
 
-
-      return articlesList;
+      return {'articles': articlesList, 'bookmarks': _bookmarks};
     } catch (e) {
       print(e.toString());
-      return [];
+      return {'articles': [], 'bookmarks': []};
     }
   }
 
-  late Future<List<ArticleModel>> futureArticles;
+  late Future<Map<String, dynamic>> futureArticles;
 
   @override
   void initState() {
@@ -53,111 +57,105 @@ class _ArticlesPageState extends State<ArticlesPage> {
         ),
         body: Column(
           children: [
-          SizedBox(width: 1106.0),
+            SizedBox(width: 1106.0),
             //TDOD ajouter un barre de recherche
 
-          Container(
-              height: 40.0,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: <Widget>[
-                  editTopicButton(),
-                  topicButton('À la Une'),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text('|', style: TextStyle(color: Colors.white, fontSize: 24)),
-                  ),
-                  topicButton('Politique'),
-                  topicButton('Géo-politique'),
-                  topicButton('Société'),
-                  topicButton('Par Pays'),
-                  topicButton('Économie'),
-                  topicButton('Culture'),
-                  topicButton('Sport'),
-                  topicButton('Science'),
-                  topicButton('Livres'),
-                ],
-              ),
+            FutureBuilder<Map<String, dynamic>>(
+              future: futureArticles,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  _bookmarks = snapshot.data!['bookmarks'];
+                  return Container(
+                    height: 40.0,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _bookmarks.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return topicButton(_bookmarks[index]);
+                      },
+                    ),
+                  );
+                }
+              },
             ),
             Expanded(
               child: _buildArticlesList(),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget topicButton(String title) {
-    return Container(
-      margin: EdgeInsets.only(left: 8.0),
-      child: TextButton(
-        onPressed: () {
-          setState(() {
-            _selectedTopic = title;
-          });
-        },
-        child: Text(
-          title,
-          style: TextStyle(
-            color: _selectedTopic == title ? Colors.black : Colors.white,
-          ),
-        ),
-        style: TextButton.styleFrom(
-          backgroundColor: _selectedTopic == title ? Colors.white : const Color.fromARGB(255, 0, 0, 0),
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-          minimumSize: Size(88, 30),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4.0),
-          ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            // Créer un nouveau bookmark
+            final newBookmark = await _bookmarkService.addBookmark('Nouveau titre', 'Nouvelle description');
+            setState(() {
+              _bookmarks.add(newBookmark);
+            });
+          },
+          child: Icon(Icons.add),
         ),
       ),
     );
   }
 
-  Widget editTopicButton() {
-    return Container(
-      margin: EdgeInsets.only(left: 8.0),
-      child: TextButton(
-        onPressed: () {
-
-        },
-        child: Text(
-          '+',
-          style: TextStyle(
-            color: const Color.fromARGB(255, 12, 12, 12),
-          ),
-        ),
-        style: TextButton.styleFrom(
-          backgroundColor: Colors.yellowAccent[700], 
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-          fixedSize: Size(58, 30),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25.0),
-          ),
+ 
+ Widget topicButton(Bookmark bookmark) {
+  return Container(
+    margin: EdgeInsets.only(left: 8.0),
+    child: TextButton(
+      onPressed: () {
+        setState(() {
+          _selectedTopic = bookmark.title;
+        });
+      },
+      child: Text(
+        bookmark.title ?? '',
+        style: TextStyle(
+          color: _selectedTopic == bookmark.title ? Colors.black : Colors.white,
         ),
       ),
-    );
-  }
+      style: TextButton.styleFrom(
+        backgroundColor: _selectedTopic == bookmark.title ? Colors.red : const Color.fromARGB(255, 0, 0, 0),
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+        minimumSize: Size(88, 30),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4.0),
+        ),
+      ),
+    ),
+  );
+}
 
 
   Widget _buildArticlesList() {
-    return FutureBuilder<List<ArticleModel>>(
+    return FutureBuilder<Map<String, dynamic>>(
       future: futureArticles,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text('Erreur: ${snapshot.error}'));
-        } else if (snapshot.data!.isEmpty) {
+        } else if (snapshot.data!['articles'].isEmpty) {
           return Center(child: Text('Aucun article disponible.'));
         } else {
-          List<ArticleModel> myObjects = snapshot.data ?? [];
-          return ListView.builder(
-            itemCount: myObjects.length,
-            itemBuilder: (context, index) {
-              return ArticleWidget(article: myObjects[index]);
-            },
+          List<ArticleModel> myObjects = snapshot.data!['articles'];
+          _bookmarks = snapshot.data!['bookmarks'];
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: myObjects.length,
+                  itemBuilder: (context, index) {
+                    return ArticleWidget(
+                      article: myObjects[index]
+                    );
+                  },
+                ),
+              ),
+            ],
           );
         }
       },
