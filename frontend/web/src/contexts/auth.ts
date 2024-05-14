@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { LoginType, EmptyType } from 'types/services';
+import { LoginType, EmptyType, MeType } from 'types/services';
 
 import { RequestResponse } from 'utils/handleRequest';
 
@@ -10,6 +10,10 @@ type AuthContextType = {
 	auth: {
 		accessToken: string | undefined;
 		offline: boolean;
+		id: number;
+		email: string;
+		username: string;
+		isPrivate: boolean;
 	};
 
 	//
@@ -18,6 +22,10 @@ type AuthContextType = {
 	clearAuth: () => void;
 	setAccessToken: (accessToken: string) => void;
 	toggleOfflineState: () => void;
+	setId: (id: number) => void;
+	setEmail: (email: string) => void;
+	setUsername: (username: string) => void;
+	toggleIsPrivateState: () => void;
 
 	//
 	// Methods to interact with the services
@@ -32,6 +40,7 @@ type AuthContextType = {
 		username: string;
 		password: string;
 	}) => Promise<RequestResponse<EmptyType>>;
+	me: () => Promise<RequestResponse<MeType>>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

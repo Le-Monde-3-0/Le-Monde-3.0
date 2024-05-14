@@ -92,6 +92,7 @@ const internalError: RequestResponse<never> = {
 const handleRequestTable: { [key: string]: RequestResponse<never>[] } = {
 	login: [okResponse('Connexion réussie.'), badRequestError()],
 	register: [createdResponse('Inscription réussie.'), badRequestError(), conflictError()],
+	me: [okResponse('Profil récupéré.')],
 	getArticles: [okResponse('Articles récupérés.')],
 	getLikedArticles: [okResponse('Articles aimés récupérés.')],
 	getArticle: [okResponse('Article récupéré.'), notFoundError()],
