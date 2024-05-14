@@ -6,6 +6,7 @@ import { useIpfsContext } from 'contexts/ipfs';
 import UserContext, { UserContextType } from 'contexts/user';
 import { Article } from 'types/article';
 import { Bookmark } from 'types/bookmark';
+import { User } from 'types/user';
 import handleRequest from 'utils/handleRequest';
 import loadFromLocalStorage from 'utils/loadFromLocalStorage';
 import { generateDailyStats } from 'utils/generateDailyStats';
@@ -178,6 +179,8 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				overallDailyTotalViews: [],
 			});
 		},
+
+		uploadUser: (newUser: User) => setUser(newUser),
 
 		getArticles: async () => {
 			if (auth.offline) {

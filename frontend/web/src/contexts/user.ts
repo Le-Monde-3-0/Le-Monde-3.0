@@ -2,25 +2,20 @@ import { createContext, useContext } from 'react';
 
 import { Article } from 'types/article';
 import { Bookmark } from 'types/bookmark';
+import { User } from 'types/user';
 import { RequestResponse } from 'utils/handleRequest';
 
 type UserContextType = {
 	//
 	// Data stored
 	//
-	user: {
-		draftArticles: Article[];
-		publishedArticles: Article[];
-		overallDailyTotalViews: { date: string; daily: number; summed: number }[];
-		overallDailyTotalLikes: { date: string; daily: number; summed: number }[];
-		likedArticles: Article[];
-		bookmarks: Bookmark[];
-	};
+	user: User;
 
 	//
 	// Methods to manipulate data stored
 	//
 	clearUser: () => void;
+	uploadUser: (user: User) => void;
 
 	//
 	// Methods to interact with the services

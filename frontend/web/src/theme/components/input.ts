@@ -17,6 +17,25 @@ const input = {
 				...text.variants.p,
 			},
 		},
+		'file-primary-orange': {
+			field: {
+				_focus: {
+					border: 'none',
+					outline: 'solid 3px',
+					outlineColor: 'primary.yellow',
+					outlineOffset: '-2px',
+				},
+				_hover: {
+					opacity: '80%',
+					transition: 'ease 0.5s',
+				},
+				borderRadius: 'md',
+				padding: '8px 16px',
+				bg: 'primary.orange',
+				color: 'black',
+				...text.variants.link,
+			},
+		},
 	},
 };
 
