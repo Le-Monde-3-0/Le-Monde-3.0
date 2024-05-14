@@ -20,6 +20,7 @@ import IpfsConfig from 'pages/IpfsConfig';
 import AuthProvider from 'providers/Auth';
 import IpfsProvider from 'providers/Ipfs';
 import UIProvider from 'providers/UI';
+import UserProfil from 'pages/UserProfil';
 
 const Routes = (): JSX.Element => (
 	<BrowserRouter>
@@ -35,6 +36,7 @@ const Routes = (): JSX.Element => (
 						<Route path="/" element={<PrivateRoute />}>
 							<Route path="/favoris" element={<Favoris />} />
 							<Route path="/articles/:articleId" element={<Article />} />
+							<Route path="/utilisateurs/:userId" element={<UserProfil />} />
 							<Route path="/marque-pages" element={<MarquePages />} />
 							<Route path="/marque-page/:bookmarkId" element={<MarquePage />} />
 							<Route path="/nouveautes" element={<Nouveautes />} />
