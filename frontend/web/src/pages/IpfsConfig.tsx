@@ -1,17 +1,20 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Alert, AlertIcon, Button, HStack, Input, Switch, Text, VStack } from '@chakra-ui/react';
+import { Alert, AlertIcon, Button, HStack, Input, Switch, Text, VStack, useToast } from '@chakra-ui/react';
 
 import { useIpfsContext } from 'contexts/ipfs';
 import { useAuthContext } from 'contexts/auth';
 import { useUserContext } from 'contexts/user';
+import { Article } from 'types/article';
 
 const IpfsConfig = (): JSX.Element => {
 	const { user } = useUserContext();
 	const { auth, toggleOfflineState } = useAuthContext();
 	const { ipfs, setArticles, setGateway, getIPFSFile } = useIpfsContext();
+	const { uploadUser } = useUserContext();
 	const [isGatewayWorking, setIsGatewayWorking] = useState<true | false | 'loading'>(false);
 	const [isRefreshWorking, setIsRefreshWorking] = useState<true | false | 'loading'>(false);
+	const toast = useToast();
 
 	const testGateway = async () => {
 		const cid = 'Qmf8e9tCBH62GNKwYc6jypzqf5hcP5L61SMdZVBVFiqSip';
@@ -27,29 +30,13 @@ const IpfsConfig = (): JSX.Element => {
 	};
 
 	const refresh = async () => {
-		// const cid = 'Qmf8e9tCBH62GNKwYc6jypzqf5hcP5L61SMdZVBVFiqSip';
+		const cid = 'QmdpUHUNR2wwkE1gXb3i7ZA62MjMy9v2ykFM6endBMfFPn';
 		try {
 			setIsRefreshWorking('loading');
-			// const file = await getIPFSFile<{ message: string }>(cid);
-			// setIsRefreshWorking(file.message === 'OK');
-			// console.log(file);
-			setArticles(
-				[0, 1, 2, 3, 4, 5].map((i) => ({
-					AuthorName: `AuthorName ${i}`,
-					Content: `Content ${i}`,
-					CreatedAt: new Date(),
-					Draft: false,
-					Id: i,
-					Likes: [],
-					TotalViews: i,
-					DailyViews: [],
-					DailyLikes: [],
-					Subtitle: `Subtitle ${i}`,
-					Title: `Title ${i}`,
-					Topic: `Topic ${i}`,
-					UserId: i,
-				})),
-			);
+			const file = await getIPFSFile<{ message: string; articles: Article[] }>(cid);
+			setIsRefreshWorking(file.message === 'OK');
+			console.log(file);
+			setArticles(file.articles);
 			setIsRefreshWorking(true);
 		} catch (error) {
 			setIsRefreshWorking(false);
@@ -64,6 +51,37 @@ const IpfsConfig = (): JSX.Element => {
 		element.download = 'profil.json';
 		document.body.appendChild(element); // Required for this to work in FireFox
 		element.click();
+	};
+
+	const uploadProfil = (event: React.ChangeEvent<HTMLInputElement>) => {
+		event.preventDefault();
+		const file = event.target.files?.[0];
+		if (file) {
+			const reader = new FileReader();
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			reader.onload = async (e: any) => {
+				try {
+					const content = JSON.parse(e.target.result);
+					uploadUser(content);
+					toast({
+						status: 'success',
+						title: 'Profil chargé!',
+						duration: 5000,
+						isClosable: true,
+					});
+				} catch (error) {
+					console.error(error);
+					toast({
+						status: 'error',
+						title: 'Fichier non valide.',
+						description: 'Syntaxe non conforme.',
+						duration: 5000,
+						isClosable: true,
+					});
+				}
+			};
+			reader.readAsText(file);
+		}
 	};
 
 	useEffect(() => {
@@ -85,7 +103,7 @@ const IpfsConfig = (): JSX.Element => {
 					<Text variant="link">{auth.offline ? 'Hors Ligne' : 'En Ligne'}</Text>
 					<Switch size="lg" defaultChecked={auth.offline} variant="primary" onChange={toggleOfflineState} />
 				</HStack>
-				<VStack align="start" w="100%" maxW="560px">
+				<VStack align="start" w="100%" maxW={{ lg: '560px' }}>
 					<Text variant="link">Gateway IPFS</Text>
 					<Input
 						variant="primary-1"
@@ -102,7 +120,7 @@ const IpfsConfig = (): JSX.Element => {
 							: 'Gateway non-fonctionnelle'}
 					</Alert>
 				</VStack>
-				<VStack align="start" w="100%" maxW="560px">
+				<VStack align="start" w="100%" maxW={{ lg: '560px' }}>
 					<Text variant="link">Rafraîchir les données</Text>
 					<Button variant="primary-purple" onClick={refresh}>
 						Rafraîchir
@@ -116,10 +134,14 @@ const IpfsConfig = (): JSX.Element => {
 							: 'Rafraîchissement échoué'}
 					</Alert>
 				</VStack>
-				<VStack>
+				<VStack align="start" w="100%" maxW={{ lg: '560px' }} spacing="16px">
 					<Button variant="primary-yellow" onClick={downloadProfil}>
 						Télécharger mon profil
 					</Button>
+					<VStack align="start" spacing="8px" w="100%">
+						<Text variant="link">Téléverser mon profil</Text>
+						<Input h="100%" type="file" variant="file-primary-orange" onChange={uploadProfil} />
+					</VStack>
 				</VStack>
 			</VStack>
 		</>
