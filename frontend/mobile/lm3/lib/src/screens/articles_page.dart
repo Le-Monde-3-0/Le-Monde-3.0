@@ -173,6 +173,68 @@ class _ArticlesPageState extends State<ArticlesPage> {
         ),
       ),
       IconButton(
+        icon: Icon(Icons.edit),
+        color: Colors.white,
+        onPressed: () async {
+          String newTitle = bookmark.title ?? '';
+          String newDescription = bookmark.description ?? '';
+
+          await showDialog<void>(
+            context: context,
+            builder: (BuildContext context) {
+              TextEditingController titleController = TextEditingController(text: newTitle);
+              TextEditingController descriptionController = TextEditingController(text: newDescription);
+
+              return AlertDialog(
+                title: Text('Modifier le bookmark'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: titleController,
+                      onChanged: (value) {
+                        newTitle = value;
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Entrez le nouveau titre du bookmark',
+                      ),
+                    ),
+                    TextField(
+                      controller: descriptionController,
+                      onChanged: (value) {
+                        newDescription = value;
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Entrez la nouvelle description du bookmark',
+                      ),
+                    ),
+                  ],
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Annuler'),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      Bookmark updatedBookmark = await _bookmarkService.updateBookmark(bookmark.id!, newTitle, newDescription);
+                      setState(() {
+                        int index = _bookmarks.indexWhere((bm) => bm.id == bookmark.id);
+                        _bookmarks[index] = updatedBookmark;
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Enregistrer'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
+      IconButton(
         icon: Icon(Icons.delete),
         color: Colors.white,
         onPressed: () async {
