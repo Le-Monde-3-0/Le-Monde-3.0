@@ -89,18 +89,61 @@ class _ArticlesPageState extends State<ArticlesPage> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            // Créer un nouveau bookmark
-            final newBookmark = await _bookmarkService.addBookmark('Nouveau titre', 'Nouvelle description');
-            setState(() {
-              _bookmarks.add(newBookmark);
-            });
+           showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                String title = '';
+                String description = '';
+                return AlertDialog(
+                  title: Text('Ajouter un bookmark'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        onChanged: (value) {
+                          title = value;
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Entrez le titre du bookmark',
+                        ),
+                      ),
+                      TextField(
+                        onChanged: (value) {
+                          description = value;
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Entrez la description du bookmark',
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Annuler'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        final bookmark = await _bookmarkService.addBookmark(title, description);
+                        setState(() {
+                          _bookmarks.add(bookmark);
+                        });
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('Ajouter'),
+                    ),
+                  ],
+                );
+              },
+            );
           },
           child: Icon(Icons.add),
         ),
       ),
     );
   }
-
  
  Widget topicButton(Bookmark bookmark) {
   return Container(
