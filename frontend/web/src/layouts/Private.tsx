@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
 	Box,
@@ -17,7 +18,9 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon, HamburgerIcon } from '@chakra-ui/icons';
 import { FaBookOpen, FaPenNib } from 'react-icons/fa';
 import { MdAccountCircle } from 'react-icons/md';
+
 import { useAuthContext } from 'contexts/auth';
+import { useUIContext } from 'contexts/ui';
 
 type PrivateProps = { children: JSX.Element };
 
@@ -72,9 +75,23 @@ const Option = ({
 );
 
 const NavBar = ({ ...props }: StackProps): JSX.Element => {
-	const { auth, clearAuth } = useAuthContext();
+	const { auth, clearAuth, me } = useAuthContext();
+	const { requestResponseToast } = useUIContext();
 	const location = useLocation();
 	const navigate = useNavigate();
+
+	const uiMe = async () => {
+		try {
+			const res = await me();
+			requestResponseToast(res);
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	useEffect(() => {
+		uiMe();
+	}, []);
 
 	return (
 		<VStack
@@ -114,7 +131,7 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 						onClick={() => navigate(1)}
 					/>
 				</HStack>
-				<Text variant="h4">@username</Text>
+				<Text variant="h4">{auth.username}</Text>
 			</VStack>
 			<VStack align="start" w="100%">
 				<Title icon={FaBookOpen} name="Lire" />
@@ -181,6 +198,7 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 };
 
 const Private = ({ children }: PrivateProps): JSX.Element => {
+	const { auth } = useAuthContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const collapseNavBar = useBreakpointValue({ base: true, xl: false });
 
@@ -198,7 +216,7 @@ const Private = ({ children }: PrivateProps): JSX.Element => {
 					>
 						<Icon fontSize="24px" as={HamburgerIcon} color="white" />
 						<Text ml="4px" variant="link">
-							@username
+							{auth.username}
 						</Text>
 					</Button>
 					<Drawer isOpen={isOpen} placement="left" onClose={onClose}>

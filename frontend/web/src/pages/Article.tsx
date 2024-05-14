@@ -217,7 +217,7 @@ const ArticlePage = (): JSX.Element => {
 					</Text>
 				</VStack>
 				<VStack align="left" spacing="0px" w="100%">
-					<Text variant="h6">Écrit par @user-{article.UserId}</Text>
+					<Text variant="h6">Écrit par {article.AuthorName}</Text>
 					<Text variant="p">{frenchDate(new Date(article.CreatedAt))}</Text>
 				</VStack>
 			</VStack>

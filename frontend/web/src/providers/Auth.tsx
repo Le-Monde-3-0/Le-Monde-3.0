@@ -6,11 +6,17 @@ import handleRequest from 'utils/handleRequest';
 import loadFromLocalStorage from 'utils/loadFromLocalStorage';
 
 const AuthProvider = ({ children }: { children: JSX.Element }) => {
+	const defaultAuth = {
+		accessToken: undefined,
+		offline: false,
+		id: -1,
+		email: '',
+		username: '',
+		isPrivate: true,
+	};
+
 	const [auth, setAuth] = useState<AuthContextType['auth']>(
-		loadFromLocalStorage<AuthContextType['auth']>('auth', {
-			accessToken: undefined,
-			offline: false,
-		}),
+		loadFromLocalStorage<AuthContextType['auth']>('auth', defaultAuth),
 	);
 
 	useEffect(() => {
@@ -29,22 +35,35 @@ const AuthProvider = ({ children }: { children: JSX.Element }) => {
 
 		clearAuth: () => {
 			localStorage.removeItem('auth');
-			setAuth({
-				accessToken: undefined,
-				offline: false,
-			});
+			setAuth(defaultAuth);
 		},
 		setAccessToken: (accessToken: string) => setAuth((a) => ({ ...a, accessToken })),
 		toggleOfflineState: () => setAuth((a) => ({ ...a, offline: !a.offline })),
+		setId: (id: number) => setAuth((a) => ({ ...a, id })),
+		setEmail: (email: string) => setAuth((a) => ({ ...a, email })),
+		setUsername: (username: string) => setAuth((a) => ({ ...a, username })),
+		toggleIsPrivateState: () => setAuth((a) => ({ ...a, isPrivate: !a.isPrivate })),
 
 		login: async ({ identifier, password }: { identifier: string; password: string }) =>
 			handleRequest({
 				request: async () => {
-					const res = await services.auth.login({ identifier, password });
-					authContextValue.setAccessToken(res.data.token);
-					return res;
+					const loginRes = await services.auth.login({ identifier, password });
+					authContextValue.setAccessToken(loginRes.data.token);
+					return loginRes;
 				},
 				name: 'login',
+			}),
+		me: async () =>
+			handleRequest({
+				request: async () => {
+					const meRes = await services.auth.me({ token: auth.accessToken! });
+					authContextValue.setId(meRes.data.Id);
+					authContextValue.setEmail(meRes.data.Email);
+					authContextValue.setUsername(meRes.data.Username);
+					if (auth.isPrivate !== meRes.data.IsPrivate) authContextValue.toggleIsPrivateState();
+					return meRes;
+				},
+				name: 'me',
 			}),
 		register: ({ email, username, password }: { email: string; username: string; password: string }) =>
 			handleRequest({
