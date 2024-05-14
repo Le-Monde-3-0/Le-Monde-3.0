@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react';
 
 import { Article } from 'types/article';
+import { Stats } from 'types/stats';
 import { Bookmark } from 'types/bookmark';
 import { User } from 'types/user';
 import { RequestResponse } from 'utils/handleRequest';
@@ -54,6 +55,9 @@ type UserContextType = {
 	deleteBookmark: (bookmarkId: number) => Promise<RequestResponse<{ delete: string }>>;
 	addArticleToBookmark: (bookmarkId: number, articleId: number) => Promise<RequestResponse<Article>>;
 	removeArticleFromBookmark: (bookmarkId: number, articleId: number) => Promise<RequestResponse<Article>>;
+	updatePassword: (oldPassword: string, newPassword: string) => Promise<RequestResponse<any>>;
+	updateUsername: (newUsername: string) => Promise<RequestResponse<any>>;
+	getUserStats: () => Promise<RequestResponse<Stats>>;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);

@@ -25,7 +25,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Article } from 'types/article';
 import frenchDate from 'utils/frenchDate';
-import { generateDailyStats } from 'utils/generateDailyStats';
+// import { generateDailyStats } from 'utils/generateDailyStats';
 
 import Editor from '../components/Editor/Editor';
 
@@ -55,13 +55,14 @@ const ArticlePage = (): JSX.Element => {
 	const uiGetArticle = async () => {
 		try {
 			const res = await getArticle(+articleId!);
+
 			requestResponseToast(res);
 			if (res.code === 404) {
 				navigate('/favoris');
 			} else if (res.data !== undefined && res.status === 'success') {
-				res.data.TotalViews = Math.floor(Math.random() * 1000);
-				res.data.DailyViews = generateDailyStats(res.data.TotalViews);
-				res.data.DailyLikes = generateDailyStats(Math.floor(Math.random() * 1000));
+				// res.data.TotalViews = Math.floor(Math.random() * 1000);
+				// res.data.DailyViews = generateDailyStats(res.data.TotalViews);
+				// res.data.DailyLikes = generateDailyStats(Math.floor(Math.random() * 1000));
 				setArticle(res.data);
 			}
 		} catch (error: unknown) {

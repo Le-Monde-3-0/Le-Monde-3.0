@@ -30,7 +30,7 @@ const Publications = (): JSX.Element => {
 	const [search, setSearch] = useState('');
 	const { auth } = useAuthContext();
 	const { requestResponseToast } = useUIContext();
-	const { user, switchArticleDraftState, deleteArticle, getArticles } = useUserContext();
+	const { user, switchArticleDraftState, deleteArticle, getArticles, getUserStats } = useUserContext();
 	const [editor, setEditor] = useState<boolean>(false);
 	const [article, setArticle] = useState({ title: '', topic: '', content: '' });
 	const [isViewChartDisplayed, setViewChartDisplay] = useState(false);
@@ -38,7 +38,7 @@ const Publications = (): JSX.Element => {
 
 	let totalViews = 0;
 	for (let i = 0; i < user.publishedArticles.length; i++) {
-		console.log(user.publishedArticles[i].TotalViews);
+		console.log(user.publishedArticles[i]);
 		totalViews += user.publishedArticles[i].TotalViews;
 	}
 
@@ -50,9 +50,19 @@ const Publications = (): JSX.Element => {
 		setLikeChartDisplay(!isLikeChartDisplayed);
 	};
 
+	const uiGetUserStats = async () => {
+		try {
+			const res = await getUserStats();
+			console.log(res);
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
 	const uiGetArticles = async () => {
 		try {
 			const res = await getArticles();
+
 			requestResponseToast(res);
 		} catch (error) {
 			console.error(error);
@@ -79,6 +89,7 @@ const Publications = (): JSX.Element => {
 
 	useEffect(() => {
 		uiGetArticles();
+		uiGetUserStats();
 	}, [auth]);
 
 	if (!user.publishedArticles) {
@@ -124,10 +135,10 @@ const Publications = (): JSX.Element => {
 					w="100%"
 				>
 					<Collapse in={isLikeChartDisplayed} animateOpacity>
-						<Chart yLabel="Likes" data={user.overallDailyTotalLikes} />
+						<Chart yLabel="Likes" data={user.stats.likes.daily} />
 					</Collapse>
 					<Collapse in={isViewChartDisplayed} animateOpacity>
-						<Chart yLabel="Vues" data={user.overallDailyTotalViews} />
+						<Chart yLabel="Vues" data={user.stats.views.daily} />
 					</Collapse>
 				</Grid>
 				<Grid

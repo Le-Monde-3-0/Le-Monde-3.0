@@ -1,9 +1,10 @@
 import axios from 'axios';
-
 import context from 'context';
-import authService from './auth';
+
 import articlesService from './articles';
+import authService from './auth';
 import bookmarksService from './bookmarks';
+import userService from './user';
 
 const servicesURL = axios.create({
 	baseURL: context.config.env.BACKEND_URL,
@@ -12,6 +13,7 @@ const servicesURL = axios.create({
 
 const services = {
 	auth: authService,
+	user: userService,
 	articles: articlesService,
 	bookmarks: bookmarksService,
 };

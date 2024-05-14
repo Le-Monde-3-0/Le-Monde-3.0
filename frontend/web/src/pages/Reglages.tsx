@@ -1,11 +1,15 @@
-import { Button, VStack, Text, Switch, FormControl, FormLabel } from '@chakra-ui/react';
+import { Button, FormControl, FormLabel, Switch, Text, VStack } from '@chakra-ui/react';
 import FormInput from 'components/Inputs/FormInput';
+import { useUserContext } from 'contexts/user';
 import * as React from 'react';
 import { useState } from 'react';
 
 const Reglages = (): JSX.Element => {
+	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const [newPassword, setNewPassword] = useState('');
+
+	const { updatePassword, updateUsername } = useUserContext();
 
 	return (
 		<>
@@ -20,16 +24,27 @@ const Reglages = (): JSX.Element => {
 				</FormControl>
 				<Text variant={'h5'}>Nom d'utilisateur</Text>
 				<FormInput
-					value={password}
+					value={username}
 					inputId="password-input"
 					w={{ base: '100%', xl: '640px' }}
 					placeholder="Nouveau nom d'utilisateur"
-					onChange={(e) => setPassword(e.target.value)}
+					onChange={(e) => setUsername(e.target.value)}
 					variant="primary-1"
 					isError={false}
 					errorMessage=""
 				/>
-				<Button>Modifier</Button>
+				<Button
+					onClick={async () => {
+						try {
+							const res = await updateUsername(username);
+							console.log(res);
+						} catch (error) {
+							console.error(error);
+						}
+					}}
+				>
+					Modifier
+				</Button>
 				<Text variant={'h5'}></Text>
 				<Text variant={'h5'}>Mot de passe</Text>
 				<FormInput
@@ -52,7 +67,18 @@ const Reglages = (): JSX.Element => {
 					isError={false}
 					errorMessage=""
 				/>
-				<Button>Modifier</Button>
+				<Button
+					onClick={async () => {
+						try {
+							const res = await updatePassword(password, newPassword);
+							console.log(res);
+						} catch (error) {
+							console.error(error);
+						}
+					}}
+				>
+					Modifier
+				</Button>
 			</VStack>
 		</>
 	);

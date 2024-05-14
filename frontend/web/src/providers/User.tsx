@@ -21,8 +21,18 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			publishedArticles: [],
 			likedArticles: [],
 			bookmarks: [],
-			overallDailyTotalLikes: [],
-			overallDailyTotalViews: [],
+			stats: {
+				likes: {
+					total: 0,
+					daily: [],
+				},
+				views: {
+					total: 0,
+					daily: [],
+				},
+			},
+			// overallDailyTotalLikes: [],
+			// overallDailyTotalViews: [],
 		}),
 	);
 
@@ -175,8 +185,18 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 				publishedArticles: [],
 				likedArticles: [],
 				bookmarks: [],
-				overallDailyTotalLikes: [],
-				overallDailyTotalViews: [],
+				stats: {
+					likes: {
+						total: 0,
+						daily: [],
+					},
+					views: {
+						total: 0,
+						daily: [],
+					},
+				},
+				// overallDailyTotalLikes: [],
+				// overallDailyTotalViews: [],
 			});
 		},
 
@@ -189,21 +209,21 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 			return handleRequest({
 				request: async () => {
 					const res = await services.articles.me({ token: auth.accessToken! });
-					for (let i = 0; i < res.data.length; i++) {
-						res.data[i].TotalViews = Math.floor(Math.random() * 1000);
-					}
+					// for (let i = 0; i < res.data.length; i++) {
+					// 	res.data[i].TotalViews = Math.floor(Math.random() * 1000);
+					// }
 
-					let overallTotalViews = 0;
-					for (let i = 0; i < res.data.length; i++) {
-						overallTotalViews += res.data[i].TotalViews;
-					}
-					const overallDailyTotalView = generateDailyStats(overallTotalViews);
+					// let overallTotalViews = 0;
+					// for (let i = 0; i < res.data.length; i++) {
+					// 	overallTotalViews += res.data[i].TotalViews;
+					// }
+					// const overallDailyTotalView = generateDailyStats(overallTotalViews);
 
-					let overallTotalLikes = 0;
-					for (let i = 0; i < res.data.length; i++) {
-						overallTotalLikes += res.data[i].Likes.length;
-					}
-					const overallDailyTotalLike = generateDailyStats(overallTotalLikes);
+					// let overallTotalLikes = 0;
+					// for (let i = 0; i < res.data.length; i++) {
+					// 	overallTotalLikes += res.data[i].Likes.length;
+					// }
+					// const overallDailyTotalLike = generateDailyStats(overallTotalLikes);
 
 					setArticlesData(res.data);
 					return res;
@@ -231,7 +251,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 					? undefined
 					: async () => {
 							const res = await services.articles.read({ token: auth.accessToken!, articleId });
-							res.data.TotalViews = Math.floor(Math.random() * 1000);
+							// res.data.TotalViews = Math.floor(Math.random() * 1000);
 							return res;
 					  },
 				action: auth.offline
@@ -543,6 +563,35 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 					  }
 					: undefined,
 				name: 'removeArticleFromBookmark',
+			}),
+
+		updatePassword: async (currentPassword: string, newPassword: string) =>
+			handleRequest({
+				request: async () => {
+					const res = await services.user.updatePassword({ token: auth.accessToken!, currentPassword, newPassword });
+					return res;
+				},
+				name: 'updatePassword',
+			}),
+
+		updateUsername: async (newUsername: string) =>
+			handleRequest({
+				request: async () => {
+					const res = await services.user.updateUsername({ token: auth.accessToken!, newUsername });
+					return res;
+				},
+				name: 'updateUsername',
+			}),
+
+		getUserStats: async () =>
+			handleRequest({
+				request: async () => {
+					const res = await services.user.getStats({ token: auth.accessToken! });
+					console.log(res.data);
+					setUser((u) => ({ ...u, stats: res.data }));
+					return res;
+				},
+				name: 'getUserStats',
 			}),
 	};
 
