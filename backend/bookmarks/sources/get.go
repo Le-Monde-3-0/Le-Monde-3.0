@@ -31,17 +31,18 @@ type CallBody struct {
 }
 
 func GetArticlesForBookmark(c *gin.Context, Ids pq.Int32Array) ([]adtos.ArticleResponse, error) {
+	
 	if len(Ids) == 0 {
-		return nil, nil
+		return []adtos.ArticleResponse{}, nil
 	}
-
+	
 	var articles []adtos.ArticleResponse
 	body := new(CallBody)
 	body.Ids = Ids
 
 	responseBody, _, err := utils.MakeHTTPRequest(c, http.MethodPost, "http://articles-lemonde3-0:8082/articles/multiples", body)
 	if err != nil {
-		return nil, err
+		return []adtos.ArticleResponse{}, err
 	}
 
 	json.Unmarshal(responseBody, &articles)

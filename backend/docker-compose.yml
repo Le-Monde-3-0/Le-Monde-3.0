@@ -45,9 +45,9 @@ services:
       - $ipfs_staging:/export
       - $ipfs_data:/data/ipfs
     restart: always
-  # ipfsservice:
-  #   container_name : ipfsservice-lemonde3-0
-  #   build:
-  #     context: ipfsservice
-  #   ports:
-  #     - 8085:8085
+  ipfsservice:
+    container_name : ipfsservice-lemonde3-0
+    build:
+      context: ipfsservice
+    ports:
+      - 8085:8085

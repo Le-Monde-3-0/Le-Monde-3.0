@@ -9,7 +9,7 @@ import (
 //* This function is used to add the article file on IPFS
 //* we use our docker image running on port 5001
 func AddFileToIPFS() string{
-	sh := shell.NewShell("localhost:5001")
+	sh := shell.NewShell("ipfs_host:5001")
 
 	file, err := os.Open("articles.json")
 	if err != nil {

@@ -69,40 +69,78 @@ func IFPSPart(newCID string) {
 	// api.CheckPinStatus()
 }
 
+func DeleteNonCreatedArticles(modifiedArticles []api.IPFSArticle) []api.IPFSArticle {
+	var newArticles []api.IPFSArticle
+
+	for _,article := range modifiedArticles  {
+		if article.CreationDate != article.ModificationDate {
+			newArticles = append(newArticles, article)
+		}
+	}
+	return newArticles
+}
+
+func DeleteDoubledArticle(articles []api.IPFSArticle, tocheck []api.IPFSArticle) []api.IPFSArticle {
+	var newArticles []api.IPFSArticle
+	for _, article := range articles {
+		if !articleExistsIn(article, tocheck) {
+			newArticles = append(newArticles, article)
+		}
+	}
+	return newArticles
+}
+
+func articleExistsIn(article api.IPFSArticle, articles []api.IPFSArticle) bool {
+	for _, a := range articles {
+		if a.Id == article.Id {
+			return true
+		}
+	}
+	return false
+}
+
 //* main function of this service, check the elapsed time, the status of the file
 //* and what function to call from the DB
 func IPFSTrigger() {
-	startTime := time.Date(2024, time.February, 23, 10, 0, 0, 0, time.UTC)
+	ticker := time.NewTicker(2 * time.Hour)
+	defer ticker.Stop()
 
-	var newTime = startTime
-	// while (true) {
-		newTime, check := TwoHourTime(newTime)
-
-		if check == true {
+	for {
+		select {
+		case <-ticker.C:
 			var articles []api.IPFSArticle
 			var modifiedArticles []api.IPFSArticle
-
+			var previousArticles []api.IPFSArticle
 
 			if IsFileEmpty() == true {
 				articles = api.GetAllArticles()
 				fmt.Println("Get all articles")
-
 			} else {
 				articles = api.GetArticleInfo()
 				modifiedArticles = api.GetModifiedArticles()
+				previousArticles = myjson.GetPreviousArticles()
+
+				modifiedArticles = DeleteNonCreatedArticles(modifiedArticles)
+				articles = DeleteDoubledArticle(articles, previousArticles)
 				fmt.Println("Get latest articles")
+				fmt.Println("Modified: ")
+				fmt.Println(modifiedArticles)
+				fmt.Println("Created: ")
+				fmt.Println(articles)
 			}
-			fmt.Println(articles)
-			allArticles := append(articles, modifiedArticles...)
+			var allArticles[]api.IPFSArticle
+
+			allArticles = append(previousArticles, articles...)
+			allArticles = append(allArticles, modifiedArticles...)
 			fmt.Println("All Articles:", allArticles)
-			
+
 			if len(allArticles) != 0 {
 				myjson.WriteInFile(allArticles)
-				newCID := api.AddFileToIPFS()
-				if newCID != "" {
-					IFPSPart(newCID)
-				}
+				api.AddFileToIPFS()
+				// if newCID != "" {
+				// 	IFPSPart(newCID)
+				// }
 			}
 		}
-	// }	
+	}
 }
