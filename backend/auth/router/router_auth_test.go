@@ -154,7 +154,6 @@ func TestChangeUserUsername(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, 200, w.Code)
-	// assert.Equal(t, "{\"error\":\"Email or Password is incorrect.\"}",  w.Body.String())
 	assert.Equal(t, "{\"ok\":\"User name changed\"}", w.Body.String())
 }
 
@@ -245,7 +244,7 @@ func TestGetUserInfoByUsername(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 
 	var responseUser TestUser
-	err = json.Unmarshal([]byte(w.Body.String()), &responseUser)
+	err = json.Unmarshal(w.Body.Bytes(), &responseUser)
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
@@ -288,7 +287,7 @@ func TestGetMyInfo(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 
 	var responseUser TestUser
-	err = json.Unmarshal([]byte(w.Body.String()), &responseUser)
+	err = json.Unmarshal(w.Body.Bytes(), &responseUser)
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
@@ -317,7 +316,7 @@ func TestGetUser(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 
 	var responseUser TestUser
-	err = json.Unmarshal([]byte(w.Body.String()), &responseUser)
+	err = json.Unmarshal(w.Body.Bytes(), &responseUser)
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
@@ -356,7 +355,7 @@ func TestChangeUserVisibility(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 
 	var responseUser TestUser
-	err = json.Unmarshal([]byte(w.Body.String()), &responseUser)
+	err = json.Unmarshal(w.Body.Bytes(), &responseUser)
 	if err != nil {
 		log.Fatalf("error unmarshaling response: %s", err)
 	}
