@@ -1,14 +1,17 @@
 package auth
 
 import (
+	"html"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+
 	utils "github.com/Le-Monde-3-0/utils/sources"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"net/http"
-	"os"
-	"time"
 )
 
 type LoginInput struct {
@@ -35,6 +38,26 @@ func Login(c *gin.Context, db *gorm.DB) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"token": token})
+}
+
+type RegisterInput struct {
+	Email    string `json:"email" binding:"required"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+/*
+Register is the function which allow a new user to register
+*/
+func Register(c *gin.Context, db *gorm.DB) {
+
+	var input RegisterInput
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Arguments"})
+		return
+	}
+	AddUser(input.Email, input.Username, input.Password, c, db)
 }
 
 /*
@@ -91,4 +114,41 @@ VerifyPassword checks that the given password corresponds to the one in database
 */
 func VerifyPassword(password, hashedPassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+}
+
+/*
+AddUser adds a new User object in the database
+*/
+func AddUser(email string, username string, password string, c *gin.Context, db *gorm.DB) {
+	existingUser := new(User)
+	if err := db.Where("username = ?", username).First(existingUser).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "An account with this username already exists"})
+		return
+	}
+	if err := db.Where("email = ?", email).First(existingUser).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "An account with this email already exists"})
+		return
+	}
+
+	user := new(User)
+	user.Email = html.EscapeString(strings.TrimSpace(email))
+	user.Username = html.EscapeString(strings.TrimSpace(username))
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user.Password = string(hashedPassword)
+	user.Public = false
+
+	result := db.Create(&user)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error})
+		return
+	} else {
+		c.JSON(http.StatusCreated, gin.H{"created": "User created successfully"})
+		return
+	}
 }

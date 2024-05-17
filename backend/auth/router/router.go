@@ -2,6 +2,7 @@ package auth
 
 import (
 	src "auth/sources"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -30,7 +31,7 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.Register(c, db)
 	})
 
-	r.GET("/users/me", func(c *gin.Context) {
+	r.GET("/user", func(c *gin.Context) {
 		src.GetMyInfo(c, db)
 	})
 
@@ -38,28 +39,25 @@ func Router(db *gorm.DB) *gin.Engine {
 		src.GetUser(c, db)
 	})
 
-	r.POST("/users/me/visibility", func(c *gin.Context) {
-		src.ChangeUserVisibility(c, db)
+	r.PATCH("/user/password", func(c *gin.Context) {
+		src.ChangeUserPassword(c, db)
 	})
 
-	r.PUT("/mail", func(c *gin.Context) {
-		src.ChangeUserMail(c, db)
-	})
-
-	r.PUT("/username", func(c *gin.Context) {
+	r.PATCH("/user/username", func(c *gin.Context) {
 		src.ChangeUsername(c, db)
 	})
 
-	r.PUT("/password", func(c *gin.Context) {
-		src.ChangeUserPassword(c, db)
+	r.PATCH("/user/mail", func(c *gin.Context) {
+		src.ChangeUserMail(c, db)
+	})
+
+	r.PATCH("/user/status", func(c *gin.Context) {
+		src.ChangeUserVisibility(c, db)
 	})
 
 	r.GET("/users/username/:username", func(c *gin.Context) {
 		src.GetUserInfoByUsername(c, db)
 	})
 
-	// r.GET("/getUser/:id", func(c *gin.Context) {
-	// 	src.GetUserFromId(c, db)
-	// })
 	return r
 }

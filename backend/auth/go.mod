@@ -3,14 +3,15 @@ module auth
 go 1.18
 
 require (
-	github.com/Le-Monde-3-0/utils v0.1.6
+	github.com/Le-Monde-3-0/articles_dtos v0.1.3
+	github.com/Le-Monde-3-0/utils v0.1.9
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/assert/v2 v2.2.0
 	golang.org/x/crypto v0.14.0
 	gorm.io/driver/sqlite v1.5.2
-	gorm.io/gorm v1.25.2-0.20230530020048-26663ab9bf55
+	gorm.io/gorm v1.25.10
 )
 
 require (
@@ -29,6 +30,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
+	github.com/lib/pq v1.10.9
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
