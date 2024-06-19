@@ -2,14 +2,14 @@ import * as React from 'react';
 import { Button, Link, Text } from '@chakra-ui/react';
 import { Link as RouteLink, useNavigate } from 'react-router-dom';
 
-import { useAuthContext } from 'contexts/auth';
+import { useUserContext } from 'contexts/user';
 
 const Home = (): JSX.Element => {
-	const { toggleOfflineState } = useAuthContext();
 	const navigate = useNavigate();
+	const { toggleIsOfflineState } = useUserContext();
 
 	const enterOfflineMode = async () => {
-		toggleOfflineState();
+		toggleIsOfflineState();
 		navigate('/ipfs-config');
 	};
 

@@ -1,37 +1,13 @@
 import { createContext, useContext } from 'react';
-import { LoginType, EmptyType, MeType } from 'types/services';
+import { SignType, EmptyType } from 'types/services';
 
 import { RequestResponse } from 'utils/handleRequest';
 
 type AuthContextType = {
 	//
-	// Data stored
-	//
-	auth: {
-		accessToken: string | undefined;
-		offline: boolean;
-		id: number;
-		email: string;
-		username: string;
-		isPrivate: boolean;
-	};
-
-	//
-	// Methods to manipulate data stored
-	//
-	clearAuth: () => void;
-	setAccessToken: (accessToken: string) => void;
-	toggleOfflineState: () => void;
-	setId: (id: number) => void;
-	setEmail: (email: string) => void;
-	setUsername: (username: string) => void;
-	toggleIsPrivateState: () => void;
-
-	//
 	// Methods to interact with the services
 	//
-	login: ({ identifier, password }: { identifier: string; password: string }) => Promise<RequestResponse<LoginType>>;
-	register: ({
+	signUp: ({
 		email,
 		username,
 		password,
@@ -39,8 +15,19 @@ type AuthContextType = {
 		email: string;
 		username: string;
 		password: string;
-	}) => Promise<RequestResponse<EmptyType>>;
-	me: () => Promise<RequestResponse<MeType>>;
+	}) => Promise<RequestResponse<SignType>>;
+	signIn: ({ identifier, password }: { identifier: string; password: string }) => Promise<RequestResponse<SignType>>;
+	signOut: () => Promise<RequestResponse<EmptyType>>;
+	signAgain: () => Promise<RequestResponse<EmptyType>>;
+	updatePassword: ({
+		oldPassword,
+		newPassword,
+	}: {
+		oldPassword: string;
+		newPassword: string;
+	}) => Promise<RequestResponse<SignType>>;
+	updateEmail: ({ newEmail }: { newEmail: string }) => Promise<RequestResponse<SignType>>;
+	updateUsername: ({ newUsername }: { newUsername: string }) => Promise<RequestResponse<SignType>>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

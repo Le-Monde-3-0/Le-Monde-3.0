@@ -25,19 +25,18 @@ import { useEffect, useState } from 'react';
 
 const Brouillons = (): JSX.Element => {
 	const [search, setSearch] = useState('');
-	const [editor, setEditor] = useState<boolean>(false);
-	const [draft, setDraft] = useState({
-		title: '',
-		topic: '',
-		content: '',
-	});
-	const { auth } = useAuthContext();
+	// const [editor, setEditor] = useState<boolean>(false);
+	// const [draft, setDraft] = useState({
+	// 	title: '',
+	// 	topic: '',
+	// 	content: '',
+	// });
 	const { requestResponseToast } = useUIContext();
-	const { user, deleteArticle, getArticles, switchArticleDraftState } = useUserContext();
+	const { user, deleteArticle, loadWrittenArticles, updateArticle } = useUserContext();
 
-	const uiGetArticles = async () => {
+	const uiLoadWrittenArticles = async () => {
 		try {
-			const res = await getArticles();
+			const res = await loadWrittenArticles();
 			requestResponseToast(res);
 		} catch (error) {
 			console.error(error);
@@ -53,9 +52,9 @@ const Brouillons = (): JSX.Element => {
 		}
 	};
 
-	const uiSwitchArticleDraftState = async (articleId: number) => {
+	const uiUpdateArticle = async (articleId: number) => {
 		try {
-			const res = await switchArticleDraftState(articleId);
+			const res = await updateArticle({ id: articleId, newDraft: false });
 			requestResponseToast(res, true);
 		} catch (error) {
 			console.error(error);
@@ -63,10 +62,10 @@ const Brouillons = (): JSX.Element => {
 	};
 
 	useEffect(() => {
-		uiGetArticles();
-	}, [auth]);
+		uiLoadWrittenArticles();
+	}, []);
 
-	if (!user.draftArticles) {
+	if (!user.articles.written) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
@@ -89,18 +88,25 @@ const Brouillons = (): JSX.Element => {
 				/>
 				<HStack>
 					<Tag bg="primary.yellow">
-						{user.draftArticles.filter((p) => (search !== '' ? p.Title.includes(search) : true)).length} brouillon
-						{user.draftArticles.length !== 1 && 's'}
+						{
+							user.articles.written
+								.filter((a) => a.draft)
+								.filter((p) => (search !== '' ? p.title.includes(search) : true)).length
+						}{' '}
+						brouillon
+						{user.articles.written.filter((a) => a.draft).length !== 1 && 's'}
 					</Tag>
 					<Tag bg="primary.blue">
-						{user.draftArticles
-							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
-							.map((p) => p.Likes.length)
+						{user.articles.written
+							.filter((a) => a.draft)
+							.filter((p) => (search !== '' ? p.title.includes(search) : true))
+							.map((p) => p.totalLikes)
 							.reduce((a, v) => a + v, 0)}{' '}
 						like
-						{user.draftArticles
-							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
-							.map((p) => p.Likes.length)
+						{user.articles.written
+							.filter((a) => a.draft)
+							.filter((p) => (search !== '' ? p.title.includes(search) : true))
+							.map((p) => p.totalLikes)
 							.reduce((a, v) => a + v, 0) !== 1 && 's'}
 					</Tag>
 				</HStack>
@@ -109,52 +115,55 @@ const Brouillons = (): JSX.Element => {
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
 				>
-					{user.draftArticles
-						.filter((p) => (search !== '' ? p.Title.includes(search) : true))
+					{user.articles.written
+						.filter((a) => a.draft)
+						.filter((p) => (search !== '' ? p.title.includes(search) : true))
 						.map((brouillon, index) => (
 							<GridItem key={`${index.toString()}`}>
 								<ArticleCard
-									id={brouillon.Id}
-									title={brouillon.Title}
-									author={brouillon.AuthorName}
+									id={brouillon.id}
+									title={brouillon.title}
+									// TODO: author name
+									author="Author"
 									date={new Date().toLocaleDateString('fr-FR')}
-									topic={brouillon.Topic}
-									content={brouillon.Content}
+									// TODO: topic
+									topic="Topic"
+									content={brouillon.content}
 									actions={[
-										<Tooltip label="Éditer l'article">
-											<span>
-												<EditIcon
-													onClick={() => {
-														setEditor(true);
-														setDraft({
-															title: brouillon.Title,
-															topic: brouillon.Topic,
-															content: brouillon.Content,
-														});
-													}}
-													color="black"
-												/>
-											</span>
-										</Tooltip>,
+										// <Tooltip label="Éditer l'article">
+										// 	<span>
+										// 		<EditIcon
+										// 			onClick={() => {
+										// 				setEditor(true);
+										// 				setDraft({
+										// 					title: brouillon.Title,
+										// 					topic: brouillon.Topic,
+										// 					content: brouillon.Content,
+										// 				});
+										// 			}}
+										// 			color="black"
+										// 		/>
+										// 	</span>
+										// </Tooltip>,
 										<Tooltip label="Publier l'article">
 											<span>
-												<ExternalLinkIcon onClick={() => uiSwitchArticleDraftState(brouillon.Id)} color="black" />
+												<ExternalLinkIcon onClick={() => uiUpdateArticle(brouillon.id)} color="black" />
 											</span>
 										</Tooltip>,
 										<Tooltip label="Supprimer définitivement">
 											<span>
-												<DeleteIcon onClick={() => uiDeleteArticle(brouillon.Id)} color="black" />
+												<DeleteIcon onClick={() => uiDeleteArticle(brouillon.id)} color="black" />
 											</span>
 										</Tooltip>,
 									]}
 									view="publisher"
-									views={brouillon.TotalViews}
-									likes={+brouillon.Likes.length}
+									views={brouillon.totalViews}
+									likes={+brouillon.totalLikes}
 								/>
 							</GridItem>
 						))}
 				</Grid>
-				<Modal isOpen={editor} size="full" onClose={() => setEditor(false)}>
+				{/* <Modal isOpen={editor} size="full" onClose={() => setEditor(false)}>
 					<ModalOverlay />
 					<ModalContent bg="black">
 						<ModalHeader color="gray.100">Brouillon</ModalHeader>
@@ -167,7 +176,7 @@ const Brouillons = (): JSX.Element => {
 							/>
 						</ModalBody>
 					</ModalContent>
-				</Modal>
+				</Modal> */}
 			</VStack>
 		</>
 	);

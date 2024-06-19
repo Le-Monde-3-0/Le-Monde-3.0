@@ -16,8 +16,8 @@ import {
 	useDisclosure,
 	VStack,
 } from '@chakra-ui/react';
-import { Chart } from 'components/Chart/Chart';
-import { useAuthContext } from 'contexts/auth';
+// import { Chart } from 'components/Chart/Chart';
+// import { useAuthContext } from 'contexts/auth';
 import { useUIContext } from 'contexts/ui';
 import { useUserContext } from 'contexts/user';
 import * as React from 'react';
@@ -25,53 +25,50 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Article } from 'types/article';
 import frenchDate from 'utils/frenchDate';
-import { generateDailyStats } from 'utils/generateDailyStats';
 
-import Editor from '../components/Editor/Editor';
+// import Editor from '../components/Editor/Editor';
 
 const ArticlePage = (): JSX.Element => {
 	const navigate = useNavigate();
 	const { articleId } = useParams();
-	const { auth } = useAuthContext();
 	const { requestResponseToast } = useUIContext();
-	const { user, addArticleToBookmark, getArticle, getBookmarks, getLikedArticles, likeArticle, unlikeArticle } =
-		useUserContext();
+	const { user, likeArticle, loadLikedArticles, loadAnthologies, searchArticle, updateAnthology } = useUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
-	const [editor, setEditor] = useState(false);
+	// const [editor, setEditor] = useState(false);
 	const [article, setArticle] = useState<Article | undefined>(undefined);
 	const [isLiked, setIsLiked] = useState(false);
-	const [isViewChartDisplayed, setViewChartDisplay] = useState(false);
-	const [isLikeChartDisplayed, setLikeChartDisplay] = useState(false);
+	// const [isViewChartDisplayed, setViewChartDisplay] = useState(false);
+	// const [isLikeChartDisplayed, setLikeChartDisplay] = useState(false);
 
-	const toggleViewChartDisplay = () => {
-		setViewChartDisplay(!isViewChartDisplayed);
-		console.log(article?.DailyViews);
-	};
+	// const toggleViewChartDisplay = () => {
+	// 	setViewChartDisplay(!isViewChartDisplayed);
+	// 	console.log(article?.DailyViews);
+	// };
 
-	const toggleLikeChartDisplay = () => {
-		setLikeChartDisplay(!isLikeChartDisplayed);
-	};
+	// const toggleLikeChartDisplay = () => {
+	// 	setLikeChartDisplay(!isLikeChartDisplayed);
+	// };
 
-	const uiGetArticle = async () => {
+	const uiSearchArticle = async () => {
 		try {
-			const res = await getArticle(+articleId!);
+			const res = await searchArticle(+articleId!);
 			requestResponseToast(res);
 			if (res.code === 404) {
 				navigate('/favoris');
 			} else if (res.data !== undefined && res.status === 'success') {
-				res.data.TotalViews = Math.floor(Math.random() * 1000);
-				res.data.DailyViews = generateDailyStats(res.data.TotalViews);
-				res.data.DailyLikes = generateDailyStats(Math.floor(Math.random() * 1000));
+				// res.data.TotalViews = Math.floor(Math.random() * 1000);
+				// res.data.DailyViews = generateDailyStats(res.data.TotalViews);
+				// res.data.DailyLikes = generateDailyStats(Math.floor(Math.random() * 1000));
 				setArticle(res.data);
 			}
-		} catch (error: unknown) {
+		} catch (error) {
 			console.error(error);
 		}
 	};
 
-	const uiGetLikedArticles = async () => {
+	const uiLoadLikedArticles = async () => {
 		try {
-			const res = await getLikedArticles();
+			const res = await loadLikedArticles();
 			requestResponseToast(res);
 		} catch (error) {
 			console.error(error);
@@ -80,40 +77,28 @@ const ArticlePage = (): JSX.Element => {
 
 	const uiLikeArticle = async () => {
 		try {
-			const res = await likeArticle(+articleId!);
+			const res = await likeArticle({ id: +articleId!, isLiked: !isLiked });
 			requestResponseToast(res);
 			if (res.status === 'success') {
-				setIsLiked(true);
+				setIsLiked(!isLiked);
 			}
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
-	const uiUnlikeArticle = async () => {
+	const uiLoadAnthologies = async () => {
 		try {
-			const res = await unlikeArticle(+articleId!);
-			requestResponseToast(res);
-			if (res.status === 'success') {
-				setIsLiked(false);
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
-	const uiGetBookmarks = async () => {
-		try {
-			const res = await getBookmarks();
+			const res = await loadAnthologies();
 			requestResponseToast(res);
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
-	const uiAddArticleToBookmark = async (bookmarkId: number) => {
+	const uiUpdateAnthology = async (anthologyId: number) => {
 		try {
-			const res = await addArticleToBookmark(bookmarkId, +articleId!);
+			const res = await updateAnthology({ id: anthologyId, addArticles: [+articleId!] });
 			requestResponseToast(res);
 			if (res.status === 'success') {
 				onClose();
@@ -124,18 +109,18 @@ const ArticlePage = (): JSX.Element => {
 	};
 
 	useEffect(() => {
-		uiGetArticle();
-		uiGetLikedArticles();
-		uiGetBookmarks();
-	}, [auth]);
+		uiSearchArticle();
+		uiLoadLikedArticles();
+		uiLoadAnthologies();
+	}, []);
 
 	useEffect(() => {
-		if (user.likedArticles.find((a) => a.Id === +articleId!)) {
+		if (user.articles.liked.find((a) => a.id === +articleId!)) {
 			setIsLiked(true);
 		}
 	}, [user]);
 
-	if (!article || !user.bookmarks) {
+	if (!article || !user.anthologies) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
@@ -156,14 +141,14 @@ const ArticlePage = (): JSX.Element => {
 							fontSize={{ base: 'small', lg: 'md' }}
 							cursor="pointer"
 							borderRadius="xsm"
-							onClick={() => (isLiked ? uiUnlikeArticle() : uiLikeArticle())}
+							onClick={() => uiLikeArticle}
 						>
 							{isLiked ? <CheckIcon /> : <CloseIcon />} Favoris
 						</Badge>
 						<Badge fontSize={{ base: 'small', lg: 'md' }} cursor="pointer" borderRadius="xsm" onClick={onOpen}>
 							<AddIcon /> Marque-page
 						</Badge>
-						<Badge
+						{/* <Badge
 							fontSize={{ base: 'small', lg: 'md' }}
 							cursor="pointer"
 							borderRadius="xsm"
@@ -172,34 +157,35 @@ const ArticlePage = (): JSX.Element => {
 							}}
 						>
 							<EditIcon /> Modifier
-						</Badge>
+						</Badge> */}
 					</HStack>
 					<VStack align="left" spacing="0px" w="100%">
-						<Text variant="h3">{article.Title}</Text>
+						<Text variant="h3">{article.title}</Text>
 						<HStack>
+							// TODO: topic
 							<Badge colorScheme="red" fontSize={{ base: 'small', lg: 'md' }} borderRadius="xsm">
-								{article.Topic}
+								Topic
 							</Badge>
 							<Badge
 								colorScheme="green"
 								fontSize={{ base: 'small', lg: 'md' }}
 								borderRadius="xsm"
-								onClick={toggleLikeChartDisplay}
+								// onClick={toggleLikeChartDisplay}
 								cursor={'pointer'}
 							>
-								{article.Likes.length} like{article.Likes.length !== 1 && 's'}
+								{article.totalLikes} like{article.totalLikes !== 1 && 's'}
 							</Badge>
 							<Badge
 								colorScheme="blue"
 								fontSize={{ base: 'small', lg: 'md' }}
 								borderRadius="xsm"
 								cursor="pointer"
-								onClick={toggleViewChartDisplay}
+								// onClick={toggleViewChartDisplay}
 							>
-								{article.TotalViews} view{article.TotalViews !== 1 && 's'}
+								{article.totalViews} view{article.totalViews !== 1 && 's'}
 							</Badge>
 						</HStack>
-						<Grid
+						{/* <Grid
 							templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
 							gap={{ base: 2, lg: 4 }}
 							w="100%"
@@ -210,31 +196,33 @@ const ArticlePage = (): JSX.Element => {
 							<Collapse in={isViewChartDisplayed} animateOpacity>
 								<Chart yLabel="Vues" data={article.DailyViews} />
 							</Collapse>
-						</Grid>
+						</Grid> */}
 					</VStack>
 					<Text variant="p" whiteSpace="pre-line">
-						{article.Content}
+						{article.content}
 					</Text>
 				</VStack>
 				<VStack align="left" spacing="0px" w="100%">
-					<Text variant="h6">Écrit par {article.AuthorName}</Text>
-					<Text variant="p">{frenchDate(new Date(article.CreatedAt))}</Text>
+					// TODO: name author
+					<Text variant="h6">Écrit par {article.authorId}</Text>
+					<Text variant="p">{frenchDate(new Date(article.createdAt))}</Text>
 				</VStack>
 			</VStack>
-			<Modal isOpen={editor} size="full" onClose={() => setEditor(false)}>
+			{/* <Modal isOpen={editor} size="full" onClose={() => setEditor(false)}>
 				<ModalOverlay />
 				<ModalContent bg="black">
 					<ModalHeader color="gray.100">Brouillon</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
 						<Editor
-							placeholderTitle={article.Title}
-							placeholderTopic={article.Topic}
-							placeholderContent={article.Content}
+							placeholderTitle={article.title}
+							// TODO: topic
+							placeholderTopic={article.topicId}
+							placeholderContent={article.content}
 						/>
 					</ModalBody>
 				</ModalContent>
-			</Modal>
+			</Modal> */}
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent bg="gray.900">
@@ -242,10 +230,10 @@ const ArticlePage = (): JSX.Element => {
 					<ModalCloseButton color="white" />
 					<ModalBody>
 						<Text variant="p" mb="8px">
-							{user.bookmarks.length} marque-page{user.bookmarks.length !== 1 && 's'}
+							{user.anthologies.length} marque-page{user.anthologies.length !== 1 && 's'}
 						</Text>
 						<VStack spacing="8px" mb="12px">
-							{user.bookmarks.map((bookmark, index) => (
+							{user.anthologies.map((anthology, index) => (
 								<HStack
 									key={`${index.toString()}`}
 									w="100%"
@@ -256,13 +244,14 @@ const ArticlePage = (): JSX.Element => {
 									borderRadius="sm"
 									cursor="pointer"
 									_hover={{ opacity: 0.9 }}
-									onClick={() => uiAddArticleToBookmark(bookmark.Id)}
+									onClick={() => uiUpdateAnthology(anthology.id)}
 								>
 									<Text variant="link" color="black !important" cursor="pointer" _hover={{ opacity: '0.8' }}>
-										{bookmark.Title}
+										{anthology.name}
 									</Text>
+									// TODO: nombre d'articles
 									<Badge colorScheme="green" borderRadius="xsm">
-										{bookmark.Articles.length} article{bookmark.Articles.length !== 1 && 's'}
+										x articles
 									</Badge>
 								</HStack>
 							))}

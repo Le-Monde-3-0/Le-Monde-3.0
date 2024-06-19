@@ -13,7 +13,6 @@ import {
 	ModalFooter,
 	ModalHeader,
 	ModalOverlay,
-	Tag,
 	Text,
 	Tooltip,
 	VStack,
@@ -21,50 +20,51 @@ import {
 } from '@chakra-ui/react';
 import { AddIcon, CloseIcon } from '@chakra-ui/icons';
 
-import { useAuthContext } from 'contexts/auth';
 import { useUserContext } from 'contexts/user';
 import { useUIContext } from 'contexts/ui';
 import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
 
 const Favoris = (): JSX.Element => {
-	const { auth } = useAuthContext();
 	const { requestResponseToast } = useUIContext();
-	const { user, addArticleToBookmark, getLikedArticles, getBookmarks, unlikeArticle } = useUserContext();
+	const { user, likeArticle, loadLikedArticles, loadAnthologies, updateAnthology } = useUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [search, setSearch] = useState('');
 	const [articleToAdd, setArticleToAdd] = useState<number | undefined>(undefined);
 
-	const uiGetLikedArticles = async () => {
+	const uiLoadLikedArticles = async () => {
 		try {
-			const res = await getLikedArticles();
+			const res = await loadLikedArticles();
 			requestResponseToast(res);
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
-	const uiUnlikeArticle = async (articleId: number) => {
+	const uiUnlikeArticle = async (id: number) => {
 		try {
-			const res = await unlikeArticle(articleId);
+			const res = await likeArticle({ id, isLiked: false });
 			requestResponseToast(res, true);
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
-	const uiGetBookmarks = async () => {
+	const uiloadAnthologies = async () => {
 		try {
-			const res = await getBookmarks();
+			const res = await loadAnthologies();
 			requestResponseToast(res);
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
-	const uiAddArticleToBookmark = async (bookmarkId: number) => {
+	const uiUpdateAnthology = async (anthologyId: number) => {
 		try {
-			const res = await addArticleToBookmark(bookmarkId, articleToAdd!);
+			const res = await updateAnthology({
+				id: anthologyId,
+				addArticles: [articleToAdd!],
+			});
 			requestResponseToast(res);
 			if (res.status === 'success') {
 				onClose();
@@ -76,11 +76,11 @@ const Favoris = (): JSX.Element => {
 	};
 
 	useEffect(() => {
-		uiGetLikedArticles();
-		uiGetBookmarks();
-	}, [auth]);
+		uiLoadLikedArticles();
+		uiloadAnthologies();
+	}, []);
 
-	if (!user.likedArticles || !user.bookmarks) {
+	if (!user.articles.liked || !user.anthologies) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
@@ -101,32 +101,43 @@ const Favoris = (): JSX.Element => {
 					onChange={(e) => setSearch(e.target.value)}
 					variant="primary-1"
 				/>
-				<Tag bg="primary.yellow">
-					{user.likedArticles.length} favori
-					{user.likedArticles.length !== 1 && 's'}
-				</Tag>
+				<HStack>
+					<Text variant="h5">Favori{user.articles.liked.length !== 1 && 's'}</Text>
+					<Text
+						variant="h5"
+						bg="primary.yellow"
+						color="gray.900 !important"
+						fontWeight="black"
+						p="0px 8px"
+						borderRadius="md"
+					>
+						{user.articles.liked.length}
+					</Text>
+				</HStack>
 				<Grid
 					templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
 				>
-					{user.likedArticles
-						.filter((a) => (search !== '' ? a.Title.includes(search) : true))
+					{user.articles.liked
+						.filter((a) => (search !== '' ? a.title.includes(search) : true))
 						.map((article, index) => (
 							<GridItem key={`${index.toString()}`}>
 								<ArticleCard
-									id={article.Id}
-									title={article.Title}
-									author={article.AuthorName}
-									date={new Date(article.CreatedAt).toLocaleDateString('fr-FR')}
-									topic={article.Topic}
-									content={article.Content}
+									id={article.id}
+									title={article.title}
+									// TODO: author name
+									author="Author"
+									date={new Date(article.createdAt).toLocaleDateString('fr-FR')}
+									// TODO: topic name
+									topic="Topic"
+									content={article.content}
 									actions={[
 										<Tooltip label="Ajouter à un marque-page">
 											<span>
 												<AddIcon
 													onClick={() => {
-														setArticleToAdd(article.Id);
+														setArticleToAdd(article.id);
 														onOpen();
 													}}
 													color="black"
@@ -135,12 +146,12 @@ const Favoris = (): JSX.Element => {
 										</Tooltip>,
 										<Tooltip label="Supprimer des favoris">
 											<span>
-												<CloseIcon onClick={() => uiUnlikeArticle(article.Id)} color="black" />
+												<CloseIcon onClick={() => uiUnlikeArticle(article.id)} color="black" />
 											</span>
 										</Tooltip>,
 									]}
-									likes={article.Likes.length}
-									views={article.TotalViews}
+									likes={article.totalLikes}
+									views={article.totalViews}
 								/>
 							</GridItem>
 						))}
@@ -156,14 +167,14 @@ const Favoris = (): JSX.Element => {
 			>
 				<ModalOverlay />
 				<ModalContent bg="gray.900">
-					<ModalHeader color="white">Marque-pages</ModalHeader>
+					<ModalHeader color="white">Dossiers</ModalHeader>
 					<ModalCloseButton color="white" />
 					<ModalBody>
 						<Text variant="p" mb="8px">
-							{user.bookmarks.length} marque-page{user.bookmarks.length !== 1 && 's'}
+							{user.anthologies.length} dossier{user.anthologies.length !== 1 && 's'}
 						</Text>
 						<VStack spacing="8px" mb="12px">
-							{user.bookmarks.map((bookmark, index) => (
+							{user.anthologies.map((anthology, index) => (
 								<HStack
 									key={`${index.toString()}`}
 									w="100%"
@@ -174,13 +185,14 @@ const Favoris = (): JSX.Element => {
 									borderRadius="sm"
 									cursor="pointer"
 									_hover={{ opacity: 0.9 }}
-									onClick={() => uiAddArticleToBookmark(bookmark.Id)}
+									onClick={() => uiUpdateAnthology(anthology.id)}
 								>
 									<Text variant="link" color="black !important" cursor="pointer" _hover={{ opacity: '0.8' }}>
-										{bookmark.Title}
+										{anthology.name}
 									</Text>
+									// TODO: nombre d'articles
 									<Badge colorScheme="green" borderRadius="xsm">
-										{bookmark.Articles.length} article{bookmark.Articles.length !== 1 && 's'}
+										x articles
 									</Badge>
 								</HStack>
 							))}

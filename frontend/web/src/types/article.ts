@@ -1,15 +1,31 @@
 export type Article = {
-	Id: number;
-	UserId: number;
-	AuthorName: string;
-	Topic: string;
-	Title: string;
-	Subtitle: string;
-	Content: string;
-	CreatedAt: Date;
-	Draft: boolean;
-	Likes: number[];
-	TotalViews: number;
-	DailyViews: { date: string; daily: number; summed: number }[];
-	DailyLikes: { date: string; daily: number; summed: number }[];
+	id: number;
+	createdAt: Date;
+	updatedAt: Date;
+	draft: boolean;
+	title: string;
+	subtitle: string;
+	content: string;
+	authorId: number;
+	totalViews: number;
+	totalLikes: number;
+	topicId: number;
 };
+
+// export type ArticleMetaData = {
+// 	id: number;
+// 	createdAt: Date;
+// 	updatedAt: Date;
+// 	draft: boolean;
+// 	title: string;
+// 	authorId: number;
+// 	totalViews: number;
+// 	totalLikes: number;
+// 	topicId: number;
+// };
+
+// export type ArticleInfraData = {
+// 	id: number;
+// 	subtitle: string;
+// 	content: string;
+// };

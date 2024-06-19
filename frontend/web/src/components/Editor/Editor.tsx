@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 
 import { useUserContext } from 'contexts/user';
 import { useUIContext } from 'contexts/ui';
-import availableTopics from 'types/topic';
 
 const Editor = ({
 	placeholderTitle,
@@ -17,30 +16,22 @@ const Editor = ({
 	placeholderContent: string;
 }): JSX.Element => {
 	const navigate = useNavigate();
-	const { addArticle } = useUserContext();
+	const { createArticle } = useUserContext();
 	const { requestResponseToast } = useUIContext();
 	const [title, setTitle] = useState(placeholderTitle);
 	const [topic, setTopic] = useState(placeholderTopic);
 	const [content, setContent] = useState(placeholderContent);
 
-	const uiAddPublishedArticle = async () => {
+	const uiCreateArticle = async (draft: boolean) => {
 		try {
-			const res = await addArticle({ title, topic, content, draft: false });
+			const res = await createArticle({ title, content, topic: 0, draft });
 			requestResponseToast(res, true);
 			if (res.status === 'success') {
-				navigate(`/articles/${res.data!.Id}`);
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
-	const uiAddDraftArticle = async () => {
-		try {
-			const res = await addArticle({ title, topic, content, draft: true });
-			requestResponseToast(res, true);
-			if (res.status === 'success') {
-				navigate(`/brouillons`);
+				if (draft) {
+					navigate(`/publications/${res.data!.id}`);
+				} else {
+					navigate(`/brouillons`);
+				}
 			}
 		} catch (error) {
 			console.error(error);
@@ -57,7 +48,7 @@ const Editor = ({
 					onChange={(e) => setTitle(e.target.value)}
 					value={title}
 				/>
-				<Select
+				{/* <Select
 					w="25%"
 					id="nouvel-article-topic-input"
 					variant="primary-1"
@@ -72,7 +63,7 @@ const Editor = ({
 					{availableTopics.map((t, index) => (
 						<option key={index}>{t}</option>
 					))}
-				</Select>
+				</Select> */}
 			</HStack>
 			<Textarea
 				id="nouvel-article-content-textarea"
@@ -86,7 +77,7 @@ const Editor = ({
 			<Button
 				id="nouvel-article-publish-btn"
 				variant="primary-yellow"
-				onClick={() => uiAddPublishedArticle()}
+				onClick={() => uiCreateArticle(false)}
 				isDisabled={title === '' || topic === '' || content === ''}
 			>
 				Publier
@@ -98,7 +89,7 @@ const Editor = ({
 				<Button
 					id="nouvel-article-save-draft-btn"
 					variant="primary-purple"
-					onClick={() => uiAddDraftArticle()}
+					onClick={() => uiCreateArticle(true)}
 					isDisabled={title === '' || topic === '' || content === ''}
 				>
 					Enregistrer dans les brouillons

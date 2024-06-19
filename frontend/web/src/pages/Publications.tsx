@@ -28,49 +28,42 @@ import Editor from '../components/Editor/Editor';
 
 const Publications = (): JSX.Element => {
 	const [search, setSearch] = useState('');
-	const { auth } = useAuthContext();
 	const { requestResponseToast } = useUIContext();
-	const { user, switchArticleDraftState, deleteArticle, getArticles } = useUserContext();
-	const [editor, setEditor] = useState<boolean>(false);
-	const [article, setArticle] = useState({ title: '', topic: '', content: '' });
-	const [isViewChartDisplayed, setViewChartDisplay] = useState(false);
-	const [isLikeChartDisplayed, setLikeChartDisplay] = useState(false);
+	const { user, deleteArticle, loadWrittenArticles, updateArticle } = useUserContext();
+	// const [editor, setEditor] = useState<boolean>(false);
+	// const [article, setArticle] = useState({ title: '', topic: '', content: '' });
+	// const [isViewChartDisplayed, setViewChartDisplay] = useState(false);
+	// const [isLikeChartDisplayed, setLikeChartDisplay] = useState(false);
 
-	let totalViews = 0;
-	for (let i = 0; i < user.publishedArticles.length; i++) {
-		console.log(user.publishedArticles[i].TotalViews);
-		totalViews += user.publishedArticles[i].TotalViews;
-	}
+	// const toggleViewChartDisplay = () => {
+	// 	setViewChartDisplay(!isViewChartDisplayed);
+	// };
 
-	const toggleViewChartDisplay = () => {
-		setViewChartDisplay(!isViewChartDisplayed);
-	};
+	// const toggleLikeChartDisplay = () => {
+	// 	setLikeChartDisplay(!isLikeChartDisplayed);
+	// };
 
-	const toggleLikeChartDisplay = () => {
-		setLikeChartDisplay(!isLikeChartDisplayed);
-	};
-
-	const uiGetArticles = async () => {
+	const uiLoadWrittenArticles = async () => {
 		try {
-			const res = await getArticles();
+			const res = await loadWrittenArticles();
 			requestResponseToast(res);
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
-	const uiDeleteArticle = async (articleId: number) => {
+	const uiDeleteArticle = async (id: number) => {
 		try {
-			const res = await deleteArticle(articleId);
+			const res = await deleteArticle(id);
 			requestResponseToast(res, true);
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
-	const uiSwitchArticleDraftState = async (articleId: number) => {
+	const uiUpdateArticle = async (id: number) => {
 		try {
-			const res = await switchArticleDraftState(articleId);
+			const res = await updateArticle({ id, newDraft: true });
 			requestResponseToast(res, true);
 		} catch (error) {
 			console.error(error);
@@ -78,10 +71,10 @@ const Publications = (): JSX.Element => {
 	};
 
 	useEffect(() => {
-		uiGetArticles();
-	}, [auth]);
+		uiLoadWrittenArticles();
+	}, []);
 
-	if (!user.publishedArticles) {
+	if (!user.articles.written) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
@@ -104,21 +97,32 @@ const Publications = (): JSX.Element => {
 				/>
 				<HStack>
 					<Tag bg="primary.yellow">
-						{user.publishedArticles.filter((p) => (search !== '' ? p.Title.includes(search) : true)).length} publication
-						{user.publishedArticles.length !== 1 && 's'}
+						{
+							user.articles.written
+								.filter((a) => !a.draft)
+								.filter((p) => (search !== '' ? p.title.includes(search) : true)).length
+						}{' '}
+						publication
+						{user.articles.written.filter((a) => !a.draft).length !== 1 && 's'}
 					</Tag>
-					<Tag bg="primary.blue" onClick={toggleLikeChartDisplay} cursor="pointer">
-						{user.publishedArticles
-							.filter((p) => (search !== '' ? p.Title.includes(search) : true))
-							.map((p) => p.Likes.length)
+					<Tag bg="primary.blue" /* onClick={toggleLikeChartDisplay} cursor="pointer" */>
+						{user.articles.written
+							.filter((a) => !a.draft)
+							.filter((p) => (search !== '' ? p.title.includes(search) : true))
+							.map((p) => p.totalLikes)
 							.reduce((a, v) => a + v, 0)}{' '}
 						like
 					</Tag>
-					<Tag bg="primary.blue" onClick={toggleViewChartDisplay} cursor="pointer">
-						{totalViews} view
+					<Tag bg="primary.blue" /* onClick={toggleViewChartDisplay} cursor="pointer" */>
+						{user.articles.written
+							.filter((a) => !a.draft)
+							.filter((p) => (search !== '' ? p.title.includes(search) : true))
+							.map((p) => p.totalViews)
+							.reduce((a, v) => a + v, 0)}{' '}
+						view
 					</Tag>
 				</HStack>
-				<Grid
+				{/* <Grid
 					templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
@@ -129,59 +133,61 @@ const Publications = (): JSX.Element => {
 					<Collapse in={isViewChartDisplayed} animateOpacity>
 						<Chart yLabel="Vues" data={user.overallDailyTotalViews} />
 					</Collapse>
-				</Grid>
+				</Grid> */}
 				<Grid
 					templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
 				>
-					{user.publishedArticles
-						.filter((p) => (search !== '' ? p.Title.includes(search) : true))
+					{user.articles.written
+						.filter((a) => !a.draft)
+						.filter((p) => (search !== '' ? p.title.includes(search) : true))
 						.map((publication, index) => (
 							<GridItem key={`${index.toString()}`}>
 								<ArticleCard
-									id={publication.Id}
-									title={publication.Title}
-									author={publication.AuthorName}
+									id={publication.id}
+									title={publication.title}
+									// TODO: author name
+									author="Author"
 									date={new Date().toLocaleDateString('fr-FR')}
-									topic={publication.Topic}
-									content={publication.Content}
+									// TODO: topic
+									topic="Topic"
+									content={publication.content}
 									actions={[
-										<Tooltip label="Éditer l'article">
-											<span>
-												<EditIcon
-													onClick={() => {
-														setEditor(true);
-														setArticle({
-															title: publication.Title,
-															topic: publication.Topic,
-															content: publication.Content,
-														});
-													}}
-													color="black"
-												/>
-											</span>
-										</Tooltip>,
-
+										// <Tooltip label="Éditer l'article">
+										// 	<span>
+										// 		<EditIcon
+										// 			onClick={() => {
+										// 				setEditor(true);
+										// 				setArticle({
+										// 					title: publication.title,
+										// 					topic: publication.Topic,
+										// 					content: publication.Content,
+										// 				});
+										// 			}}
+										// 			color="black"
+										// 		/>
+										// 	</span>
+										// </Tooltip>,
 										<Tooltip label="Archiver dans les brouillons">
 											<span>
-												<ViewOffIcon onClick={() => uiSwitchArticleDraftState(publication.Id)} color="black" />
+												<ViewOffIcon onClick={() => uiUpdateArticle(publication.id)} color="black" />
 											</span>
 										</Tooltip>,
 										<Tooltip label="Supprimer définitivement">
 											<span>
-												<DeleteIcon onClick={() => uiDeleteArticle(publication.Id)} color="black" />
+												<DeleteIcon onClick={() => uiDeleteArticle(publication.id)} color="black" />
 											</span>
 										</Tooltip>,
 									]}
-									likes={publication.Likes.length}
-									views={publication.TotalViews}
+									likes={publication.totalLikes}
+									views={publication.totalViews}
 									view="publisher"
 								/>
 							</GridItem>
 						))}
 				</Grid>
-				<Modal isOpen={editor} size="full" onClose={() => setEditor(false)}>
+				{/* <Modal isOpen={editor} size="full" onClose={() => setEditor(false)}>
 					<ModalOverlay />
 					<ModalContent bg="black">
 						<ModalHeader color="gray.100">Brouillon</ModalHeader>
@@ -194,7 +200,7 @@ const Publications = (): JSX.Element => {
 							/>
 						</ModalBody>
 					</ModalContent>
-				</Modal>
+				</Modal> */}
 			</VStack>
 		</>
 	);

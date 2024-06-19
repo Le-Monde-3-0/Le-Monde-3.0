@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+import { Link as RouteLink, useNavigate } from 'react-router-dom';
 import { Button, Link } from '@chakra-ui/react';
-import { Link as RouteLink } from 'react-router-dom';
 
 import { useAuthContext } from 'contexts/auth';
 import { useUIContext } from 'contexts/ui';
@@ -10,7 +10,8 @@ import PwdInput from 'components/Inputs/PwdInput';
 import emailRegex from 'utils/emailRegex';
 
 const Inscription = (): JSX.Element => {
-	const { register, login } = useAuthContext();
+	const navigate = useNavigate();
+	const { signUp } = useAuthContext();
 	const { requestResponseToast } = useUIContext();
 	const [email, setEmail] = useState('');
 	const [username, setUsername] = useState('');
@@ -28,11 +29,10 @@ const Inscription = (): JSX.Element => {
 
 	const inscription = async () => {
 		try {
-			const registerRes = await register({ email, password: pwd, username });
-			requestResponseToast(registerRes);
-			if (registerRes.status === 'success') {
-				const loginRes = await login({ identifier: email, password: pwd });
-				requestResponseToast(loginRes);
+			const res = await signUp({ email, password: pwd, username });
+			requestResponseToast(res);
+			if (res.status === 'success') {
+				navigate('/favoris');
 			}
 		} catch (error) {
 			console.error(error);
