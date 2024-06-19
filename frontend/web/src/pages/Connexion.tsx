@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Link as RouteLink } from 'react-router-dom';
+import { Link as RouteLink, useNavigate } from 'react-router-dom';
 import { Button, Input, Link } from '@chakra-ui/react';
 
 import { useAuthContext } from 'contexts/auth';
@@ -8,7 +8,8 @@ import { useUIContext } from 'contexts/ui';
 import PwdInput from 'components/Inputs/PwdInput';
 
 const Connexion = (): JSX.Element => {
-	const { login } = useAuthContext();
+	const navigate = useNavigate();
+	const { signIn } = useAuthContext();
 	const { requestResponseToast } = useUIContext();
 	const [loginInput, setLoginInput] = useState('');
 	const [pwdInut, setPwdInut] = useState('');
@@ -16,20 +17,23 @@ const Connexion = (): JSX.Element => {
 
 	const connexion = async () => {
 		try {
-			const loginRes = await login({ identifier: loginInput, password: pwdInut });
-			requestResponseToast(loginRes);
+			const res = await signIn({ identifier: loginInput, password: pwdInut });
+			requestResponseToast(res, true);
+			if (res.status === 'success') {
+				navigate('/favoris');
+			}
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
 	useEffect(() => {
-		const loginValidation = login.length >= 1;
+		const loginValidation = loginInput.length >= 1;
 		const pwdValidation = pwdInut.length >= 1;
 		const globalValidation = loginValidation && pwdValidation;
 
 		setValidation(globalValidation);
-	}, [login, pwdInut]);
+	}, [loginInput, pwdInut]);
 
 	return (
 		<>

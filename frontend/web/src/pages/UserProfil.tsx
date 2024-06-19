@@ -10,42 +10,43 @@ import SearchInput from 'components/Inputs/SearchInput';
 import handleRequest from 'utils/handleRequest';
 
 const UserProfil = (): JSX.Element => {
-	const { auth } = useAuthContext();
-	const { requestResponseToast } = useUIContext();
-	const navigate = useNavigate();
-	const { userId } = useParams();
+	// const { auth } = useAuthContext();
+	// const { requestResponseToast } = useUIContext();
+	// const navigate = useNavigate();
+	// const { userId } = useParams();
 	const [search, setSearch] = useState('');
 
-	const getUserProfil = async () => {
-		try {
-			const profilRes = await handleRequest<{
-				id: number;
-				email: string;
-				username: string;
-			}>({
-				request: async () => {
-					const res = await services.users.get({ token: auth.accessToken!, userId: +userId! });
-					return res;
-				},
-				name: 'getUserProfil',
-			});
-			requestResponseToast(profilRes);
-			if (profilRes.status === 'error') {
-				navigate('/favoris');
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	};
+	// const getUserProfil = async () => {
+	// 	try {
+	// 		const profilRes = await handleRequest<{
+	// 			id: number;
+	// 			email: string;
+	// 			username: string;
+	// 		}>({
+	// 			request: async () => {
+	// 				const res = await services.users.get({ token: auth.accessToken!, userId: +userId! });
+	// 				return res;
+	// 			},
+	// 			name: 'getUserProfil',
+	// 		});
+	// 		requestResponseToast(profilRes);
+	// 		if (profilRes.status === 'error') {
+	// 			navigate('/favoris');
+	// 		}
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 	}
+	// };
 
-	useEffect(() => {
-		getUserProfil();
-	}, []);
+	// useEffect(() => {
+	// 	getUserProfil();
+	// }, []);
 
 	return (
 		<VStack align="start" w="100%" spacing={{ base: '24px', md: '32px', lg: '40px' }}>
 			<VStack w="100%">
-				<Text variant="h4">User-{userId}</Text>
+				// TODO: username et autres
+				<Text variant="h4">Username</Text>
 				<Stack direction={{ base: 'column', md: 'row' }}>
 					<Badge colorScheme="red" variant="solid" fontSize={{ base: 'small', lg: 'md' }} borderRadius="xsm">
 						0 articles publiés - 0 j'aimes

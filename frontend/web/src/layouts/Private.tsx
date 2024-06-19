@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
 	Box,
@@ -19,8 +18,7 @@ import { ChevronLeftIcon, ChevronRightIcon, HamburgerIcon } from '@chakra-ui/ico
 import { FaBookOpen, FaPenNib } from 'react-icons/fa';
 import { MdAccountCircle } from 'react-icons/md';
 
-import { useAuthContext } from 'contexts/auth';
-import { useUIContext } from 'contexts/ui';
+import { useUserContext } from 'contexts/user';
 
 type PrivateProps = { children: JSX.Element };
 
@@ -75,23 +73,9 @@ const Option = ({
 );
 
 const NavBar = ({ ...props }: StackProps): JSX.Element => {
-	const { auth, clearAuth, me } = useAuthContext();
-	const { requestResponseToast } = useUIContext();
+	const { user } = useUserContext();
 	const location = useLocation();
 	const navigate = useNavigate();
-
-	const uiMe = async () => {
-		try {
-			const res = await me();
-			requestResponseToast(res);
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
-	useEffect(() => {
-		uiMe();
-	}, []);
 
 	return (
 		<VStack
@@ -110,37 +94,14 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 				},
 			}}
 		>
-			<VStack w="100%" spacing="16px">
-				<HStack w="100%" justify="flex-end">
-					<ChevronLeftIcon
-						boxSize={10}
-						bg="black"
-						borderRadius="50%"
-						p="8px"
-						color="white"
-						cursor="grab"
-						onClick={() => navigate(-1)}
-					/>
-					<ChevronRightIcon
-						boxSize={10}
-						bg="black"
-						borderRadius="50%"
-						p="8px"
-						color="white"
-						cursor="grab"
-						onClick={() => navigate(1)}
-					/>
-				</HStack>
-				<Text variant="h4">{auth.username}</Text>
+			<VStack w="100%" spacing="16px" mt="48px">
+				// TODO: username
+				<Text variant="h4">Username</Text>
 			</VStack>
 			<VStack align="start" w="100%">
 				<Title icon={FaBookOpen} name="Lire" />
 				<Option name="Favoris" isSelected={location.pathname === '/favoris'} onClick={() => navigate('/favoris')} />
-				<Option
-					name="Marque-pages"
-					isSelected={location.pathname === '/marque-pages'}
-					onClick={() => navigate('/marque-pages')}
-				/>
+				<Option name="Dossiers" isSelected={location.pathname === '/dossiers'} onClick={() => navigate('/dossiers')} />
 				<Option
 					name="Nouveautés"
 					isSelected={location.pathname === '/nouveautes'}
@@ -153,24 +114,24 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 				/>
 			</VStack>
 			<VStack align="start" w="100%">
-				<Title icon={FaPenNib} name="Écrire" isEnable={!auth.offline} />
+				<Title icon={FaPenNib} name="Écrire" isEnable={!user.isOffline} />
 				<Option
 					name="Nouvel article"
 					isSelected={location.pathname === '/nouvel-article'}
 					onClick={() => navigate('/nouvel-article')}
-					isEnable={!auth.offline}
+					isEnable={!user.isOffline}
 				/>
 				<Option
 					name="Publications"
 					isSelected={location.pathname === '/publications'}
 					onClick={() => navigate('/publications')}
-					isEnable={!auth.offline}
+					isEnable={!user.isOffline}
 				/>
 				<Option
 					name="Brouillons"
 					isSelected={location.pathname === '/brouillons'}
 					onClick={() => navigate('/brouillons')}
-					isEnable={!auth.offline}
+					isEnable={!user.isOffline}
 				/>
 			</VStack>
 			<VStack align="start" w="100%">
@@ -179,18 +140,7 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 					name="Réglages"
 					isSelected={location.pathname === '/reglages'}
 					onClick={() => navigate('/reglages')}
-					isEnable={!auth.offline}
-				/>
-				<Option
-					name="Mode Hors-Ligne"
-					isSelected={location.pathname === '/ipfs-config'}
-					onClick={() => navigate('/ipfs-config')}
-				/>
-				<Option
-					name="Déconnexion"
-					isSelected={location.pathname === '/deconnexion'}
-					onClick={() => clearAuth()}
-					isEnable={!auth.offline}
+					isEnable={!user.isOffline}
 				/>
 			</VStack>
 		</VStack>
@@ -198,7 +148,6 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 };
 
 const Private = ({ children }: PrivateProps): JSX.Element => {
-	const { auth } = useAuthContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const collapseNavBar = useBreakpointValue({ base: true, xl: false });
 
@@ -215,8 +164,9 @@ const Private = ({ children }: PrivateProps): JSX.Element => {
 						bg="gray.900"
 					>
 						<Icon fontSize="24px" as={HamburgerIcon} color="white" />
+						// TODO: username
 						<Text ml="4px" variant="link">
-							{auth.username}
+							Username
 						</Text>
 					</Button>
 					<Drawer isOpen={isOpen} placement="left" onClose={onClose}>

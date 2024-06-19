@@ -1,157 +1,528 @@
 import React, { useEffect, useState } from 'react';
 
 import services from 'services';
-import { useAuthContext } from 'contexts/auth';
 import { useIpfsContext } from 'contexts/ipfs';
 import UserContext, { UserContextType } from 'contexts/user';
-import { Article } from 'types/article';
-import { Bookmark } from 'types/bookmark';
 import { User } from 'types/user';
+import { Article } from 'types/article';
+import { Anthology } from 'types/anthology';
 import handleRequest from 'utils/handleRequest';
 import loadFromLocalStorage from 'utils/loadFromLocalStorage';
-import { generateDailyStats } from 'utils/generateDailyStats';
+
+///
+///
+///
+
+// const Article = (article: Article): Article => ({
+// 	id: article.id,
+// 	createdAt: article.createdAt,
+// 	updatedAt: article.updatedAt,
+// 	draft: article.draft,
+// 	title: article.title,
+// 	authorId: article.authorId,
+// 	totalViews: article.totalViews,
+// 	totalLikes: article.totalLikes,
+// 	topicId: article.topicId,
+// });
+
+const createArticle = async ({
+	isOffline,
+	callback,
+	params,
+}: {
+	isOffline: boolean;
+	callback: (article: Article) => void;
+	params: {
+		title: string;
+		subtitle?: string;
+		content: string;
+		topic: number;
+		draft: boolean;
+	};
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'createArticle' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.articles.create({ ...params });
+			callback(res.data);
+			return res;
+		},
+		name: 'createArticle',
+	});
+};
+
+const deleteArticle = async ({
+	isOffline,
+	callback,
+	params,
+}: {
+	isOffline: boolean;
+	callback: (id: number) => void;
+	params: { id: number };
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'deleteArticle' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.articles.delete(params.id);
+			callback(params.id);
+			return res;
+		},
+		name: 'deleteArticle',
+	});
+};
+
+const likeArticle = async ({
+	isOffline,
+	callback,
+	params,
+}: {
+	isOffline: boolean;
+	callback: (article: Article, isLiked: boolean) => void;
+	params: {
+		id: number;
+		isLiked: boolean;
+	};
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'likeArticle' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.articles.like({ id: params.id, isLiked: params.isLiked });
+			const articleRes = await services.articles.searchOne(params.id);
+			callback(articleRes.data, params.isLiked);
+			return res;
+		},
+		name: 'likeArticle',
+	});
+};
+
+const loadWrittenArticles = async ({
+	isOffline,
+	callback,
+}: {
+	isOffline: boolean;
+	callback: (articles: Article[]) => void;
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'loadWrittenArticles' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.articles.searchMany({ author: 'me' });
+			callback(res.data);
+			return res;
+		},
+		name: 'loadWrittenArticles',
+	});
+};
+
+const loadLikedArticles = async ({
+	isOffline,
+	callback,
+}: {
+	isOffline: boolean;
+	callback: (articles: Article[]) => void;
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'loadLikedArticles' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.articles.searchMany({ isLiked: true });
+			callback(res.data);
+			return res;
+		},
+		name: 'loadLikedArticles',
+	});
+};
+
+const searchArticles = async ({
+	isOffline,
+	params,
+}: {
+	isOffline: boolean;
+	params: {
+		author?: string;
+		draft?: boolean;
+		topic?: number;
+		isLiked?: boolean;
+		anthologyId?: number;
+		query?: string;
+	};
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'searchArticles' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.articles.searchMany({ ...params });
+			return res;
+		},
+		name: 'searchArticles',
+	});
+};
+
+const searchArticle = async ({
+	isOffline,
+	params,
+}: {
+	isOffline: boolean;
+	params: {
+		id: number;
+	};
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'searchArticle' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.articles.searchOne(params.id);
+			return res;
+		},
+		name: 'searchArticle',
+	});
+};
+
+const updateArticle = ({
+	isOffline,
+	callback,
+	params,
+}: {
+	isOffline: boolean;
+	callback: (article: Article) => void;
+	params: {
+		id: number;
+		newTitle?: string;
+		newSubtitle?: string;
+		newContent?: string;
+		newTopic?: number;
+		newDraft?: boolean;
+	};
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'updateArticle' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.articles.update({ ...params });
+			callback(res.data);
+			return res;
+		},
+		name: 'updateArticle',
+	});
+};
+
+const loadAnthologyArticles = async ({
+	isOffline,
+	callback,
+	params,
+}: {
+	isOffline: boolean;
+	callback: (id: number, articles: Article[]) => void;
+	params: {
+		id: number;
+	};
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'loadAnthologyArticles' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.anthologies.getArticles(params.id);
+			callback(params.id, res.data);
+			return res;
+		},
+		name: 'loadAnthologyArticles',
+	});
+};
+
+const createAnthology = async ({
+	isOffline,
+	callback,
+	params,
+}: {
+	isOffline: boolean;
+	callback: (anthology: Anthology) => void;
+	params: {
+		name: string;
+		description: string;
+		isPublic: boolean;
+		articles?: number[];
+	};
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'createAnthology' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.anthologies.create({ ...params });
+			callback(res.data);
+			return res;
+		},
+		name: 'createAnthology',
+	});
+};
+
+const deleteAnthology = async ({
+	isOffline,
+	callback,
+	params,
+}: {
+	isOffline: boolean;
+	callback: (id: number) => void;
+	params: {
+		id: number;
+	};
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'deleteAnthology' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.anthologies.delete(params.id);
+			callback(params.id);
+			return res;
+		},
+		name: 'deleteAnthology',
+	});
+};
+
+const loadAnthologies = async ({
+	isOffline,
+	callback,
+}: {
+	isOffline: boolean;
+	callback: (anthologies: Anthology[]) => void;
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'loadAnthologies' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.anthologies.searchMany({ author: 'me' });
+			callback(res.data);
+			return res;
+		},
+		name: 'loadAnthologies',
+	});
+};
+
+const searchAnthologies = async ({
+	isOffline,
+	params,
+}: {
+	isOffline: boolean;
+	params: {
+		author?: string;
+		query?: string;
+	};
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'searchAnthologies' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.anthologies.searchMany({ ...params });
+			return res;
+		},
+		name: 'searchAnthologies',
+	});
+};
+
+const searchAnthology = async ({
+	isOffline,
+	params,
+}: {
+	isOffline: boolean;
+	params: {
+		id: number;
+	};
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'searchAnthology' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.anthologies.searchOne(params.id);
+			return res;
+		},
+		name: 'searchAnthology',
+	});
+};
+
+const updateAnthology = ({
+	isOffline,
+	callback,
+	params,
+}: {
+	isOffline: boolean;
+	callback: (anthology: Anthology) => void;
+	params: {
+		id: number;
+		addArticles?: number[];
+		removeArticles?: number[];
+		newName?: string;
+		newDescription?: string;
+		newIsPublic?: boolean;
+	};
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'updateAnthology' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.anthologies.update({ ...params });
+			callback(res.data);
+			return res;
+		},
+		name: 'updateAnthology',
+	});
+};
+
+const searchAllTopics = async ({ isOffline }: { isOffline: boolean }) => {
+	if (isOffline) {
+		throw new Error("Action 'searchAllTopics' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.topics.searchAll();
+			return res;
+		},
+		name: 'searchAllTopics',
+	});
+};
+
+const searchTopic = async ({
+	isOffline,
+	params,
+}: {
+	isOffline: boolean;
+	params: {
+		id: number;
+	};
+}) => {
+	if (isOffline) {
+		throw new Error("Action 'searchTopic' is not available using IPFS.");
+	}
+	return handleRequest({
+		request: async () => {
+			const res = await services.topics.searchOne(params.id);
+			return res;
+		},
+		name: 'searchTopic',
+	});
+};
+
+///
+///
+///
 
 const UserProvider = ({ children }: { children: JSX.Element }) => {
-	const { auth } = useAuthContext();
 	const { ipfs } = useIpfsContext();
 
+	const defaultUser = {
+		isOffline: false,
+		articles: {
+			written: [],
+			liked: [],
+		},
+		anthologies: [],
+		anthologiesArticles: [],
+	};
+
 	const [user, setUser] = useState<UserContextType['user']>(
-		loadFromLocalStorage<UserContextType['user']>('user', {
-			draftArticles: [],
-			publishedArticles: [],
-			likedArticles: [],
-			bookmarks: [],
-			overallDailyTotalLikes: [],
-			overallDailyTotalViews: [],
-		}),
+		loadFromLocalStorage<UserContextType['user']>('user', defaultUser),
 	);
 
-	// ─── Articles ────────────────────────────────────────────────────────
-
-	const setArticlesData = (articles: Article[]) => {
-		let overallTotalViews = 0;
-		for (let i = 0; i < articles.length; i++) {
-			overallTotalViews += articles[i].TotalViews;
-		}
-
-		let overallTotalLikes = 0;
-		for (let i = 0; i < articles.length; i++) {
-			overallTotalLikes += articles[i].Likes.length;
-		}
-
+	const createArticleData = (article: Article) =>
+		setUser((u) => ({ ...u, articles: { ...u.articles, written: [...u.articles.written, article] } }));
+	const deleteArticleData = (id: number) =>
 		setUser((u) => ({
 			...u,
-			publishedArticles: articles.filter((a) => !a.Draft),
-			draftArticles: articles.filter((a) => a.Draft),
-			overallDailyTotalViews: generateDailyStats(overallTotalViews),
-			overallDailyTotalLikes: generateDailyStats(overallTotalLikes),
+			articles: { ...u.articles, written: [...u.articles.written.filter((a) => a.id !== id)] },
 		}));
-	};
-
-	const setLikedArticlesData = (likedArticles: Article[]) => setUser((u) => ({ ...u, likedArticles }));
-
-	const addArticleData = (article: Article) => {
-		if (article.Draft) {
-			setUser((u) => ({ ...u, draftArticles: [...u.draftArticles, article] }));
-		} else {
-			setUser((u) => ({ ...u, publishedArticles: [...u.publishedArticles, article] }));
-		}
-	};
-
-	// ─── Drafts ──────────────────────────────────────────────────────────
-
-	const switchArticleDraftStateData = (articleId: number) => {
-		const draftArticle = user.draftArticles.find((a) => a.Id === articleId);
-		const publishedArticle = user.publishedArticles.find((a) => a.Id === articleId);
-		if (draftArticle) {
-			setUser((u) => ({
-				...u,
-				draftArticles: [...u.draftArticles.filter((a) => a.Id !== articleId)],
-				publishedArticles: [...u.publishedArticles, draftArticle],
-			}));
-		}
-		if (publishedArticle) {
-			setUser((u) => ({
-				...u,
-				draftArticles: [...u.draftArticles, publishedArticle],
-				publishedArticles: [...u.publishedArticles.filter((a) => a.Id !== articleId)],
-			}));
-		}
-	};
-
-	const deleteArticleData = (articleId: number) => {
-		const draftArticle = user.draftArticles.find((a) => a.Id === articleId);
-		const publishedArticle = user.publishedArticles.find((a) => a.Id === articleId);
-		if (draftArticle) {
-			setUser((u) => ({
-				...u,
-				draftArticles: [...u.draftArticles.filter((a) => a.Id !== articleId)],
-			}));
-		}
-		if (publishedArticle) {
-			setUser((u) => ({
-				...u,
-				publishedArticles: [...u.publishedArticles.filter((a) => a.Id !== articleId)],
-			}));
-		}
-	};
-
-	const likeArticleData = (article: Article) =>
-		setUser((u) => ({ ...u, likedArticles: [...u.likedArticles, article] }));
-
-	const unlikeArticleData = (articleId: number) =>
-		setUser((u) => ({ ...u, likedArticles: u.likedArticles.filter((a) => a.Id !== articleId) }));
-
-	const setBookmarksData = (bookmarks: Bookmark[]) => setUser((u) => ({ ...u, bookmarks }));
-
-	const addBookmarkData = (bookmark: Bookmark) => setUser((u) => ({ ...u, bookmarks: [...u.bookmarks, bookmark] }));
-
-	const updateBookmarkData = ({
-		bookmarkId,
-		title,
-		description,
-	}: {
-		bookmarkId: number;
-		title: string;
-		description: string;
-	}) => {
+	const likeArticleData = (article: Article, isLiked: boolean) =>
 		setUser((u) => ({
 			...u,
-			bookmarks: [
-				...u.bookmarks.map((b) => {
-					if (b.Id === bookmarkId) {
-						b.Title = title;
-						b.Description = description;
-					}
-					return b;
-				}),
+			articles: {
+				...u.articles,
+				written: [...u.articles.written.map((a) => (a.id === article.id ? article : a))],
+				liked: isLiked ? [...u.articles.liked, article] : [...u.articles.liked.filter((a) => a.id !== article.id)],
+			},
+			anthologiesArticles: [
+				...u.anthologiesArticles.map((a) => ({
+					...a,
+					articles: a.articles.map((e) => (e.id === article.id ? article : e)),
+				})),
 			],
 		}));
-	};
-
-	const deleteBookmarkData = (bookmarkId: number) =>
-		setUser((u) => ({ ...u, bookmarks: [...u.bookmarks.filter((b) => b.Id !== bookmarkId)] }));
-
-	const addArticleToBookmarkData = (bookmarkId: number, articleId: number) =>
+	const loadWrittenArticlesData = (articles: Article[]) =>
 		setUser((u) => ({
 			...u,
-			bookmarks: user.bookmarks.map((b) => {
-				if (b.Id === bookmarkId) {
-					b.Articles = [...b.Articles, articleId];
-				}
-				return b;
-			}),
+			articles: {
+				...u.articles,
+				written: articles,
+			},
 		}));
-
-	const removeArticleFromBookmarkData = (bookmarkId: number, articleId: number) =>
+	const loadLikedArticlesData = (articles: Article[]) =>
 		setUser((u) => ({
 			...u,
-			bookmarks: user.bookmarks.map((b) => {
-				if (b.Id === bookmarkId) {
-					b.Articles = b.Articles.filter((a) => a !== articleId);
-				}
-				return b;
-			}),
+			articles: {
+				...u.articles,
+				liked: articles,
+			},
+		}));
+	const updateArticleData = (article: Article) =>
+		setUser((u) => ({
+			...u,
+			articles: {
+				written: [...u.articles.written.map((a) => (a.id === article.id ? article : a))],
+				liked: [...u.articles.written.map((a) => (a.id === article.id ? article : a))],
+			},
+			anthologiesArticles: [
+				...u.anthologiesArticles.map((a) => ({
+					...a,
+					articles: a.articles.map((e) => (e.id === article.id ? article : e)),
+				})),
+			],
+		}));
+	const loadAnthologyArticlesData = (id: number, articles: Article[]) =>
+		setUser((u) => ({
+			...u,
+			anthologiesArticles: [...u.anthologiesArticles.filter((a) => a.id !== id), { id, articles }],
+		}));
+	const createAuthologyData = (anthology: Anthology) =>
+		setUser((u) => ({
+			...u,
+			anthologies: [...u.anthologies, anthology],
+			anthologiesArticles: [...u.anthologiesArticles, { id: anthology.id, articles: [] }],
+		}));
+	const deleteAnthologyData = (id: number) =>
+		setUser((u) => ({
+			...u,
+			anthologies: [...u.anthologies.filter((a) => a.id !== id)],
+			anthologiesArticles: [...u.anthologiesArticles.filter((a) => a.id !== id)],
+		}));
+	const loadAnthologiesData = (anthologies: Anthology[]) =>
+		setUser((u) => ({
+			...u,
+			anthologies,
+			anthologiesArticles: anthologies.map((a) => ({ id: a.id, articles: [] })),
+		}));
+	// TODO: articles of updated anthology are removed, to change
+	const updateAnthologyData = (anthology: Anthology) =>
+		setUser((u) => ({
+			...u,
+			anthologies: [...u.anthologies.filter((a) => a.id !== anthology.id), anthology],
+			anthologiesArticles: [
+				...u.anthologiesArticles.filter((a) => a.id !== anthology.id),
+				{ id: anthology.id, articles: [] },
+			],
 		}));
 
 	useEffect(() => {
@@ -167,386 +538,236 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 
 	const userContextValue: UserContextType = {
 		user,
-
 		clearUser: () => {
 			localStorage.removeItem('user');
-			setUser({
-				draftArticles: [],
-				publishedArticles: [],
-				likedArticles: [],
-				bookmarks: [],
-				overallDailyTotalLikes: [],
-				overallDailyTotalViews: [],
-			});
+			setUser(defaultUser);
 		},
-
 		uploadUser: (newUser: User) => setUser(newUser),
+		toggleIsOfflineState: () => setUser((u) => ({ ...u, isOffline: !u.isOffline })),
 
-		getArticles: async () => {
-			if (auth.offline) {
-				throw new Error("Action 'getArticles' not available using IPFS.");
-			}
-			return handleRequest({
-				request: async () => {
-					const res = await services.articles.me({ token: auth.accessToken! });
-					for (let i = 0; i < res.data.length; i++) {
-						res.data[i].TotalViews = Math.floor(Math.random() * 1000);
-					}
-
-					let overallTotalViews = 0;
-					for (let i = 0; i < res.data.length; i++) {
-						overallTotalViews += res.data[i].TotalViews;
-					}
-					const overallDailyTotalView = generateDailyStats(overallTotalViews);
-
-					let overallTotalLikes = 0;
-					for (let i = 0; i < res.data.length; i++) {
-						overallTotalLikes += res.data[i].Likes.length;
-					}
-					const overallDailyTotalLike = generateDailyStats(overallTotalLikes);
-
-					setArticlesData(res.data);
-					return res;
-				},
-				name: 'getArticles',
-			});
-		},
-
-		getLikedArticles: async () =>
-			handleRequest({
-				request: auth.offline
-					? undefined
-					: async () => {
-							const res = await services.articles.liked({ token: auth.accessToken! });
-							setLikedArticlesData(res.data);
-							return res;
-					  },
-				action: auth.offline ? () => ({ status: 200, data: user.likedArticles }) : undefined,
-				name: 'getLikedArticles',
-			}),
-
-		getArticle: async (articleId: number) =>
-			handleRequest({
-				request: auth.offline
-					? undefined
-					: async () => {
-							const res = await services.articles.read({ token: auth.accessToken!, articleId });
-							res.data.TotalViews = Math.floor(Math.random() * 1000);
-							return res;
-					  },
-				action: auth.offline
-					? () => {
-							const article = ipfs.data.articles.find((a) => a.Id === articleId);
-							return {
-								status: article ? 200 : 404,
-								data: article,
-							};
-					  }
-					: undefined,
-				name: 'getArticle',
-			}),
-
-		getBookmarks: async () =>
-			handleRequest({
-				request: auth.offline
-					? undefined
-					: async () => {
-							const res = await services.bookmarks.getAll({ token: auth.accessToken! });
-							if (res.data === null) {
-								setBookmarksData([]);
-							} else {
-								const bookmarks = res.data.map((b) => (b.Articles === null ? { ...b, Articles: [] } : b));
-								setBookmarksData(bookmarks);
-							}
-							return res;
-					  },
-				action: auth.offline
-					? () => ({
-							status: 200,
-							data: user.bookmarks,
-					  })
-					: undefined,
-				name: 'getBookmarks',
-			}),
-
-		getBookmark: async (bookmarkId: number) =>
-			handleRequest({
-				request: auth.offline
-					? undefined
-					: async () => {
-							const res = await services.bookmarks.get({ token: auth.accessToken!, bookmarkId });
-							return res;
-					  },
-				action: auth.offline
-					? () => {
-							const bookmark = user.bookmarks.find((b) => b.Id === bookmarkId);
-							return {
-								status: bookmark ? 200 : 404,
-								data: bookmark,
-							};
-					  }
-					: undefined,
-				name: 'getBookmark',
-			}),
-
-		getBookmarkArticles: async (bookmarkId: number) =>
-			handleRequest({
-				request: auth.offline
-					? undefined
-					: async () => {
-							const res = await services.bookmarks.getArticles({ token: auth.accessToken!, bookmarkId });
-							return res;
-					  },
-				action: auth.offline
-					? () => {
-							const articlesId = user.bookmarks.find((b) => b.Id === bookmarkId)?.Articles;
-							if (articlesId === undefined) {
-								return {
-									status: 404,
-									data: undefined,
-								};
-							}
-							const articles = ipfs.data.articles.filter((a) => articlesId.includes(a.Id));
-							return {
-								status: articles ? 200 : 404,
-								data: articles,
-							};
-					  }
-					: undefined,
-				name: 'getBookmarkArticles',
-			}),
-
-		addArticle: ({
+		createArticle: ({
 			title,
-			topic,
+			subtitle,
 			content,
+			topic,
 			draft,
 		}: {
 			title: string;
-			topic: string;
+			subtitle?: string;
 			content: string;
+			topic: number;
 			draft: boolean;
-		}) => {
-			if (auth.offline) {
-				throw new Error("Action 'addArticle' not available using IPFS.");
-			}
-			return handleRequest({
-				request: async () => {
-					const res = await services.articles.publish({ token: auth.accessToken!, title, topic, content, draft });
-					addArticleData(res.data);
-					return res;
+		}) =>
+			createArticle({
+				isOffline: user.isOffline,
+				callback: createArticleData,
+				params: {
+					title,
+					subtitle,
+					content,
+					topic,
+					draft,
 				},
-				name: 'addArticle',
-			});
-		},
+			}),
 
-		switchArticleDraftState: async (articleId: number) => {
-			if (auth.offline) {
-				throw new Error("Action 'switchArticleDraftState' not available using IPFS.");
-			}
-			return handleRequest({
-				request: async () => {
-					const currentDraftState = user.draftArticles.some((a) => a.Id === articleId);
-					const res = await services.articles.changeDraftState({
-						token: auth.accessToken!,
-						articleId,
-						state: !currentDraftState,
-					});
-					switchArticleDraftStateData(articleId);
-					return res;
+		deleteArticle: (id: number) =>
+			deleteArticle({
+				isOffline: user.isOffline,
+				callback: deleteArticleData,
+				params: {
+					id,
 				},
-				name: 'switchArticleDraftState',
-			});
-		},
+			}),
 
-		deleteArticle: async (articleId: number) => {
-			if (auth.offline) {
-				throw new Error("Action 'deleteArticle' not available using IPFS.");
-			}
-			return handleRequest({
-				request: async () => {
-					const res = await services.articles.delete({ token: auth.accessToken!, articleId });
-					deleteArticleData(articleId);
-					return res;
+		likeArticle: ({ id, isLiked }: { id: number; isLiked: boolean }) =>
+			likeArticle({
+				isOffline: user.isOffline,
+				callback: likeArticleData,
+				params: {
+					id,
+					isLiked,
 				},
-				name: 'deleteArticle',
-			});
-		},
-
-		// ─── Like Actions ────────────────────────────────────────────
-
-		likeArticle: async (articleId: number) =>
-			handleRequest({
-				request: auth.offline
-					? undefined
-					: async () => {
-							const res = await services.articles.like({ token: auth.accessToken!, articleId });
-							likeArticleData(res.data);
-							return res;
-					  },
-				action: auth.offline
-					? () => {
-							const article = ipfs.data.articles.find((a) => a.Id === articleId);
-							if (article) likeArticleData(article);
-							return {
-								status: article ? 200 : 400,
-								data: article,
-							};
-					  }
-					: undefined,
-				name: 'likeArticle',
 			}),
 
-		unlikeArticle: async (articleId: number) =>
-			handleRequest({
-				request: auth.offline
-					? undefined
-					: async () => {
-							const res = await services.articles.unlike({ token: auth.accessToken!, articleId });
-							unlikeArticleData(articleId);
-							return res;
-					  },
-				action: auth.offline
-					? () => {
-							const article = ipfs.data.articles.find((a) => a.Id === articleId);
-							if (article) unlikeArticleData(articleId);
-							return {
-								status: article ? 200 : 400,
-								data: article,
-							};
-					  }
-					: undefined,
-				name: 'unlikeArticle',
+		loadWrittenArticles: () =>
+			loadWrittenArticles({
+				isOffline: user.isOffline,
+				callback: loadWrittenArticlesData,
 			}),
 
-		// ─── Bookmarks ───────────────────────────────────────────────
-
-		addBookmark: ({ title, description }: { title: string; description: string }) =>
-			handleRequest({
-				request: auth.offline
-					? undefined
-					: async () => {
-							const res = await services.bookmarks.create({ token: auth.accessToken!, title, description });
-							addBookmarkData(res.data);
-							return res;
-					  },
-				action: auth.offline
-					? () => {
-							const bookmark = {
-								Articles: [],
-								Description: description,
-								Title: title,
-								Id: Date.now(),
-								UserId: 0, // TODO: replace by user Id when we'll be able to
-								CreatedAt: new Date(),
-								UpdatedAt: new Date(),
-							};
-							addBookmarkData(bookmark);
-							return {
-								status: 201,
-								data: bookmark,
-							};
-					  }
-					: undefined,
-				name: 'addBookmark',
+		loadLikedArticles: () =>
+			loadLikedArticles({
+				isOffline: user.isOffline,
+				callback: loadLikedArticlesData,
 			}),
 
-		updateBookmark: ({ bookmarkId, title, description }: { bookmarkId: number; title: string; description: string }) =>
-			handleRequest({
-				request: auth.offline
-					? undefined
-					: async () => {
-							const res = await services.bookmarks.update({ token: auth.accessToken!, bookmarkId, title, description });
-							updateBookmarkData({ bookmarkId, title, description });
-							return res;
-					  },
-				action: auth.offline
-					? () => {
-							const bookmark = user.bookmarks.find((b) => b.Id === bookmarkId);
-							if (bookmark) updateBookmarkData({ bookmarkId, title, description });
-							return {
-								status: bookmark ? 200 : 400,
-								data: bookmark,
-							};
-					  }
-					: undefined,
-				name: 'updateBookmark',
+		searchArticles: ({
+			author,
+			draft,
+			topic,
+			isLiked,
+			anthologyId,
+			query,
+		}: {
+			author?: string;
+			draft?: boolean;
+			topic?: number;
+			isLiked?: boolean;
+			anthologyId?: number;
+			query?: string;
+		}) =>
+			searchArticles({
+				isOffline: user.isOffline,
+				params: {
+					author,
+					draft,
+					topic,
+					isLiked,
+					anthologyId,
+					query,
+				},
 			}),
 
-		deleteBookmark: (bookmarkId: number) =>
-			handleRequest({
-				request: auth.offline
-					? undefined
-					: async () => {
-							const res = services.bookmarks.delete({ token: auth.accessToken!, bookmarkId });
-							deleteBookmarkData(bookmarkId);
-							return res;
-					  },
-				action: auth.offline
-					? () => {
-							const bookmark = user.bookmarks.find((b) => b.Id === bookmarkId);
-							if (bookmark) deleteBookmarkData(bookmarkId);
-							return {
-								status: bookmark ? 200 : 400,
-								data: undefined,
-							};
-					  }
-					: undefined,
-				name: 'deleteBookmark',
+		searchArticle: (id: number) =>
+			searchArticle({
+				isOffline: user.isOffline,
+				params: {
+					id,
+				},
 			}),
 
-		addArticleToBookmark: async (bookmarkId: number, articleId: number) =>
-			handleRequest({
-				request: auth.offline
-					? undefined
-					: async () => {
-							const res = await services.bookmarks.addArticle({
-								token: auth.accessToken!,
-								bookmarkId,
-								articleId,
-							});
-							addArticleToBookmarkData(bookmarkId, articleId);
-							return res;
-					  },
-				action: auth.offline
-					? () => {
-							const article = ipfs.data.articles.find((a) => a.Id === articleId);
-							const bookmark = user.bookmarks.find((b) => b.Id === bookmarkId);
-							if (article && bookmark) addArticleToBookmarkData(bookmarkId, articleId);
-							return {
-								status: article && bookmark ? 200 : 400,
-								data: article,
-							};
-					  }
-					: undefined,
-				name: 'addArticleToBookmark',
+		updateArticle: ({
+			id,
+			newTitle,
+			newSubtitle,
+			newContent,
+			newTopic,
+			newDraft,
+		}: {
+			id: number;
+			newTitle?: string;
+			newSubtitle?: string;
+			newContent?: string;
+			newTopic?: number;
+			newDraft?: boolean;
+		}) =>
+			updateArticle({
+				isOffline: user.isOffline,
+				callback: updateArticleData,
+				params: {
+					id,
+					newTitle,
+					newSubtitle,
+					newContent,
+					newTopic,
+					newDraft,
+				},
 			}),
 
-		removeArticleFromBookmark: async (bookmarkId: number, articleId: number) =>
-			handleRequest({
-				request: auth.offline
-					? undefined
-					: async () => {
-							const res = await services.bookmarks.removeArticle({ token: auth.accessToken!, bookmarkId, articleId });
-							removeArticleFromBookmarkData(bookmarkId, articleId);
-							return res;
-					  },
-				action: auth.offline
-					? () => {
-							const article = ipfs.data.articles.find((a) => a.Id === articleId);
-							const bookmark = user.bookmarks.find((b) => b.Id === bookmarkId);
-							if (article && bookmark) removeArticleFromBookmarkData(bookmarkId, articleId);
-							return {
-								status: article && bookmark ? 200 : 400,
-								data: article,
-							};
-					  }
-					: undefined,
-				name: 'removeArticleFromBookmark',
+		loadAnthologyArticles: (id: number) =>
+			loadAnthologyArticles({
+				isOffline: user.isOffline,
+				callback: loadAnthologyArticlesData,
+				params: {
+					id,
+				},
+			}),
+
+		createAnthology: ({
+			name,
+			description,
+			isPublic,
+			articles,
+		}: {
+			name: string;
+			description: string;
+			isPublic: boolean;
+			articles?: number[];
+		}) =>
+			createAnthology({
+				isOffline: user.isOffline,
+				callback: createAuthologyData,
+				params: {
+					name,
+					description,
+					isPublic,
+					articles,
+				},
+			}),
+
+		deleteAnthology: (id: number) =>
+			deleteAnthology({
+				isOffline: user.isOffline,
+				callback: deleteAnthologyData,
+				params: {
+					id,
+				},
+			}),
+
+		loadAnthologies: () =>
+			loadAnthologies({
+				isOffline: user.isOffline,
+				callback: loadAnthologiesData,
+			}),
+
+		searchAnthologies: ({ author, query }: { author?: string; query?: string }) =>
+			searchAnthologies({
+				isOffline: user.isOffline,
+				params: {
+					author,
+					query,
+				},
+			}),
+
+		searchAnthology: (id: number) =>
+			searchAnthology({
+				isOffline: user.isOffline,
+				params: {
+					id,
+				},
+			}),
+
+		updateAnthology: ({
+			id,
+			addArticles,
+			removeArticles,
+			newName,
+			newDescription,
+			newIsPublic,
+		}: {
+			id: number;
+			addArticles?: number[];
+			removeArticles?: number[];
+			newName?: string;
+			newDescription?: string;
+			newIsPublic?: boolean;
+		}) =>
+			updateAnthology({
+				isOffline: user.isOffline,
+				callback: updateAnthologyData,
+				params: {
+					id,
+					addArticles,
+					removeArticles,
+					newName,
+					newDescription,
+					newIsPublic,
+				},
+			}),
+
+		searchAllTopics: () =>
+			searchAllTopics({
+				isOffline: user.isOffline,
+			}),
+
+		searchTopic: (id: number) =>
+			searchTopic({
+				isOffline: user.isOffline,
+				params: {
+					id,
+				},
 			}),
 	};
-
-	// ─────────────────────────────────────────────────────────────────────
 
 	return <UserContext.Provider value={userContextValue} children={children} />;
 };

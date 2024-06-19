@@ -6,39 +6,37 @@ import { CircularProgress, Grid, GridItem, Tag, Tooltip, VStack } from '@chakra-
 
 import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
-import { useAuthContext } from 'contexts/auth';
 import { useUserContext } from 'contexts/user';
 import { useUIContext } from 'contexts/ui';
-import { Bookmark } from 'types/bookmark';
 import { Article } from 'types/article';
+import { Anthology } from 'types/anthology';
 
-const MarquePage = (): JSX.Element => {
+const Dossier = (): JSX.Element => {
 	const navigate = useNavigate();
-	const { auth } = useAuthContext();
 	const { requestResponseToast } = useUIContext();
-	const { getBookmark, getBookmarkArticles, removeArticleFromBookmark } = useUserContext();
-	const { bookmarkId } = useParams();
+	const { loadAnthologyArticles, searchAnthology, updateAnthology } = useUserContext();
+	const { anthologyId } = useParams();
 	const [search, setSearch] = useState('');
-	const [bookmark, setBookmark] = useState<Bookmark | undefined>(undefined);
+	const [anthology, setAnthology] = useState<Anthology | undefined>(undefined);
 	const [articles, setArticles] = useState<Article[]>([]);
 
-	const uiGetBookmark = async () => {
+	const uiSearchAnthology = async () => {
 		try {
-			const res = await getBookmark(+bookmarkId!);
+			const res = await searchAnthology(+anthologyId!);
 			requestResponseToast(res);
 			if (res.code === 404) {
 				navigate('/marque-pages');
 			} else if (res.status === 'success') {
-				setBookmark(res.data!.Articles === null ? { ...res.data!, Articles: [] } : res.data!);
+				setAnthology(res.data);
 			}
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
-	const uiGetBookmarkArticles = async () => {
+	const uiLoadAnthologyArticles = async () => {
 		try {
-			const res = await getBookmarkArticles(+bookmarkId!);
+			const res = await loadAnthologyArticles(+anthologyId!);
 			requestResponseToast(res);
 			if (res.code === 404) {
 				navigate('/marque-pages');
@@ -51,13 +49,12 @@ const MarquePage = (): JSX.Element => {
 		}
 	};
 
-	const uiRemoveArticleFromBookmark = async (articleId: number) => {
+	const uiUpdateAnthology = async (id: number) => {
 		try {
-			const res = await removeArticleFromBookmark(+bookmarkId!, articleId);
+			const res = await updateAnthology({ id: +anthologyId!, removeArticles: [id] });
 			requestResponseToast(res, true);
 			if (res.status === 'success') {
-				setBookmark((b) => ({ ...b!, Articles: b!.Articles.filter((a) => a !== articleId) }));
-				setArticles(articles.filter((a) => a.Id !== articleId));
+				setArticles(articles.filter((a) => a.id !== id));
 			}
 		} catch (error) {
 			console.error(error);
@@ -65,12 +62,12 @@ const MarquePage = (): JSX.Element => {
 	};
 
 	useEffect(() => {
-		uiGetBookmark();
-		console.log(bookmark);
-		uiGetBookmarkArticles();
-	}, [auth]);
+		uiSearchAnthology();
+		console.log(anthology);
+		uiLoadAnthologyArticles();
+	}, []);
 
-	if (!bookmark) {
+	if (!anthology) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
@@ -91,8 +88,8 @@ const MarquePage = (): JSX.Element => {
 				variant="primary-1"
 			/>
 			<Tag bg="primary.yellow">
-				{bookmark.Articles.length} article
-				{bookmark.Articles.length !== 1 && 's'}
+				{articles.length} article
+				{articles.length !== 1 && 's'}
 			</Tag>
 			<Grid
 				templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
@@ -100,16 +97,18 @@ const MarquePage = (): JSX.Element => {
 				w="100%"
 			>
 				{articles
-					.filter((a) => (search !== '' ? a.Title.includes(search) : true))
+					.filter((a) => (search !== '' ? a.title.includes(search) : true))
 					.map((article, index) => (
 						<GridItem key={`${index.toString()}`}>
 							<ArticleCard
-								id={article.Id}
-								title={article.Title}
-								author={article.AuthorName}
-								date={new Date(article.CreatedAt).toLocaleDateString('fr-FR')}
-								topic={article.Topic}
-								content={article.Content}
+								id={article.id}
+								title={article.title}
+								// TODO: author name
+								author="Author"
+								date={new Date(article.createdAt).toLocaleDateString('fr-FR')}
+								// TODO: Topic name
+								topic="Topic"
+								content={article.content}
 								actions={[
 									<Tooltip label="Ajouter à un marque-page">
 										<span>
@@ -118,12 +117,12 @@ const MarquePage = (): JSX.Element => {
 									</Tooltip>,
 									<Tooltip label="Supprimer du marque-page">
 										<span>
-											<CloseIcon onClick={() => uiRemoveArticleFromBookmark(article.Id)} color="black" />
+											<CloseIcon onClick={() => uiUpdateAnthology(article.id)} color="black" />
 										</span>
 									</Tooltip>,
 								]}
-								likes={article.Likes.length}
-								views={article.TotalViews}
+								likes={article.totalLikes}
+								views={article.totalViews}
 							/>
 						</GridItem>
 					))}
@@ -132,4 +131,4 @@ const MarquePage = (): JSX.Element => {
 	);
 };
 
-export default MarquePage;
+export default Dossier;

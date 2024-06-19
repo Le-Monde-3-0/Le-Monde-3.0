@@ -2,6 +2,10 @@ import { AxiosError, AxiosResponse } from 'axios';
 
 const englishErrorMapping = [
 	{
+		english: 'password is not strong enough',
+		french: 'Veuillez renseigner un mot de passe plus complexe.',
+	},
+	{
 		english: 'an account with this username already exists',
 		french: "Nom d'utilisateur déjà existant.",
 	},
@@ -11,7 +15,7 @@ const englishErrorMapping = [
 	},
 	{
 		english: 'No message provided from the backend',
-		french: 'Pas de message renvoyé par le backend',
+		french: 'Pas de message renvoyé par le backend.',
 	},
 ];
 
@@ -84,7 +88,7 @@ const notFoundError = (subMessage?: string): RequestResponse<never> => ({
 const conflictError = (subMessage?: string): RequestResponse<never> => ({
 	code: 409,
 	status: 'error',
-	message: 'Conflit',
+	message: 'Conflit.',
 	subMessage,
 	data: undefined,
 });
@@ -98,26 +102,11 @@ const internalError: RequestResponse<never> = {
 };
 
 const handleRequestTable: { [key: string]: RequestResponse<never>[] } = {
-	login: [okResponse('Connexion réussie.'), badRequestError()],
-	register: [createdResponse('Inscription réussie.'), badRequestError(), conflictError()],
-	me: [okResponse('Profil récupéré.'), notAuthError()],
-	getArticles: [okResponse('Articles récupérés.'), notAuthError()],
-	getLikedArticles: [okResponse('Articles aimés récupérés.'), notAuthError()],
-	getArticle: [okResponse('Article récupéré.'), notAuthError(), notFoundError()],
-	getBookmark: [okResponse('Marque-page récupéré.'), notAuthError(), notFoundError()],
-	getBookmarkArticles: [okResponse('Articles récupérés.'), notAuthError()],
-	addArticle: [createdResponse('Article créé.'), badRequestError(), notAuthError()],
-	switchArticleDraftState: [okResponse("Status de l'article changé."), badRequestError(), notAuthError()],
-	deleteArticle: [okResponse('Article supprimé.'), notAuthError(), notFoundError()],
-	likeArticle: [okResponse('Article aimé.'), notAuthError()],
-	unlikeArticle: [okResponse('Article dé-aimé.'), notAuthError()],
-	getBookmarks: [okResponse('Marque-pages récupérés.'), notAuthError()],
-	addBookmark: [createdResponse('Marque-page créé.'), badRequestError(), notAuthError()],
-	updateBookmark: [okResponse('Marque-page modifié.'), badRequestError(), notAuthError()],
-	deleteBookmark: [okResponse('Marque-page supprimé.'), notAuthError()],
-	addArticleToBookmark: [okResponse('Article ajouté au marque-page.'), notAuthError()],
-	removeArticleFromBookmark: [okResponse('Article supprimé du marque-page.'), notAuthError()],
-	getUserProfil: [okResponse('Profil utilisateur récupéré.'), notAuthError(), notFoundError()],
+	signUp: [createdResponse('Inscription réussie!'), badRequestError(), conflictError()],
+	signIn: [okResponse('Connexion réussie!')],
+	signAgain: [createdResponse('Bienvenue !')],
+	signOut: [okResponse('Vous êtes déconnectés.')],
+	searchArticles: [okResponse('Articles trouvés.')],
 };
 
 const handleRequest = async <Type>({
@@ -140,7 +129,7 @@ const handleRequest = async <Type>({
 		if (error instanceof AxiosError) {
 			const errorCode = error.response ? error.response.status : 0;
 			if (errorCode === 500) return internalError;
-			const errorMessage = error.response?.data.error || 'No message provided from the backend';
+			const errorMessage = error.response?.data.message[0] || 'No message provided from the backend';
 			const frenchErrorMessage = findFrenchMapping(errorMessage);
 			const output = handleRequestTable[name].find((r) => r.code === errorCode);
 			return output ? { ...output, subMessage: frenchErrorMessage } : unhandledResponse;

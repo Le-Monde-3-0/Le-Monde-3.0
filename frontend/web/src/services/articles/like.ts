@@ -1,13 +1,9 @@
 import { servicesURL } from 'services';
-import { Article } from 'types/article';
+import { EmptyType } from 'types/services';
 
-const like = async ({ token, articleId }: { token: string; articleId: number }) =>
-	servicesURL.post<Article>(
-		`/articles/${articleId}/likes`,
-		{},
-		{
-			headers: { Authorization: `Bearer ${token}` },
-		},
-	);
+const like = async ({ id, isLiked }: { id: number; isLiked: boolean }) =>
+	servicesURL.patch<EmptyType>(`/articles/${id}/like`, {
+		isLiked,
+	});
 
 export default like;

@@ -1,8 +1,10 @@
 import { createContext, useContext } from 'react';
 
-import { Article } from 'types/article';
-import { Bookmark } from 'types/bookmark';
 import { User } from 'types/user';
+import { Topic } from 'types/topic';
+import { Article } from 'types/article';
+import { Anthology } from 'types/anthology';
+import { EmptyType } from 'types/services';
 import { RequestResponse } from 'utils/handleRequest';
 
 type UserContextType = {
@@ -16,44 +18,98 @@ type UserContextType = {
 	//
 	clearUser: () => void;
 	uploadUser: (user: User) => void;
+	toggleIsOfflineState: () => void;
 
 	//
 	// Methods to interact with the services
 	//
-	getArticles: () => Promise<RequestResponse<Article[]>>;
-	getLikedArticles: () => Promise<RequestResponse<Article[]>>;
-	getArticle: (articleId: number) => Promise<RequestResponse<Article>>;
-	getBookmarks: () => Promise<RequestResponse<Bookmark[]>>;
-	getBookmark: (bookmarkId: number) => Promise<RequestResponse<Bookmark>>;
-	getBookmarkArticles: (bookmarkId: number) => Promise<RequestResponse<Article[]>>;
-	addArticle: ({
+
+	// Articles
+	createArticle: ({
 		title,
-		topic,
+		subtitle,
 		content,
+		topic,
 		draft,
 	}: {
 		title: string;
-		topic: string;
+		subtitle?: string;
 		content: string;
+		topic: number;
 		draft: boolean;
 	}) => Promise<RequestResponse<Article>>;
-	switchArticleDraftState: (articleId: number) => Promise<RequestResponse<Article>>;
-	deleteArticle: (articleId: number) => Promise<RequestResponse<{ delete: string }>>;
-	likeArticle: (articleId: number) => Promise<RequestResponse<Article>>;
-	unlikeArticle: (articleId: number) => Promise<RequestResponse<Article>>;
-	addBookmark: ({ title, description }: { title: string; description: string }) => Promise<RequestResponse<Bookmark>>;
-	updateBookmark: ({
-		bookmarkId,
-		title,
-		description,
+	deleteArticle: (id: number) => Promise<RequestResponse<EmptyType>>;
+	likeArticle: ({ id, isLiked }: { id: number; isLiked: boolean }) => Promise<RequestResponse<EmptyType>>;
+	loadWrittenArticles: () => Promise<RequestResponse<Article[]>>;
+	loadLikedArticles: () => Promise<RequestResponse<Article[]>>;
+	searchArticles: ({
+		author,
+		draft,
+		topic,
+		isLiked,
+		anthologyId,
+		query,
 	}: {
-		bookmarkId: number;
-		title: string;
+		author?: string;
+		draft?: boolean;
+		topic?: number;
+		isLiked?: boolean;
+		anthologyId?: number;
+		query?: string;
+	}) => Promise<RequestResponse<Article[]>>;
+	searchArticle: (id: number) => Promise<RequestResponse<Article>>;
+	updateArticle: ({
+		id,
+		newTitle,
+		newSubtitle,
+		newContent,
+		newTopic,
+		newDraft,
+	}: {
+		id: number;
+		newTitle?: string;
+		newSubtitle?: string;
+		newContent?: string;
+		newTopic?: number;
+		newDraft?: boolean;
+	}) => Promise<RequestResponse<Article>>;
+
+	// Anthologies
+	loadAnthologyArticles: (id: number) => Promise<RequestResponse<Article[]>>;
+	createAnthology: ({
+		name,
+		description,
+		isPublic,
+		articles,
+	}: {
+		name: string;
 		description: string;
-	}) => Promise<RequestResponse<Bookmark>>;
-	deleteBookmark: (bookmarkId: number) => Promise<RequestResponse<{ delete: string }>>;
-	addArticleToBookmark: (bookmarkId: number, articleId: number) => Promise<RequestResponse<Article>>;
-	removeArticleFromBookmark: (bookmarkId: number, articleId: number) => Promise<RequestResponse<Article>>;
+		isPublic: boolean;
+		articles?: number[];
+	}) => Promise<RequestResponse<Anthology>>;
+	deleteAnthology: (id: number) => Promise<RequestResponse<EmptyType>>;
+	loadAnthologies: () => Promise<RequestResponse<Anthology[]>>;
+	searchAnthologies: ({ author, query }: { author?: string; query?: string }) => Promise<RequestResponse<Anthology[]>>;
+	searchAnthology: (id: number) => Promise<RequestResponse<Anthology>>;
+	updateAnthology: ({
+		id,
+		addArticles,
+		removeArticles,
+		newName,
+		newDescription,
+		newIsPublic,
+	}: {
+		id: number;
+		addArticles?: number[];
+		removeArticles?: number[];
+		newName?: string;
+		newDescription?: string;
+		newIsPublic?: boolean;
+	}) => Promise<RequestResponse<Anthology>>;
+
+	// Topics
+	searchAllTopics: () => Promise<RequestResponse<Topic[]>>;
+	searchTopic: (id: number) => Promise<RequestResponse<Topic>>;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
