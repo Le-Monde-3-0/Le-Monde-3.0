@@ -3,8 +3,8 @@ import { BrowserRouter, Navigate, Route, Routes as RouterRoutes } from 'react-ro
 
 import AuthRoute from './Auth';
 import PrivateRoute from './Private';
-import AuthProvider from 'providers/Auth';
-import UserProvider from 'providers/User';
+import AuthProvider from 'providers/auth/Index';
+import UserProvider from 'providers/user/Index';
 import IpfsProvider from 'providers/Ipfs';
 import UIProvider from 'providers/UI';
 import HomePage from 'pages/Home';

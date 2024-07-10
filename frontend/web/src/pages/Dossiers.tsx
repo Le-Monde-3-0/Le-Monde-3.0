@@ -31,8 +31,8 @@ import SearchInput from 'components/Inputs/SearchInput';
 
 const Dossiers = (): JSX.Element => {
 	const navigate = useNavigate();
-	const { requestResponseToast } = useUIContext();
-	const { user, createAnthology, deleteAnthology, loadAnthologies, updateAnthology } = useUserContext();
+	const { handleToast } = useUIContext();
+	const { data, methods } = useUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [search, setSearch] = useState('');
 	const [title, setTitle] = useState('');
@@ -42,8 +42,8 @@ const Dossiers = (): JSX.Element => {
 
 	const uiLoadAnthologies = async () => {
 		try {
-			const res = await loadAnthologies();
-			requestResponseToast(res);
+			const res = await methods.anthologies.load();
+			handleToast(res);
 		} catch (error) {
 			console.error(error);
 		}
@@ -51,8 +51,8 @@ const Dossiers = (): JSX.Element => {
 
 	const uiCreateAnthology = async () => {
 		try {
-			const res = await createAnthology({ name: title, description, isPublic: false });
-			requestResponseToast(res, true);
+			const res = await methods.anthologies.create({ name: title, description, isPublic: false });
+			handleToast(res, true);
 			if (res.status === 'success') {
 				onClose();
 				setTitle('');
@@ -65,8 +65,8 @@ const Dossiers = (): JSX.Element => {
 
 	const uiDeleteAnthology = async (id: number) => {
 		try {
-			const res = await deleteAnthology(id);
-			requestResponseToast(res, true);
+			const res = await methods.anthologies.delete({ id });
+			handleToast(res, true);
 		} catch (error) {
 			console.error(error);
 		}
@@ -74,8 +74,8 @@ const Dossiers = (): JSX.Element => {
 
 	const uiUpdateAnthology = async (id: number) => {
 		try {
-			const res = await updateAnthology({ id, newName: title, newDescription: description });
-			requestResponseToast(res, true);
+			const res = await methods.anthologies.update({ id, newName: title, newDescription: description });
+			handleToast(res, true);
 			if (res.status === 'success') {
 				onClose();
 				setTitle('');
@@ -92,7 +92,7 @@ const Dossiers = (): JSX.Element => {
 		uiLoadAnthologies();
 	}, []);
 
-	if (!user.anthologies) {
+	if (!data.user.anthologies) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
@@ -119,8 +119,8 @@ const Dossiers = (): JSX.Element => {
 					</Button>
 				</Stack>
 				<Tag bg="primary.yellow">
-					{user.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length} marque-page
-					{user.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length !== 1 && 's'}
+					{data.user.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length} marque-page
+					{data.user.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length !== 1 && 's'}
 				</Tag>
 				<Grid
 					templateColumns={{
@@ -131,7 +131,7 @@ const Dossiers = (): JSX.Element => {
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
 				>
-					{user.anthologies
+					{data.user.anthologies
 						.filter((b) => (search !== '' ? b.name.includes(search) : true))
 						.map((anthology, index) => (
 							<GridItem key={`${index.toString()}`}>

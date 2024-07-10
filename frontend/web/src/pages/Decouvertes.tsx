@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Text, VStack } from '@chakra-ui/react';
 
-import SearchInput from 'components/Inputs/SearchInput';
+// import SearchInput from 'components/Inputs/SearchInput';
 
 const Publications = (): JSX.Element => {
 	// const [search, setSearch] = useState('');

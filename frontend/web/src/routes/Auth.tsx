@@ -5,18 +5,16 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import AuthLayout from 'layouts/Auth';
 import { useUIContext } from 'contexts/ui';
 import { useAuthContext } from 'contexts/auth';
-import { useUserContext } from 'contexts/user';
 
 const Auth = (): JSX.Element => {
 	const navigate = useNavigate();
-	const { signAgain } = useAuthContext();
-	const { searchArticles } = useUserContext();
-	const { requestResponseToast } = useUIContext();
+	const { methods } = useAuthContext();
+	const { handleToast } = useUIContext();
 
 	const uiSignAgain = async () => {
 		try {
-			const res = await signAgain();
-			requestResponseToast(res);
+			const res = await methods.sign.again();
+			handleToast(res);
 			if (res.status === 'success') {
 				navigate('/favoris');
 			}

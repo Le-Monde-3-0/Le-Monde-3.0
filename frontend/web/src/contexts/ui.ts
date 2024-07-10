@@ -1,9 +1,9 @@
 import { createContext, useContext } from 'react';
 
-import { RequestResponse } from 'utils/handleRequest';
+import { Handler } from 'types/handler';
 
 type UIContextType = {
-	requestResponseToast: (res: RequestResponse<unknown>, showIfSuccess?: boolean, showIfNotSuccess?: boolean) => void;
+	handleToast: (res: Handler<unknown>, showIfSuccess?: boolean, showIfNotSuccess?: boolean) => void;
 };
 
 const UIContext = createContext<UIContextType | undefined>(undefined);

@@ -1,33 +1,39 @@
 import { createContext, useContext } from 'react';
-import { SignType, EmptyType } from 'types/services';
 
-import { RequestResponse } from 'utils/handleRequest';
+import { Handler } from 'types/handler';
+import {
+	SignResponse,
+	EmptyResponse,
+	AuthSignIn,
+	AuthSignUp,
+	AuthUpdateEmail,
+	AuthUpdatePassword,
+	AuthUpdateUsername,
+} from 'types/services';
+
+// type Action<Type> = {
+// 	params: Type;
+// 	overrides?: {
+// 		showIfSuccess?: boolean;
+// 		showIfNotSuccess?: boolean;
+// 	};
+// 	callback?: () => void;
+// };
 
 type AuthContextType = {
-	//
-	// Methods to interact with the services
-	//
-	signUp: ({
-		email,
-		username,
-		password,
-	}: {
-		email: string;
-		username: string;
-		password: string;
-	}) => Promise<RequestResponse<SignType>>;
-	signIn: ({ identifier, password }: { identifier: string; password: string }) => Promise<RequestResponse<SignType>>;
-	signOut: () => Promise<RequestResponse<EmptyType>>;
-	signAgain: () => Promise<RequestResponse<EmptyType>>;
-	updatePassword: ({
-		oldPassword,
-		newPassword,
-	}: {
-		oldPassword: string;
-		newPassword: string;
-	}) => Promise<RequestResponse<SignType>>;
-	updateEmail: ({ newEmail }: { newEmail: string }) => Promise<RequestResponse<SignType>>;
-	updateUsername: ({ newUsername }: { newUsername: string }) => Promise<RequestResponse<SignType>>;
+	methods: {
+		sign: {
+			up: (params: AuthSignUp) => Promise<Handler<SignResponse>>;
+			in: (params: AuthSignIn) => Promise<Handler<SignResponse>>;
+			out: () => Promise<Handler<EmptyResponse>>;
+			again: () => Promise<Handler<EmptyResponse>>;
+		};
+		update: {
+			password: (params: AuthUpdatePassword) => Promise<Handler<EmptyResponse>>;
+			email: (params: AuthUpdateEmail) => Promise<Handler<EmptyResponse>>;
+			username: (params: AuthUpdateUsername) => Promise<Handler<EmptyResponse>>;
+		};
+	};
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

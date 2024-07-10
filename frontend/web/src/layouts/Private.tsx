@@ -14,7 +14,7 @@ import {
 	useBreakpointValue,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { ChevronLeftIcon, ChevronRightIcon, HamburgerIcon } from '@chakra-ui/icons';
+import { HamburgerIcon } from '@chakra-ui/icons';
 import { FaBookOpen, FaPenNib } from 'react-icons/fa';
 import { MdAccountCircle } from 'react-icons/md';
 
@@ -73,7 +73,7 @@ const Option = ({
 );
 
 const NavBar = ({ ...props }: StackProps): JSX.Element => {
-	const { user } = useUserContext();
+	const { data } = useUserContext();
 	const location = useLocation();
 	const navigate = useNavigate();
 
@@ -114,24 +114,24 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 				/>
 			</VStack>
 			<VStack align="start" w="100%">
-				<Title icon={FaPenNib} name="Écrire" isEnable={!user.isOffline} />
+				<Title icon={FaPenNib} name="Écrire" isEnable={!data.user.isOffline} />
 				<Option
 					name="Nouvel article"
 					isSelected={location.pathname === '/nouvel-article'}
 					onClick={() => navigate('/nouvel-article')}
-					isEnable={!user.isOffline}
+					isEnable={!data.user.isOffline}
 				/>
 				<Option
 					name="Publications"
 					isSelected={location.pathname === '/publications'}
 					onClick={() => navigate('/publications')}
-					isEnable={!user.isOffline}
+					isEnable={!data.user.isOffline}
 				/>
 				<Option
 					name="Brouillons"
 					isSelected={location.pathname === '/brouillons'}
 					onClick={() => navigate('/brouillons')}
-					isEnable={!user.isOffline}
+					isEnable={!data.user.isOffline}
 				/>
 			</VStack>
 			<VStack align="start" w="100%">
@@ -140,7 +140,7 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 					name="Réglages"
 					isSelected={location.pathname === '/reglages'}
 					onClick={() => navigate('/reglages')}
-					isEnable={!user.isOffline}
+					isEnable={!data.user.isOffline}
 				/>
 			</VStack>
 		</VStack>

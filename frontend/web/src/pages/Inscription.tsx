@@ -11,8 +11,8 @@ import emailRegex from 'utils/emailRegex';
 
 const Inscription = (): JSX.Element => {
 	const navigate = useNavigate();
-	const { signUp } = useAuthContext();
-	const { requestResponseToast } = useUIContext();
+	const { methods } = useAuthContext();
+	const { handleToast } = useUIContext();
 	const [email, setEmail] = useState('');
 	const [username, setUsername] = useState('');
 	const [pwd, setPwd] = useState('');
@@ -29,8 +29,8 @@ const Inscription = (): JSX.Element => {
 
 	const inscription = async () => {
 		try {
-			const res = await signUp({ email, password: pwd, username });
-			requestResponseToast(res);
+			const res = await methods.sign.up({ email, password: pwd, username });
+			handleToast(res);
 			if (res.status === 'success') {
 				navigate('/favoris');
 			}

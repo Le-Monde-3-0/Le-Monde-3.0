@@ -6,10 +6,10 @@ import { useUserContext } from 'contexts/user';
 
 const Home = (): JSX.Element => {
 	const navigate = useNavigate();
-	const { toggleIsOfflineState } = useUserContext();
+	const { methods } = useUserContext();
 
 	const enterOfflineMode = async () => {
-		toggleIsOfflineState();
+		methods.user.toggleIsOfflineState();
 		navigate('/ipfs-config');
 	};
 

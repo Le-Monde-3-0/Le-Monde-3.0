@@ -1,13 +1,8 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState } from 'react';
 import { Badge, Select, Stack, Text, VStack } from '@chakra-ui/react';
 
-import services from 'services';
-import { useAuthContext } from 'contexts/auth';
-import { useUIContext } from 'contexts/ui';
 import SearchInput from 'components/Inputs/SearchInput';
-import handleRequest from 'utils/handleRequest';
 
 const UserProfil = (): JSX.Element => {
 	// const { auth } = useAuthContext();
@@ -18,7 +13,7 @@ const UserProfil = (): JSX.Element => {
 
 	// const getUserProfil = async () => {
 	// 	try {
-	// 		const profilRes = await handleRequest<{
+	// 		const profilRes = await handler<{
 	// 			id: number;
 	// 			email: string;
 	// 			username: string;

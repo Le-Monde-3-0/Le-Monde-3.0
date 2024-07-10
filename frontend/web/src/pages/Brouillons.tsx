@@ -1,23 +1,22 @@
-import { DeleteIcon, EditIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import { DeleteIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import {
 	CircularProgress,
 	Grid,
 	GridItem,
 	HStack,
-	Modal,
-	ModalBody,
-	ModalCloseButton,
-	ModalContent,
-	ModalHeader,
-	ModalOverlay,
+	// Modal,
+	// ModalBody,
+	// ModalCloseButton,
+	// ModalContent,
+	// ModalHeader,
+	// ModalOverlay,
 	Tag,
 	Tooltip,
 	VStack,
 } from '@chakra-ui/react';
 import ArticleCard from 'components/Cards/ArticleCard';
-import Editor from 'components/Editor/Editor';
+// import Editor from 'components/Editor/Editor';
 import SearchInput from 'components/Inputs/SearchInput';
-import { useAuthContext } from 'contexts/auth';
 import { useUIContext } from 'contexts/ui';
 import { useUserContext } from 'contexts/user';
 import * as React from 'react';
@@ -31,13 +30,13 @@ const Brouillons = (): JSX.Element => {
 	// 	topic: '',
 	// 	content: '',
 	// });
-	const { requestResponseToast } = useUIContext();
-	const { user, deleteArticle, loadWrittenArticles, updateArticle } = useUserContext();
+	const { handleToast } = useUIContext();
+	const { data, methods } = useUserContext();
 
 	const uiLoadWrittenArticles = async () => {
 		try {
-			const res = await loadWrittenArticles();
-			requestResponseToast(res);
+			const res = await methods.articles.load.written();
+			handleToast(res);
 		} catch (error) {
 			console.error(error);
 		}
@@ -45,8 +44,8 @@ const Brouillons = (): JSX.Element => {
 
 	const uiDeleteArticle = async (articleId: number) => {
 		try {
-			const res = await deleteArticle(articleId);
-			requestResponseToast(res, true);
+			const res = await methods.articles.delete({ id: articleId });
+			handleToast(res, true);
 		} catch (error) {
 			console.error(error);
 		}
@@ -54,8 +53,8 @@ const Brouillons = (): JSX.Element => {
 
 	const uiUpdateArticle = async (articleId: number) => {
 		try {
-			const res = await updateArticle({ id: articleId, newDraft: false });
-			requestResponseToast(res, true);
+			const res = await methods.articles.update({ id: articleId, newDraft: false });
+			handleToast(res, true);
 		} catch (error) {
 			console.error(error);
 		}
@@ -65,7 +64,7 @@ const Brouillons = (): JSX.Element => {
 		uiLoadWrittenArticles();
 	}, []);
 
-	if (!user.articles.written) {
+	if (!data.user.articles.written) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
@@ -89,21 +88,21 @@ const Brouillons = (): JSX.Element => {
 				<HStack>
 					<Tag bg="primary.yellow">
 						{
-							user.articles.written
+							data.user.articles.written
 								.filter((a) => a.draft)
 								.filter((p) => (search !== '' ? p.title.includes(search) : true)).length
 						}{' '}
 						brouillon
-						{user.articles.written.filter((a) => a.draft).length !== 1 && 's'}
+						{data.user.articles.written.filter((a) => a.draft).length !== 1 && 's'}
 					</Tag>
 					<Tag bg="primary.blue">
-						{user.articles.written
+						{data.user.articles.written
 							.filter((a) => a.draft)
 							.filter((p) => (search !== '' ? p.title.includes(search) : true))
 							.map((p) => p.totalLikes)
 							.reduce((a, v) => a + v, 0)}{' '}
 						like
-						{user.articles.written
+						{data.user.articles.written
 							.filter((a) => a.draft)
 							.filter((p) => (search !== '' ? p.title.includes(search) : true))
 							.map((p) => p.totalLikes)
@@ -115,7 +114,7 @@ const Brouillons = (): JSX.Element => {
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
 				>
-					{user.articles.written
+					{data.user.articles.written
 						.filter((a) => a.draft)
 						.filter((p) => (search !== '' ? p.title.includes(search) : true))
 						.map((brouillon, index) => (

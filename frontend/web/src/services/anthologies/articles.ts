@@ -1,6 +1,8 @@
 import { servicesURL } from 'services';
 import { Article } from 'types/article';
+import { AnthologiesArticles } from 'types/services';
 
-const getArticles = async (id: number) => servicesURL.get<Article[]>(`/anthologies/${id}/articles`);
+const articles = async (params: AnthologiesArticles) =>
+	servicesURL.get<Article[]>(`/anthologies/${params.id}/articles`);
 
-export { getArticles };
+export default articles;

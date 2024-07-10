@@ -1,9 +1,9 @@
 import { servicesURL } from 'services';
-import { EmptyType } from 'types/services';
+import { ArticlesLike, EmptyResponse } from 'types/services';
 
-const like = async ({ id, isLiked }: { id: number; isLiked: boolean }) =>
-	servicesURL.patch<EmptyType>(`/articles/${id}/like`, {
-		isLiked,
+const like = async (params: ArticlesLike) =>
+	servicesURL.patch<EmptyResponse>(`/articles/${params.id}/like`, {
+		isLiked: params.isLiked,
 	});
 
 export default like;

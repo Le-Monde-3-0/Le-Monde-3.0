@@ -1,14 +1,13 @@
 import { servicesURL } from 'services';
 import { Anthology } from 'types/anthology';
+import { AnthologiesSearchMany, AnthologiesSearchOne } from 'types/services';
 
-const searchMany = async ({ author = 'me', query }: { author?: string; query?: string }) =>
+export const one = async (params: AnthologiesSearchOne) => servicesURL.get<Anthology>(`/anthologies/${params.id}`);
+
+export const many = async (params: AnthologiesSearchMany) =>
 	servicesURL.get<Anthology[]>('/anthologies', {
 		params: {
-			author,
-			q: query,
+			author: params.author,
+			q: params.query,
 		},
 	});
-
-const searchOne = async (id: number) => servicesURL.get<Anthology>(`/anthologies/${id}`);
-
-export { searchMany, searchOne };

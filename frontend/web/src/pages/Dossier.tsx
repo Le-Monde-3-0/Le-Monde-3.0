@@ -13,8 +13,8 @@ import { Anthology } from 'types/anthology';
 
 const Dossier = (): JSX.Element => {
 	const navigate = useNavigate();
-	const { requestResponseToast } = useUIContext();
-	const { loadAnthologyArticles, searchAnthology, updateAnthology } = useUserContext();
+	const { handleToast } = useUIContext();
+	const { methods } = useUserContext();
 	const { anthologyId } = useParams();
 	const [search, setSearch] = useState('');
 	const [anthology, setAnthology] = useState<Anthology | undefined>(undefined);
@@ -22,8 +22,8 @@ const Dossier = (): JSX.Element => {
 
 	const uiSearchAnthology = async () => {
 		try {
-			const res = await searchAnthology(+anthologyId!);
-			requestResponseToast(res);
+			const res = await methods.anthologies.search.one({ id: +anthologyId! });
+			handleToast(res);
 			if (res.code === 404) {
 				navigate('/marque-pages');
 			} else if (res.status === 'success') {
@@ -36,8 +36,8 @@ const Dossier = (): JSX.Element => {
 
 	const uiLoadAnthologyArticles = async () => {
 		try {
-			const res = await loadAnthologyArticles(+anthologyId!);
-			requestResponseToast(res);
+			const res = await methods.anthologies.articles({ id: +anthologyId! });
+			handleToast(res);
 			if (res.code === 404) {
 				navigate('/marque-pages');
 			} else if (res.status === 'success') {
@@ -51,8 +51,8 @@ const Dossier = (): JSX.Element => {
 
 	const uiUpdateAnthology = async (id: number) => {
 		try {
-			const res = await updateAnthology({ id: +anthologyId!, removeArticles: [id] });
-			requestResponseToast(res, true);
+			const res = await methods.anthologies.update({ id: +anthologyId!, removeArticles: [id] });
+			handleToast(res, true);
 			if (res.status === 'success') {
 				setArticles(articles.filter((a) => a.id !== id));
 			}

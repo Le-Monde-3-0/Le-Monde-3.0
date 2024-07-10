@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { Button, HStack, Input, Select, Stack, Textarea, VStack } from '@chakra-ui/react';
+import { Button, HStack, Input, Stack, Textarea, VStack } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 
 import { useUserContext } from 'contexts/user';
@@ -16,16 +16,16 @@ const Editor = ({
 	placeholderContent: string;
 }): JSX.Element => {
 	const navigate = useNavigate();
-	const { createArticle } = useUserContext();
-	const { requestResponseToast } = useUIContext();
+	const { handleToast } = useUIContext();
+	const { methods } = useUserContext();
 	const [title, setTitle] = useState(placeholderTitle);
 	const [topic, setTopic] = useState(placeholderTopic);
 	const [content, setContent] = useState(placeholderContent);
 
 	const uiCreateArticle = async (draft: boolean) => {
 		try {
-			const res = await createArticle({ title, content, topic: 0, draft });
-			requestResponseToast(res, true);
+			const res = await methods.articles.create({ title, content, topic: 0, draft });
+			handleToast(res, true);
 			if (res.status === 'success') {
 				if (draft) {
 					navigate(`/publications/${res.data!.id}`);

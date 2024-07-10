@@ -1,16 +1,18 @@
 import create from './create';
 import hardDelete from './delete';
 import like from './like';
-import { searchMany, searchOne } from './search';
+import { many, one } from './search';
 import update from './update';
 
-const articlesService = {
+const articles = {
 	create,
 	delete: hardDelete,
 	like,
-	searchMany,
-	searchOne,
+	search: {
+		one,
+		many,
+	},
 	update,
 };
 
-export default articlesService;
+export default articles;

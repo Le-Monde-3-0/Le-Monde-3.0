@@ -30,11 +30,13 @@ const Reglages = (): JSX.Element => {
 	const [newPassword, setNewPassword] = useState('');
 
 	const navigate = useNavigate();
-	const { requestResponseToast } = useUIContext();
-	const { signOut } = useAuthContext();
-	const { user, toggleIsOfflineState } = useUserContext();
+	const { handleToast } = useUIContext();
+	const auth = useAuthContext();
+	const authMethods = auth.methods;
+	const user = useUserContext();
+	const userData = user.data;
+	const userMethods = user.methods;
 	const { ipfs, setArticles, setGateway, getIPFSFile } = useIpfsContext();
-	const { uploadUser } = useUserContext();
 	const [isGatewayWorking, setIsGatewayWorking] = useState<true | false | 'loading'>(false);
 	const [isRefreshWorking, setIsRefreshWorking] = useState<true | false | 'loading'>(false);
 	const toast = useToast();
@@ -85,7 +87,7 @@ const Reglages = (): JSX.Element => {
 			reader.onload = async (e: any) => {
 				try {
 					const content = JSON.parse(e.target.result);
-					uploadUser(content);
+					userMethods.user.upload(content);
 					toast({
 						status: 'success',
 						title: 'Profil chargé!',
@@ -109,8 +111,8 @@ const Reglages = (): JSX.Element => {
 
 	const deconnect = async () => {
 		try {
-			const res = await signOut();
-			requestResponseToast(res, true);
+			const res = await authMethods.sign.out();
+			handleToast(res, true);
 			if (res.status === 'success') {
 				navigate('/');
 			}
@@ -182,8 +184,13 @@ const Reglages = (): JSX.Element => {
 				</VStack>
 				<VStack align="start" w="100%" spacing="32px">
 					<HStack w="160px" justify="space-between">
-						<Text variant="link">{user.isOffline ? 'Hors Ligne' : 'En Ligne'}</Text>
-						<Switch size="lg" defaultChecked={user.isOffline} variant="primary" onChange={toggleIsOfflineState} />
+						<Text variant="link">{userData.user.isOffline ? 'Hors Ligne' : 'En Ligne'}</Text>
+						<Switch
+							size="lg"
+							defaultChecked={userData.user.isOffline}
+							variant="primary"
+							onChange={userMethods.user.toggleIsOfflineState}
+						/>
 					</HStack>
 					<VStack align="start" w="100%">
 						<Text variant="link">Gateway IPFS</Text>

@@ -26,16 +26,16 @@ import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
 
 const Favoris = (): JSX.Element => {
-	const { requestResponseToast } = useUIContext();
-	const { user, likeArticle, loadLikedArticles, loadAnthologies, updateAnthology } = useUserContext();
+	const { handleToast } = useUIContext();
+	const { data, methods } = useUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [search, setSearch] = useState('');
 	const [articleToAdd, setArticleToAdd] = useState<number | undefined>(undefined);
 
 	const uiLoadLikedArticles = async () => {
 		try {
-			const res = await loadLikedArticles();
-			requestResponseToast(res);
+			const res = await methods.articles.load.liked();
+			handleToast(res);
 		} catch (error) {
 			console.error(error);
 		}
@@ -43,8 +43,8 @@ const Favoris = (): JSX.Element => {
 
 	const uiUnlikeArticle = async (id: number) => {
 		try {
-			const res = await likeArticle({ id, isLiked: false });
-			requestResponseToast(res, true);
+			const res = await methods.articles.like({ id, isLiked: false });
+			handleToast(res, true);
 		} catch (error) {
 			console.error(error);
 		}
@@ -52,8 +52,8 @@ const Favoris = (): JSX.Element => {
 
 	const uiloadAnthologies = async () => {
 		try {
-			const res = await loadAnthologies();
-			requestResponseToast(res);
+			const res = await methods.anthologies.load();
+			handleToast(res);
 		} catch (error) {
 			console.error(error);
 		}
@@ -61,11 +61,11 @@ const Favoris = (): JSX.Element => {
 
 	const uiUpdateAnthology = async (anthologyId: number) => {
 		try {
-			const res = await updateAnthology({
+			const res = await methods.anthologies.update({
 				id: anthologyId,
 				addArticles: [articleToAdd!],
 			});
-			requestResponseToast(res);
+			handleToast(res);
 			if (res.status === 'success') {
 				onClose();
 				setArticleToAdd(undefined);
@@ -80,7 +80,7 @@ const Favoris = (): JSX.Element => {
 		uiloadAnthologies();
 	}, []);
 
-	if (!user.articles.liked || !user.anthologies) {
+	if (!data.user.articles.liked || !data.user.anthologies) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
@@ -102,7 +102,7 @@ const Favoris = (): JSX.Element => {
 					variant="primary-1"
 				/>
 				<HStack>
-					<Text variant="h5">Favori{user.articles.liked.length !== 1 && 's'}</Text>
+					<Text variant="h5">Favori{data.user.articles.liked.length !== 1 && 's'}</Text>
 					<Text
 						variant="h5"
 						bg="primary.yellow"
@@ -111,7 +111,7 @@ const Favoris = (): JSX.Element => {
 						p="0px 8px"
 						borderRadius="md"
 					>
-						{user.articles.liked.length}
+						{data.user.articles.liked.length}
 					</Text>
 				</HStack>
 				<Grid
@@ -119,7 +119,7 @@ const Favoris = (): JSX.Element => {
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
 				>
-					{user.articles.liked
+					{data.user.articles.liked
 						.filter((a) => (search !== '' ? a.title.includes(search) : true))
 						.map((article, index) => (
 							<GridItem key={`${index.toString()}`}>
@@ -171,10 +171,10 @@ const Favoris = (): JSX.Element => {
 					<ModalCloseButton color="white" />
 					<ModalBody>
 						<Text variant="p" mb="8px">
-							{user.anthologies.length} dossier{user.anthologies.length !== 1 && 's'}
+							{data.user.anthologies.length} dossier{data.user.anthologies.length !== 1 && 's'}
 						</Text>
 						<VStack spacing="8px" mb="12px">
-							{user.anthologies.map((anthology, index) => (
+							{data.user.anthologies.map((anthology, index) => (
 								<HStack
 									key={`${index.toString()}`}
 									w="100%"

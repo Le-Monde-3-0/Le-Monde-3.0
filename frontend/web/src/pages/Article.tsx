@@ -1,9 +1,9 @@
-import { AddIcon, CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons';
+import { AddIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons';
 import {
 	Badge,
 	CircularProgress,
-	Collapse,
-	Grid,
+	// Collapse,
+	// Grid,
 	HStack,
 	Modal,
 	ModalBody,
@@ -31,8 +31,8 @@ import frenchDate from 'utils/frenchDate';
 const ArticlePage = (): JSX.Element => {
 	const navigate = useNavigate();
 	const { articleId } = useParams();
-	const { requestResponseToast } = useUIContext();
-	const { user, likeArticle, loadLikedArticles, loadAnthologies, searchArticle, updateAnthology } = useUserContext();
+	const { handleToast } = useUIContext();
+	const { data, methods } = useUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	// const [editor, setEditor] = useState(false);
 	const [article, setArticle] = useState<Article | undefined>(undefined);
@@ -51,8 +51,8 @@ const ArticlePage = (): JSX.Element => {
 
 	const uiSearchArticle = async () => {
 		try {
-			const res = await searchArticle(+articleId!);
-			requestResponseToast(res);
+			const res = await methods.articles.search.one({ id: +articleId! });
+			handleToast(res);
 			if (res.code === 404) {
 				navigate('/favoris');
 			} else if (res.data !== undefined && res.status === 'success') {
@@ -68,8 +68,8 @@ const ArticlePage = (): JSX.Element => {
 
 	const uiLoadLikedArticles = async () => {
 		try {
-			const res = await loadLikedArticles();
-			requestResponseToast(res);
+			const res = await methods.articles.load.liked();
+			handleToast(res);
 		} catch (error) {
 			console.error(error);
 		}
@@ -77,8 +77,8 @@ const ArticlePage = (): JSX.Element => {
 
 	const uiLikeArticle = async () => {
 		try {
-			const res = await likeArticle({ id: +articleId!, isLiked: !isLiked });
-			requestResponseToast(res);
+			const res = await methods.articles.like({ id: +articleId!, isLiked: !isLiked });
+			handleToast(res);
 			if (res.status === 'success') {
 				setIsLiked(!isLiked);
 			}
@@ -89,8 +89,8 @@ const ArticlePage = (): JSX.Element => {
 
 	const uiLoadAnthologies = async () => {
 		try {
-			const res = await loadAnthologies();
-			requestResponseToast(res);
+			const res = await methods.anthologies.load();
+			handleToast(res);
 		} catch (error) {
 			console.error(error);
 		}
@@ -98,8 +98,8 @@ const ArticlePage = (): JSX.Element => {
 
 	const uiUpdateAnthology = async (anthologyId: number) => {
 		try {
-			const res = await updateAnthology({ id: anthologyId, addArticles: [+articleId!] });
-			requestResponseToast(res);
+			const res = await methods.anthologies.update({ id: anthologyId, addArticles: [+articleId!] });
+			handleToast(res);
 			if (res.status === 'success') {
 				onClose();
 			}
@@ -115,12 +115,12 @@ const ArticlePage = (): JSX.Element => {
 	}, []);
 
 	useEffect(() => {
-		if (user.articles.liked.find((a) => a.id === +articleId!)) {
+		if (data.user.articles.liked.find((a) => a.id === +articleId!)) {
 			setIsLiked(true);
 		}
-	}, [user]);
+	}, [data.user]);
 
-	if (!article || !user.anthologies) {
+	if (!article || !data.user.anthologies) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
@@ -230,10 +230,10 @@ const ArticlePage = (): JSX.Element => {
 					<ModalCloseButton color="white" />
 					<ModalBody>
 						<Text variant="p" mb="8px">
-							{user.anthologies.length} marque-page{user.anthologies.length !== 1 && 's'}
+							{data.user.anthologies.length} marque-page{data.user.anthologies.length !== 1 && 's'}
 						</Text>
 						<VStack spacing="8px" mb="12px">
-							{user.anthologies.map((anthology, index) => (
+							{data.user.anthologies.map((anthology, index) => (
 								<HStack
 									key={`${index.toString()}`}
 									w="100%"

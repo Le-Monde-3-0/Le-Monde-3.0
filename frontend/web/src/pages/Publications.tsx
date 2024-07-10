@@ -1,35 +1,32 @@
-import { DeleteIcon, EditIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { DeleteIcon, ViewOffIcon } from '@chakra-ui/icons';
 import {
 	CircularProgress,
-	Collapse,
+	// Collapse,
 	Grid,
 	GridItem,
 	HStack,
-	Modal,
-	ModalBody,
-	ModalCloseButton,
-	ModalContent,
-	ModalHeader,
-	ModalOverlay,
+	// Modal,
+	// ModalBody,
+	// ModalCloseButton,
+	// ModalContent,
+	// ModalHeader,
+	// ModalOverlay,
 	Tag,
 	Tooltip,
 	VStack,
 } from '@chakra-ui/react';
 import ArticleCard from 'components/Cards/ArticleCard';
-import { Chart } from 'components/Chart/Chart';
+// import { Chart } from 'components/Chart/Chart';
 import SearchInput from 'components/Inputs/SearchInput';
-import { useAuthContext } from 'contexts/auth';
 import { useUIContext } from 'contexts/ui';
 import { useUserContext } from 'contexts/user';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 
-import Editor from '../components/Editor/Editor';
-
 const Publications = (): JSX.Element => {
 	const [search, setSearch] = useState('');
-	const { requestResponseToast } = useUIContext();
-	const { user, deleteArticle, loadWrittenArticles, updateArticle } = useUserContext();
+	const { handleToast } = useUIContext();
+	const { data, methods } = useUserContext();
 	// const [editor, setEditor] = useState<boolean>(false);
 	// const [article, setArticle] = useState({ title: '', topic: '', content: '' });
 	// const [isViewChartDisplayed, setViewChartDisplay] = useState(false);
@@ -45,8 +42,8 @@ const Publications = (): JSX.Element => {
 
 	const uiLoadWrittenArticles = async () => {
 		try {
-			const res = await loadWrittenArticles();
-			requestResponseToast(res);
+			const res = await methods.articles.load.written();
+			handleToast(res);
 		} catch (error) {
 			console.error(error);
 		}
@@ -54,8 +51,8 @@ const Publications = (): JSX.Element => {
 
 	const uiDeleteArticle = async (id: number) => {
 		try {
-			const res = await deleteArticle(id);
-			requestResponseToast(res, true);
+			const res = await methods.articles.delete({ id });
+			handleToast(res, true);
 		} catch (error) {
 			console.error(error);
 		}
@@ -63,8 +60,8 @@ const Publications = (): JSX.Element => {
 
 	const uiUpdateArticle = async (id: number) => {
 		try {
-			const res = await updateArticle({ id, newDraft: true });
-			requestResponseToast(res, true);
+			const res = await methods.articles.update({ id, newDraft: true });
+			handleToast(res, true);
 		} catch (error) {
 			console.error(error);
 		}
@@ -74,7 +71,7 @@ const Publications = (): JSX.Element => {
 		uiLoadWrittenArticles();
 	}, []);
 
-	if (!user.articles.written) {
+	if (!data.user.articles.written) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
@@ -98,15 +95,15 @@ const Publications = (): JSX.Element => {
 				<HStack>
 					<Tag bg="primary.yellow">
 						{
-							user.articles.written
+							data.user.articles.written
 								.filter((a) => !a.draft)
 								.filter((p) => (search !== '' ? p.title.includes(search) : true)).length
 						}{' '}
 						publication
-						{user.articles.written.filter((a) => !a.draft).length !== 1 && 's'}
+						{data.user.articles.written.filter((a) => !a.draft).length !== 1 && 's'}
 					</Tag>
 					<Tag bg="primary.blue" /* onClick={toggleLikeChartDisplay} cursor="pointer" */>
-						{user.articles.written
+						{data.user.articles.written
 							.filter((a) => !a.draft)
 							.filter((p) => (search !== '' ? p.title.includes(search) : true))
 							.map((p) => p.totalLikes)
@@ -114,7 +111,7 @@ const Publications = (): JSX.Element => {
 						like
 					</Tag>
 					<Tag bg="primary.blue" /* onClick={toggleViewChartDisplay} cursor="pointer" */>
-						{user.articles.written
+						{data.user.articles.written
 							.filter((a) => !a.draft)
 							.filter((p) => (search !== '' ? p.title.includes(search) : true))
 							.map((p) => p.totalViews)
@@ -128,10 +125,10 @@ const Publications = (): JSX.Element => {
 					w="100%"
 				>
 					<Collapse in={isLikeChartDisplayed} animateOpacity>
-						<Chart yLabel="Likes" data={user.overallDailyTotalLikes} />
+						<Chart yLabel="Likes" data={data.user.overallDailyTotalLikes} />
 					</Collapse>
 					<Collapse in={isViewChartDisplayed} animateOpacity>
-						<Chart yLabel="Vues" data={user.overallDailyTotalViews} />
+						<Chart yLabel="Vues" data={data.user.overallDailyTotalViews} />
 					</Collapse>
 				</Grid> */}
 				<Grid
@@ -139,7 +136,7 @@ const Publications = (): JSX.Element => {
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
 				>
-					{user.articles.written
+					{data.user.articles.written
 						.filter((a) => !a.draft)
 						.filter((p) => (search !== '' ? p.title.includes(search) : true))
 						.map((publication, index) => (
