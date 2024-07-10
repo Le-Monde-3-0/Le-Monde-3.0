@@ -14,7 +14,7 @@ const Auth = (): JSX.Element => {
 	const uiSignAgain = async () => {
 		try {
 			const res = await methods.sign.again();
-			handleToast(res);
+			handleToast(res, false, false, true);
 			if (res.status === 'success') {
 				navigate('/favoris');
 			}

@@ -3,7 +3,12 @@ import { createContext, useContext } from 'react';
 import { Handler } from 'types/handler';
 
 type UIContextType = {
-	handleToast: (res: Handler<unknown>, showIfSuccess?: boolean, showIfNotSuccess?: boolean) => void;
+	handleToast: (
+		res: Handler<unknown>,
+		showIfSuccess?: boolean,
+		showIfNotSuccess?: boolean,
+		showIfAuthError?: boolean,
+	) => void;
 };
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
