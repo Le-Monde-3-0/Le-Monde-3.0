@@ -4,7 +4,7 @@ import { Badge, Select, Stack, Text, VStack } from '@chakra-ui/react';
 
 import SearchInput from 'components/Inputs/SearchInput';
 
-const UserProfil = (): JSX.Element => {
+const Author = (): JSX.Element => {
 	const [search, setSearch] = useState('');
 
 	return (
@@ -50,4 +50,4 @@ const UserProfil = (): JSX.Element => {
 	);
 };
 
-export default UserProfil;
+export default Author;

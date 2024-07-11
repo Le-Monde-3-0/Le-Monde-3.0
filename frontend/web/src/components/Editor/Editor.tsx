@@ -55,7 +55,7 @@ const Editor = (): JSX.Element => {
 		<VStack w="100%" h="100%" spacing="8px">
 			<HStack w="100%">
 				<Input
-					id="nouvel-article-title-input"
+					id="write-title-input"
 					variant="primary-1"
 					placeholder="Titre du nouvel article"
 					onChange={(e) => setTitle(e.target.value)}
@@ -63,7 +63,7 @@ const Editor = (): JSX.Element => {
 				/>
 				<Select
 					w="25%"
-					id="nouvel-article-topic-input"
+					id="write-topic-input"
 					variant="primary-1"
 					onChange={(e) => setTopic(e.target.value)}
 					value={topic}
@@ -79,7 +79,7 @@ const Editor = (): JSX.Element => {
 				</Select>
 			</HStack>
 			<Textarea
-				id="nouvel-article-content-textarea"
+				id="write-content-textarea"
 				variant="primary-1"
 				placeholder="Contenu du nouvel article"
 				flexGrow="2"
@@ -88,7 +88,7 @@ const Editor = (): JSX.Element => {
 				value={content}
 			/>
 			<Button
-				id="nouvel-article-publish-btn"
+				id="write-publish-btn"
 				variant="primary-yellow"
 				onClick={() => uiCreateArticle(false)}
 				isDisabled={title === '' || topic === '' || content === ''}
@@ -96,11 +96,11 @@ const Editor = (): JSX.Element => {
 				Publier
 			</Button>
 			<Stack w="100%" direction={{ base: 'column', md: 'row' }}>
-				<Button id="nouvel-article-pre-visualize-btn" variant="primary-blue" isDisabled>
+				<Button id="write-pre-visualize-btn" variant="primary-blue" isDisabled>
 					Pré-visualisez votre article
 				</Button>
 				<Button
-					id="nouvel-article-save-draft-btn"
+					id="write-save-draft-btn"
 					variant="primary-purple"
 					onClick={() => uiCreateArticle(true)}
 					isDisabled={title === '' || topic === '' || content === ''}

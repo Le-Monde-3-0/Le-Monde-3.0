@@ -10,7 +10,7 @@ import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
 import AnthologiesModal from 'components/modals/Anthologies';
 
-const Favoris = (): JSX.Element => {
+const Favorites = (): JSX.Element => {
 	const { handleToast } = useUIContext();
 	const { data, methods } = useUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
@@ -130,4 +130,4 @@ const Favoris = (): JSX.Element => {
 	);
 };
 
-export default Favoris;
+export default Favorites;

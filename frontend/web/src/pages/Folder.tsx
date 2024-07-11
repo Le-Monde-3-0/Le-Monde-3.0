@@ -11,7 +11,7 @@ import { useUIContext } from 'contexts/ui';
 import { Article } from 'types/article';
 import { Anthology } from 'types/anthology';
 
-const Dossier = (): JSX.Element => {
+const Folder = (): JSX.Element => {
 	const navigate = useNavigate();
 	const { handleToast } = useUIContext();
 	const { methods } = useUserContext();
@@ -130,4 +130,4 @@ const Dossier = (): JSX.Element => {
 	);
 };
 
-export default Dossier;
+export default Folder;

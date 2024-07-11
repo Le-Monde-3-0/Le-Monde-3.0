@@ -22,7 +22,7 @@ import { Anthology } from 'types/anthology';
 import SearchInput from 'components/Inputs/SearchInput';
 import AnthologyModal from 'components/modals/Anthology';
 
-const Dossiers = (): JSX.Element => {
+const Library = (): JSX.Element => {
 	const navigate = useNavigate();
 	const { handleToast } = useUIContext();
 	const { data, methods } = useUserContext();
@@ -165,4 +165,4 @@ const Dossiers = (): JSX.Element => {
 	);
 };
 
-export default Dossiers;
+export default Library;

@@ -1,8 +1,8 @@
 import Editor from 'components/Editor/Editor';
 import * as React from 'react';
 
-const NouvelArticle = (): JSX.Element => {
+const Write = (): JSX.Element => {
 	return <Editor />;
 };
 
-export default NouvelArticle;
+export default Write;

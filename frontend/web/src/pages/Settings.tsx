@@ -25,7 +25,7 @@ import FormInput from 'components/Inputs/FormInput';
 
 // TODO: attention déconnexion quand user pas mode hors-ligne
 
-const Reglages = (): JSX.Element => {
+const Settings = (): JSX.Element => {
 	const auth = useAuthContext();
 	const user = useUserContext();
 	const navigate = useNavigate();
@@ -234,4 +234,4 @@ const Reglages = (): JSX.Element => {
 	);
 };
 
-export default Reglages;
+export default Settings;

@@ -24,6 +24,7 @@ import {
 
 type UserContextType = {
 	// TODO: not clean, data: User would be better (implies a lot of changes (but easy))
+	// TODO: think about merging contexts auth & user
 	data: {
 		user: User;
 	};
