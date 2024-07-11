@@ -10,6 +10,7 @@ const table: { [key: string]: Handler<never>[] } = {
 	'sign.in': [okResponse('Vous êtes de retour !', "Qu'allez-vous lire ou écrire aujourd'hui ?"), badRequestError()],
 	'sign.out': [okResponse('Vous êtes déconnecté.')],
 	'sign.again': [createdResponse("Votre connexion vient d'être rafraîchie."), notAuthError()],
+	me: [okResponse('Profil récupéré.')],
 	'update.password': [notAuthError()],
 	'update.email': [notAuthError()],
 	'update.username': [notAuthError()],

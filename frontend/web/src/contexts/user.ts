@@ -23,6 +23,7 @@ import {
 } from 'types/services';
 
 type UserContextType = {
+	// TODO: not clean, data: User would be better (implies a lot of changes (but easy))
 	data: {
 		user: User;
 	};

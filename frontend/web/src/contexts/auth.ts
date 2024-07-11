@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 
+import { Auth } from 'types/auth';
 import { Handler } from 'types/handler';
 import {
 	SignResponse,
@@ -9,18 +10,11 @@ import {
 	AuthUpdateEmail,
 	AuthUpdatePassword,
 	AuthUpdateUsername,
+	MeResponse,
 } from 'types/services';
 
-// type Action<Type> = {
-// 	params: Type;
-// 	overrides?: {
-// 		showIfSuccess?: boolean;
-// 		showIfNotSuccess?: boolean;
-// 	};
-// 	callback?: () => void;
-// };
-
 type AuthContextType = {
+	data: Auth;
 	methods: {
 		sign: {
 			up: (params: AuthSignUp) => Promise<Handler<SignResponse>>;
@@ -28,6 +22,7 @@ type AuthContextType = {
 			out: () => Promise<Handler<EmptyResponse>>;
 			again: () => Promise<Handler<EmptyResponse>>;
 		};
+		me: () => Promise<Handler<MeResponse>>;
 		update: {
 			password: (params: AuthUpdatePassword) => Promise<Handler<EmptyResponse>>;
 			email: (params: AuthUpdateEmail) => Promise<Handler<EmptyResponse>>;

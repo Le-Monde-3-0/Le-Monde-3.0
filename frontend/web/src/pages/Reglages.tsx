@@ -26,17 +26,13 @@ import FormInput from 'components/Inputs/FormInput';
 // TODO: attention déconnexion quand user pas mode hors-ligne
 
 const Reglages = (): JSX.Element => {
-	const [password, setPassword] = useState('');
-	const [newPassword, setNewPassword] = useState('');
-
+	const auth = useAuthContext();
+	const user = useUserContext();
 	const navigate = useNavigate();
 	const { handleToast } = useUIContext();
-	const auth = useAuthContext();
-	const authMethods = auth.methods;
-	const user = useUserContext();
-	const userData = user.data;
-	const userMethods = user.methods;
 	const { ipfs, setArticles, setGateway, getIPFSFile } = useIpfsContext();
+	const [password, setPassword] = useState('');
+	const [newPassword, setNewPassword] = useState('');
 	const [isGatewayWorking, setIsGatewayWorking] = useState<true | false | 'loading'>(false);
 	const [isRefreshWorking, setIsRefreshWorking] = useState<true | false | 'loading'>(false);
 	const toast = useToast();
@@ -87,7 +83,7 @@ const Reglages = (): JSX.Element => {
 			reader.onload = async (e: any) => {
 				try {
 					const content = JSON.parse(e.target.result);
-					userMethods.user.upload(content);
+					user.methods.user.upload(content);
 					toast({
 						status: 'success',
 						title: 'Profil chargé!',
@@ -111,7 +107,7 @@ const Reglages = (): JSX.Element => {
 
 	const deconnect = async () => {
 		try {
-			const res = await authMethods.sign.out();
+			const res = await auth.methods.sign.out();
 			handleToast(res, true);
 			if (res.status === 'success') {
 				navigate('/');
@@ -184,12 +180,12 @@ const Reglages = (): JSX.Element => {
 				</VStack>
 				<VStack align="start" w="100%" spacing="32px">
 					<HStack w="160px" justify="space-between">
-						<Text variant="link">{userData.user.isOffline ? 'Hors Ligne' : 'En Ligne'}</Text>
+						<Text variant="link">{user.data.user.isOffline ? 'Hors Ligne' : 'En Ligne'}</Text>
 						<Switch
 							size="lg"
-							defaultChecked={userData.user.isOffline}
+							defaultChecked={user.data.user.isOffline}
 							variant="primary"
-							onChange={userMethods.user.toggleIsOfflineState}
+							onChange={user.methods.user.toggleIsOfflineState}
 						/>
 					</HStack>
 					<VStack align="start" w="100%">

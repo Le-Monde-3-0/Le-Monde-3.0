@@ -55,6 +55,7 @@ export type TopicsSearchOne = { id: number };
 
 // Responses
 export type EmptyResponse = Record<string, never>;
+// TODO: not clean, same as Auth type
 export type SignResponse = {
 	user: {
 		id: number;
@@ -62,4 +63,11 @@ export type SignResponse = {
 		email: string;
 		username: string;
 	};
+};
+// TODO: not clean, same as Auth type
+export type MeResponse = {
+	id: number;
+	createdAt: Date;
+	email: string;
+	username: string;
 };

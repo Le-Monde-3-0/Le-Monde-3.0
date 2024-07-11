@@ -19,6 +19,7 @@ import { FaBookOpen, FaPenNib } from 'react-icons/fa';
 import { MdAccountCircle } from 'react-icons/md';
 
 import { useUserContext } from 'contexts/user';
+import { useAuthContext } from 'contexts/auth';
 
 type PrivateProps = { children: JSX.Element };
 
@@ -73,7 +74,8 @@ const Option = ({
 );
 
 const NavBar = ({ ...props }: StackProps): JSX.Element => {
-	const { data } = useUserContext();
+	const auth = useAuthContext();
+	const user = useUserContext();
 	const location = useLocation();
 	const navigate = useNavigate();
 
@@ -95,8 +97,7 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 			}}
 		>
 			<VStack w="100%" spacing="16px" mt="48px">
-				// TODO: username
-				<Text variant="h4">Username</Text>
+				<Text variant="h4">{auth.data.username}</Text>
 			</VStack>
 			<VStack align="start" w="100%">
 				<Title icon={FaBookOpen} name="Lire" />
@@ -114,24 +115,24 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 				/>
 			</VStack>
 			<VStack align="start" w="100%">
-				<Title icon={FaPenNib} name="Écrire" isEnable={!data.user.isOffline} />
+				<Title icon={FaPenNib} name="Écrire" isEnable={!user.data.user.isOffline} />
 				<Option
 					name="Nouvel article"
 					isSelected={location.pathname === '/nouvel-article'}
 					onClick={() => navigate('/nouvel-article')}
-					isEnable={!data.user.isOffline}
+					isEnable={!user.data.user.isOffline}
 				/>
 				<Option
 					name="Publications"
 					isSelected={location.pathname === '/publications'}
 					onClick={() => navigate('/publications')}
-					isEnable={!data.user.isOffline}
+					isEnable={!user.data.user.isOffline}
 				/>
 				<Option
 					name="Brouillons"
 					isSelected={location.pathname === '/brouillons'}
 					onClick={() => navigate('/brouillons')}
-					isEnable={!data.user.isOffline}
+					isEnable={!user.data.user.isOffline}
 				/>
 			</VStack>
 			<VStack align="start" w="100%">
@@ -140,7 +141,7 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 					name="Réglages"
 					isSelected={location.pathname === '/reglages'}
 					onClick={() => navigate('/reglages')}
-					isEnable={!data.user.isOffline}
+					isEnable={!user.data.user.isOffline}
 				/>
 			</VStack>
 		</VStack>

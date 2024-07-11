@@ -37,7 +37,7 @@ const Editor = (): JSX.Element => {
 			handleToast(res, true);
 			if (res.status === 'success') {
 				if (!draft) {
-					navigate(`/publications/${res.data!.id}`);
+					navigate(`/articles/${res.data!.id}`);
 				} else {
 					navigate(`/brouillons`);
 				}

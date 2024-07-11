@@ -33,9 +33,7 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 		anthologiesArticles: [],
 	};
 
-	const [user, setUser] = useState<UserContextType['data']['user']>(
-		loadFromLocalStorage<UserContextType['data']['user']>('user', defaultUser),
-	);
+	const [user, setUser] = useState<User>(loadFromLocalStorage<User>('user', defaultUser));
 
 	const data = {
 		articles: {

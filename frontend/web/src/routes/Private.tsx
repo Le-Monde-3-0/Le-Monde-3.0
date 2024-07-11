@@ -6,10 +6,21 @@ import { VStack, CircularProgress } from '@chakra-ui/react';
 import PrivateLayout from 'layouts/Private';
 import { useUIContext } from 'contexts/ui';
 import { useUserContext } from 'contexts/user';
+import { useAuthContext } from 'contexts/auth';
 
 const Private = (): JSX.Element => {
+	const auth = useAuthContext();
 	const { data, methods } = useUserContext();
 	const { handleToast } = useUIContext();
+
+	const uiMe = async () => {
+		try {
+			const res = await auth.methods.me();
+			handleToast(res);
+		} catch (error) {
+			console.error(error);
+		}
+	};
 
 	const uiLoadWrittenArticles = async () => {
 		try {
@@ -39,6 +50,7 @@ const Private = (): JSX.Element => {
 	};
 
 	useEffect(() => {
+		uiMe();
 		uiLoadWrittenArticles();
 		uiLoadLikedArticles();
 		uiLoadAnthologies();
