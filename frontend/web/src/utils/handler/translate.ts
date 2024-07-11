@@ -17,6 +17,11 @@ const translations = [
 	},
 ];
 
-const translateToFrench = (englishError: string) => translations.find((e) => e.english === englishError)?.french;
+const translateToFrench = (englishError?: string) => {
+	if (!englishError) return undefined;
+	const frenchError = translations.find((e) => e.english === englishError)?.french;
+	if (!frenchError) return `Backend message: ${englishError}`;
+	return frenchError;
+};
 
 export default translateToFrench;

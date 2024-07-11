@@ -25,9 +25,9 @@ const successCase = <Type>({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const errorCase = ({ name, error }: { name: string; error: AxiosError<any, any> }) => {
 	const errorCode = getErrorCode(error);
-	if (errorCode === 500) return internalError;
-	const errorMessage = error.response?.data.message[0] || 'No message provided from the backend';
-	const frenchErrorMessage = translateToFrench(errorMessage);
+	const errorMessage = error.response?.data.message;
+	const frenchErrorMessage = translateToFrench(errorMessage) || 'No message from the backend.';
+	if (errorCode === 500) return internalError(undefined, frenchErrorMessage);
 	const output = table[name].find((r) => r.code === errorCode);
 	return output ? { ...output, subMessage: frenchErrorMessage } : unhandledResponse;
 };

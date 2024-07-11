@@ -5,37 +5,7 @@ import { Badge, Select, Stack, Text, VStack } from '@chakra-ui/react';
 import SearchInput from 'components/Inputs/SearchInput';
 
 const UserProfil = (): JSX.Element => {
-	// const { auth } = useAuthContext();
-	// const { requestResponseToast } = useUIContext();
-	// const navigate = useNavigate();
-	// const { userId } = useParams();
 	const [search, setSearch] = useState('');
-
-	// const getUserProfil = async () => {
-	// 	try {
-	// 		const profilRes = await handler<{
-	// 			id: number;
-	// 			email: string;
-	// 			username: string;
-	// 		}>({
-	// 			request: async () => {
-	// 				const res = await services.users.get({ token: auth.accessToken!, userId: +userId! });
-	// 				return res;
-	// 			},
-	// 			name: 'getUserProfil',
-	// 		});
-	// 		requestResponseToast(profilRes);
-	// 		if (profilRes.status === 'error') {
-	// 			navigate('/favoris');
-	// 		}
-	// 	} catch (error) {
-	// 		console.error(error);
-	// 	}
-	// };
-
-	// useEffect(() => {
-	// 	getUserProfil();
-	// }, []);
 
 	return (
 		<VStack align="start" w="100%" spacing={{ base: '24px', md: '32px', lg: '40px' }}>

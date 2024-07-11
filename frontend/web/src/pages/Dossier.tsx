@@ -63,7 +63,6 @@ const Dossier = (): JSX.Element => {
 
 	useEffect(() => {
 		uiSearchAnthology();
-		console.log(anthology);
 		uiLoadAnthologyArticles();
 	}, []);
 

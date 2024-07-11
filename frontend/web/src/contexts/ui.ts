@@ -8,6 +8,7 @@ type UIContextType = {
 		showIfSuccess?: boolean,
 		showIfNotSuccess?: boolean,
 		showIfAuthError?: boolean,
+		overrideMessage?: string,
 	) => void;
 };
 

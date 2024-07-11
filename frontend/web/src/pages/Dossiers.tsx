@@ -1,21 +1,12 @@
-import { useEffect, useState } from 'react';
 import * as React from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
 	Badge,
 	Button,
-	CircularProgress,
 	Grid,
 	GridItem,
 	HStack,
-	Input,
-	Modal,
-	ModalBody,
-	ModalCloseButton,
-	ModalContent,
-	ModalFooter,
-	ModalHeader,
-	ModalOverlay,
 	Stack,
 	Tag,
 	Text,
@@ -25,9 +16,11 @@ import {
 } from '@chakra-ui/react';
 import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
-import { useUserContext } from 'contexts/user';
 import { useUIContext } from 'contexts/ui';
+import { useUserContext } from 'contexts/user';
+import { Anthology } from 'types/anthology';
 import SearchInput from 'components/Inputs/SearchInput';
+import AnthologyModal from 'components/modals/Anthology';
 
 const Dossiers = (): JSX.Element => {
 	const navigate = useNavigate();
@@ -35,28 +28,31 @@ const Dossiers = (): JSX.Element => {
 	const { data, methods } = useUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [search, setSearch] = useState('');
-	const [title, setTitle] = useState('');
-	const [description, setDescription] = useState('');
-	const [action, setAction] = useState<'create' | 'update'>('create');
-	const [bookmarkIdToUpdate, setBookmarkIdToUpdate] = useState<number | undefined>(undefined);
+	const [type, setType] = useState<'CREATE' | 'UPDATE'>('CREATE');
+	const [anthologyToUpdate, setAnthologyToUpdate] = useState<Anthology | undefined>(undefined);
 
-	const uiLoadAnthologies = async () => {
+	const uiCreateAnthology = async (title: string, description: string) => {
 		try {
-			const res = await methods.anthologies.load();
-			handleToast(res);
+			const res = await methods.anthologies.create({ name: title, description, isPublic: false });
+			handleToast(res, true);
+			if (res.status === 'success') onClose();
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
-	const uiCreateAnthology = async () => {
+	const uiUpdateAnthology = async (title: string, description: string) => {
 		try {
-			const res = await methods.anthologies.create({ name: title, description, isPublic: false });
+			const res = await methods.anthologies.update({
+				id: anthologyToUpdate!.id,
+				newName: title,
+				newDescription: description,
+			});
 			handleToast(res, true);
 			if (res.status === 'success') {
 				onClose();
-				setTitle('');
-				setDescription('');
+				setType('CREATE');
+				setAnthologyToUpdate(undefined);
 			}
 		} catch (error) {
 			console.error(error);
@@ -71,36 +67,6 @@ const Dossiers = (): JSX.Element => {
 			console.error(error);
 		}
 	};
-
-	const uiUpdateAnthology = async (id: number) => {
-		try {
-			const res = await methods.anthologies.update({ id, newName: title, newDescription: description });
-			handleToast(res, true);
-			if (res.status === 'success') {
-				onClose();
-				setTitle('');
-				setDescription('');
-				setAction('create');
-				setBookmarkIdToUpdate(undefined);
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
-	useEffect(() => {
-		uiLoadAnthologies();
-	}, []);
-
-	if (!data.user.anthologies) {
-		return (
-			<>
-				<VStack w="100%" h="100vh" justify="center">
-					<CircularProgress size="120px" isIndeterminate color="yellow" />
-				</VStack>
-			</>
-		);
-	}
 
 	return (
 		<>
@@ -167,10 +133,8 @@ const Dossiers = (): JSX.Element => {
 											<span>
 												<EditIcon
 													onClick={() => {
-														setTitle(anthology.name);
-														setDescription(anthology.description);
-														setBookmarkIdToUpdate(anthology.id);
-														setAction('update');
+														setAnthologyToUpdate(anthology);
+														setType('UPDATE');
 														onOpen();
 													}}
 													color="black"
@@ -189,57 +153,14 @@ const Dossiers = (): JSX.Element => {
 				</Grid>
 			</VStack>
 
-			<Modal
+			<AnthologyModal
 				isOpen={isOpen}
-				onClose={() => {
-					setTitle('');
-					setDescription('');
-					setAction('create');
-					setBookmarkIdToUpdate(undefined);
-					onClose();
-				}}
-			>
-				<ModalOverlay />
-				<ModalContent bg="gray.900">
-					<ModalHeader color="white">
-						{action === 'create' ? 'Nouveau marque-page' : 'Modification du marque-page'}
-					</ModalHeader>
-					<ModalCloseButton color="white" />
-					<ModalBody>
-						<VStack spacing="8px">
-							<Input
-								variant="primary-1"
-								bg="gray.700"
-								placeholder="Titre du marque-page"
-								onChange={(e) => setTitle(e.target.value)}
-								value={title}
-							/>
-							<Input
-								variant="primary-1"
-								bg="gray.700"
-								placeholder="Description du marque-page"
-								onChange={(e) => setDescription(e.target.value)}
-								value={description}
-							/>
-						</VStack>
-					</ModalBody>
-
-					<ModalFooter>
-						<Button
-							variant="primary-yellow"
-							onClick={() => {
-								if (action === 'create') {
-									uiCreateAnthology();
-								} else {
-									uiUpdateAnthology(bookmarkIdToUpdate!);
-								}
-							}}
-						>
-							{action === 'create' ? 'Créer' : 'Modifier'}
-						</Button>
-					</ModalFooter>
-				</ModalContent>
-			</Modal>
+				onClose={onClose}
+				type={type}
+				action={type === 'CREATE' ? uiCreateAnthology : uiUpdateAnthology}
+				title={type === 'CREATE' ? '' : anthologyToUpdate!.name}
+				description={type === 'CREATE' ? '' : anthologyToUpdate!.description}
+			/>
 		</>
 	);
 };

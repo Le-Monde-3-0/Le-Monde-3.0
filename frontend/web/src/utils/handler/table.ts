@@ -1,31 +1,35 @@
 import { Handler } from 'types/handler';
-import { createdResponse, badRequestError, conflictError, okResponse, notAuthError } from './responses';
+import { createdResponse, badRequestError, conflictError, okResponse, notAuthError, notFoundError } from './responses';
 
 const table: { [key: string]: Handler<never>[] } = {
-	'sign.up': [createdResponse('Inscription réussie !'), badRequestError(), conflictError()],
-	'sign.in': [okResponse('Connexion réussie !'), badRequestError()],
+	'sign.up': [
+		createdResponse('Bienvenue !', "Qu'allez-vous lire ou écrire aujourd'hui ?"),
+		badRequestError(),
+		conflictError(),
+	],
+	'sign.in': [okResponse('Vous êtes de retour !', "Qu'allez-vous lire ou écrire aujourd'hui ?"), badRequestError()],
 	'sign.out': [okResponse('Vous êtes déconnecté.')],
-	'sign.again': [createdResponse('Bienvenue !'), notAuthError()],
+	'sign.again': [createdResponse("Votre connexion vient d'être rafraîchie."), notAuthError()],
 	'update.password': [notAuthError()],
 	'update.email': [notAuthError()],
 	'update.username': [notAuthError()],
-	'articles.create': [notAuthError()],
+	'articles.create': [createdResponse('Article créé !'), notAuthError()],
 	'articles.delete': [notAuthError()],
-	'articles.like': [notAuthError()],
-	'articles.load.liked': [notAuthError()],
-	'articles.load.written': [notAuthError()],
-	'articles.search.one': [notAuthError()],
+	'articles.like': [okResponse('Article ajouté aux / retiré des favoris.'), notAuthError()],
+	'articles.load.liked': [okResponse('Vos articles favoris ont été récupérés.'), notAuthError()],
+	'articles.load.written': [okResponse('Vos rédactions ont été récupérées.'), notAuthError()],
+	'articles.search.one': [okResponse('Article trouvé.'), notAuthError(), notFoundError('Article introuvable.')],
 	'articles.search.many': [notAuthError()],
 	'articles.update': [notAuthError()],
 	'anthologies.articles': [notAuthError()],
-	'anthologies.create': [notAuthError()],
-	'anthologies.delete': [notAuthError()],
-	'anthologies.load': [notAuthError()],
+	'anthologies.create': [createdResponse('Dossier créé !'), notAuthError()],
+	'anthologies.delete': [okResponse('Dossier supprimé.'), notAuthError()],
+	'anthologies.load': [okResponse('Dossiers récupérés.'), notAuthError()],
 	'anthologies.search.one': [notAuthError()],
 	'anthologies.search.many': [notAuthError()],
-	'anthologies.update': [notAuthError()],
+	'anthologies.update': [okResponse('Dossier modifié.'), notAuthError()],
 	'topics.search.one': [notAuthError()],
-	'topics.search.all': [notAuthError()],
+	'topics.search.all': [okResponse('Catégories récupérées.'), notAuthError()],
 };
 
 export default table;

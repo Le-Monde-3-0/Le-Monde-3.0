@@ -1,33 +1,42 @@
 import * as React from 'react';
-import { useState } from 'react';
-import { Button, HStack, Input, Stack, Textarea, VStack } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { Button, HStack, Input, Select, Stack, Textarea, VStack } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 
 import { useUserContext } from 'contexts/user';
 import { useUIContext } from 'contexts/ui';
+import { Topic } from 'types/topic';
 
-const Editor = ({
-	placeholderTitle,
-	placeholderTopic,
-	placeholderContent,
-}: {
-	placeholderTitle: string;
-	placeholderTopic: string;
-	placeholderContent: string;
-}): JSX.Element => {
+const Editor = (): JSX.Element => {
 	const navigate = useNavigate();
 	const { handleToast } = useUIContext();
 	const { methods } = useUserContext();
-	const [title, setTitle] = useState(placeholderTitle);
-	const [topic, setTopic] = useState(placeholderTopic);
-	const [content, setContent] = useState(placeholderContent);
+	const [topics, setTopics] = useState<Topic[]>([]);
+	const [title, setTitle] = useState('');
+	const [topic, setTopic] = useState('');
+	const [content, setContent] = useState('');
+
+	const uiSearchAllTopics = async () => {
+		try {
+			const res = await methods.topics.search.all();
+			handleToast(res);
+			if (res.status === 'success') setTopics(res.data!);
+		} catch (error) {
+			console.error(error);
+		}
+	};
 
 	const uiCreateArticle = async (draft: boolean) => {
 		try {
-			const res = await methods.articles.create({ title, content, topic: 0, draft });
+			const res = await methods.articles.create({
+				title,
+				content,
+				topic: topics.find((t) => t.name === topic)!.id,
+				draft,
+			});
 			handleToast(res, true);
 			if (res.status === 'success') {
-				if (draft) {
+				if (!draft) {
 					navigate(`/publications/${res.data!.id}`);
 				} else {
 					navigate(`/brouillons`);
@@ -37,6 +46,10 @@ const Editor = ({
 			console.error(error);
 		}
 	};
+
+	useEffect(() => {
+		uiSearchAllTopics();
+	}, []);
 
 	return (
 		<VStack w="100%" h="100%" spacing="8px">
@@ -48,7 +61,7 @@ const Editor = ({
 					onChange={(e) => setTitle(e.target.value)}
 					value={title}
 				/>
-				{/* <Select
+				<Select
 					w="25%"
 					id="nouvel-article-topic-input"
 					variant="primary-1"
@@ -60,10 +73,10 @@ const Editor = ({
 						},
 					}}
 				>
-					{availableTopics.map((t, index) => (
-						<option key={index}>{t}</option>
+					{topics.map((t, index) => (
+						<option key={index}>{t.name}</option>
 					))}
-				</Select> */}
+				</Select>
 			</HStack>
 			<Textarea
 				id="nouvel-article-content-textarea"

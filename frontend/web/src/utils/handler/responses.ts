@@ -16,58 +16,58 @@ export const unhandledResponse: Handler<never> = {
 	data: undefined,
 };
 
-export const okResponse = (message: string, subMessage?: string): Handler<never> => ({
+export const okResponse = (message?: string, subMessage?: string): Handler<never> => ({
 	code: 200,
 	status: 'success',
-	message,
+	message: message || 'Ressource récupérée.',
 	subMessage,
 	data: undefined,
 });
 
-export const createdResponse = (message: string, subMessage?: string): Handler<never> => ({
+export const createdResponse = (message?: string, subMessage?: string): Handler<never> => ({
 	code: 201,
 	status: 'success',
-	message,
+	message: message || 'Ressource créé.',
 	subMessage,
 	data: undefined,
 });
 
-export const badRequestError = (subMessage?: string): Handler<never> => ({
+export const badRequestError = (message?: string, subMessage?: string): Handler<never> => ({
 	code: 400,
 	status: 'error',
-	message: 'Paramètres invalides.',
+	message: message || 'Paramètres invalides.',
 	subMessage,
 	data: undefined,
 });
 
-export const notAuthError = (subMessage?: string): Handler<never> => ({
+export const notAuthError = (message?: string, subMessage?: string): Handler<never> => ({
 	code: 401,
 	status: 'error',
-	message: "Vous n'êtes pas connecté.",
-	subMessage: undefined,
+	message: message || "Vous n'êtes pas connecté.",
+	subMessage,
 	data: undefined,
 });
 
-export const notFoundError = (subMessage?: string): Handler<never> => ({
+export const notFoundError = (message?: string, subMessage?: string): Handler<never> => ({
 	code: 404,
 	status: 'error',
-	message: 'Ressource inexistante.',
+	message: message || 'Ressource inexistante.',
 	subMessage,
 	data: undefined,
 });
 
-export const conflictError = (subMessage?: string): Handler<never> => ({
+export const conflictError = (message?: string, subMessage?: string): Handler<never> => ({
 	code: 409,
 	status: 'error',
-	message: 'Conflit.',
+	message: message || 'Conflit.',
 	subMessage,
 	data: undefined,
 });
 
-export const internalError: Handler<never> = {
+export const internalError = (message?: string, subMessage?: string): Handler<never> => ({
 	code: 500,
 	status: 'error',
-	message: 'Erreur du service interne.',
-	subMessage: 'Veuillez contacter le support si cette erreur persiste.',
+	message: message || 'Erreur du service interne.',
+	subMessage,
 	data: undefined,
-};
+});

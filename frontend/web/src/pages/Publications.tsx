@@ -1,6 +1,7 @@
+import * as React from 'react';
+import { useState } from 'react';
 import { DeleteIcon, ViewOffIcon } from '@chakra-ui/icons';
 import {
-	CircularProgress,
 	// Collapse,
 	Grid,
 	GridItem,
@@ -20,15 +21,11 @@ import ArticleCard from 'components/Cards/ArticleCard';
 import SearchInput from 'components/Inputs/SearchInput';
 import { useUIContext } from 'contexts/ui';
 import { useUserContext } from 'contexts/user';
-import * as React from 'react';
-import { useEffect, useState } from 'react';
 
 const Publications = (): JSX.Element => {
 	const [search, setSearch] = useState('');
 	const { handleToast } = useUIContext();
 	const { data, methods } = useUserContext();
-	// const [editor, setEditor] = useState<boolean>(false);
-	// const [article, setArticle] = useState({ title: '', topic: '', content: '' });
 	// const [isViewChartDisplayed, setViewChartDisplay] = useState(false);
 	// const [isLikeChartDisplayed, setLikeChartDisplay] = useState(false);
 
@@ -39,15 +36,6 @@ const Publications = (): JSX.Element => {
 	// const toggleLikeChartDisplay = () => {
 	// 	setLikeChartDisplay(!isLikeChartDisplayed);
 	// };
-
-	const uiLoadWrittenArticles = async () => {
-		try {
-			const res = await methods.articles.load.written();
-			handleToast(res);
-		} catch (error) {
-			console.error(error);
-		}
-	};
 
 	const uiDeleteArticle = async (id: number) => {
 		try {
@@ -66,20 +54,6 @@ const Publications = (): JSX.Element => {
 			console.error(error);
 		}
 	};
-
-	useEffect(() => {
-		uiLoadWrittenArticles();
-	}, []);
-
-	if (!data.user.articles.written) {
-		return (
-			<>
-				<VStack w="100%" h="100vh" justify="center">
-					<CircularProgress size="120px" isIndeterminate color="black" />
-				</VStack>
-			</>
-		);
-	}
 
 	return (
 		<>
@@ -151,21 +125,6 @@ const Publications = (): JSX.Element => {
 									topic="Topic"
 									content={publication.content}
 									actions={[
-										// <Tooltip label="Éditer l'article">
-										// 	<span>
-										// 		<EditIcon
-										// 			onClick={() => {
-										// 				setEditor(true);
-										// 				setArticle({
-										// 					title: publication.title,
-										// 					topic: publication.Topic,
-										// 					content: publication.Content,
-										// 				});
-										// 			}}
-										// 			color="black"
-										// 		/>
-										// 	</span>
-										// </Tooltip>,
 										<Tooltip label="Archiver dans les brouillons">
 											<span>
 												<ViewOffIcon onClick={() => uiUpdateArticle(publication.id)} color="black" />
@@ -184,20 +143,6 @@ const Publications = (): JSX.Element => {
 							</GridItem>
 						))}
 				</Grid>
-				{/* <Modal isOpen={editor} size="full" onClose={() => setEditor(false)}>
-					<ModalOverlay />
-					<ModalContent bg="black">
-						<ModalHeader color="gray.100">Brouillon</ModalHeader>
-						<ModalCloseButton />
-						<ModalBody>
-							<Editor
-								placeholderTitle={article.title}
-								placeholderTopic={article.topic}
-								placeholderContent={article.content}
-							/>
-						</ModalBody>
-					</ModalContent>
-				</Modal> */}
 			</VStack>
 		</>
 	);

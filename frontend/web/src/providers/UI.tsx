@@ -11,7 +11,7 @@ const UIProvider = ({ children }: { children: JSX.Element }) => {
 
 	const uiContextValue: UIContextType = {
 		// By default it toasts when res.status is 'error'.
-		handleToast: (res: Handler<unknown>, showIfSuccess = false, showIfNotSuccess = true, showIfAuthError = false) => {
+		handleToast: (res: Handler<unknown>, showIfSuccess = false, showIfNotSuccess = true, showIfAuthError = false, overrideMessage = undefined) => {
 			if (!showIfAuthError && res.code === 401) {
 				navigate('/connexion');
 			} else if (
@@ -21,9 +21,9 @@ const UIProvider = ({ children }: { children: JSX.Element }) => {
 			) {
 				toast({
 					status: res.status,
-					title: res.message,
+					title: overrideMessage || res.message,
 					description: res.subMessage,
-					duration: 5000,
+					duration: 9000,
 					isClosable: true,
 				});
 			}
