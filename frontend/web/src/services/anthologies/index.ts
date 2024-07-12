@@ -1,16 +1,18 @@
-import { getArticles } from './articles';
+import articles from './articles';
 import create from './create';
 import hardDelete from './delete';
-import { searchMany, searchOne } from './search';
+import { many, one } from './search';
 import update from './update';
 
-const anthologiesService = {
-	getArticles,
+const anthologies = {
+	articles,
 	create,
 	delete: hardDelete,
-	searchMany,
-	searchOne,
+	search: {
+		one,
+		many,
+	},
 	update,
 };
 
-export default anthologiesService;
+export default anthologies;

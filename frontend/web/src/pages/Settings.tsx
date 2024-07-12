@@ -25,16 +25,14 @@ import FormInput from 'components/Inputs/FormInput';
 
 // TODO: attention déconnexion quand user pas mode hors-ligne
 
-const Reglages = (): JSX.Element => {
+const Settings = (): JSX.Element => {
+	const auth = useAuthContext();
+	const user = useUserContext();
+	const navigate = useNavigate();
+	const { handleToast } = useUIContext();
+	const { ipfs, setArticles, setGateway, getIPFSFile } = useIpfsContext();
 	const [password, setPassword] = useState('');
 	const [newPassword, setNewPassword] = useState('');
-
-	const navigate = useNavigate();
-	const { requestResponseToast } = useUIContext();
-	const { signOut } = useAuthContext();
-	const { user, toggleIsOfflineState } = useUserContext();
-	const { ipfs, setArticles, setGateway, getIPFSFile } = useIpfsContext();
-	const { uploadUser } = useUserContext();
 	const [isGatewayWorking, setIsGatewayWorking] = useState<true | false | 'loading'>(false);
 	const [isRefreshWorking, setIsRefreshWorking] = useState<true | false | 'loading'>(false);
 	const toast = useToast();
@@ -85,7 +83,7 @@ const Reglages = (): JSX.Element => {
 			reader.onload = async (e: any) => {
 				try {
 					const content = JSON.parse(e.target.result);
-					uploadUser(content);
+					user.methods.user.upload(content);
 					toast({
 						status: 'success',
 						title: 'Profil chargé!',
@@ -109,8 +107,8 @@ const Reglages = (): JSX.Element => {
 
 	const deconnect = async () => {
 		try {
-			const res = await signOut();
-			requestResponseToast(res, true);
+			const res = await auth.methods.sign.out();
+			handleToast(res, true);
 			if (res.status === 'success') {
 				navigate('/');
 			}
@@ -182,8 +180,13 @@ const Reglages = (): JSX.Element => {
 				</VStack>
 				<VStack align="start" w="100%" spacing="32px">
 					<HStack w="160px" justify="space-between">
-						<Text variant="link">{user.isOffline ? 'Hors Ligne' : 'En Ligne'}</Text>
-						<Switch size="lg" defaultChecked={user.isOffline} variant="primary" onChange={toggleIsOfflineState} />
+						<Text variant="link">{user.data.user.isOffline ? 'Hors Ligne' : 'En Ligne'}</Text>
+						<Switch
+							size="lg"
+							defaultChecked={user.data.user.isOffline}
+							variant="primary"
+							onChange={user.methods.user.toggleIsOfflineState}
+						/>
 					</HStack>
 					<VStack align="start" w="100%">
 						<Text variant="link">Gateway IPFS</Text>
@@ -231,4 +234,4 @@ const Reglages = (): JSX.Element => {
 	);
 };
 
-export default Reglages;
+export default Settings;

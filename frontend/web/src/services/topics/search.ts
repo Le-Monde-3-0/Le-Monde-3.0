@@ -1,7 +1,7 @@
 import { servicesURL } from 'services';
+import { TopicsSearchOne } from 'types/services';
 import { Topic } from 'types/topic';
 
-const searchAll = async () => servicesURL.get<Topic[]>('/topics');
-const searchOne = async (id: number) => servicesURL.get<Topic>(`/topics/${id}`);
+export const one = async (params: TopicsSearchOne) => servicesURL.get<Topic>(`/topics/${params.id}`);
 
-export { searchAll, searchOne };
+export const all = async () => servicesURL.get<Topic[]>('/topics');

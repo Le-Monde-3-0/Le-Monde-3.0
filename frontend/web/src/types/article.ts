@@ -1,3 +1,5 @@
+import { Topic } from './topic';
+
 export type Article = {
 	id: number;
 	createdAt: Date;
@@ -9,7 +11,9 @@ export type Article = {
 	authorId: number;
 	totalViews: number;
 	totalLikes: number;
-	topicId: number;
+	// TODO: clean this -> topicId or topic for all endpoints ?
+	topicId?: number;
+	topic?: Topic;
 };
 
 // export type ArticleMetaData = {

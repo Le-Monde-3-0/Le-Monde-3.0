@@ -30,6 +30,7 @@ const ArticleCard = ({
 	return (
 		<VStack
 			w="100%"
+			maxW="400px"
 			h="100%"
 			p={{ base: '8px', xl: '16px' }}
 			bg="gray.200"

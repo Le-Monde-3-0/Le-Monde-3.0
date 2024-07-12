@@ -1,16 +1,13 @@
 import { servicesURL } from 'services';
 import { Anthology } from 'types/anthology';
+import { AnthologiesCreate } from 'types/services';
 
-const create = async ({
-	name,
-	description,
-	isPublic,
-	articles = [],
-}: {
-	name: string;
-	description: string;
-	isPublic: boolean;
-	articles?: number[];
-}) => servicesURL.post<Anthology>('/anthologies', { name, description, isPublic, articles });
+const create = async (params: AnthologiesCreate) =>
+	servicesURL.post<Anthology>('/anthologies', {
+		name: params.name,
+		description: params.description,
+		isPublic: params.isPublic,
+		articles: params.articles || [],
+	});
 
 export default create;

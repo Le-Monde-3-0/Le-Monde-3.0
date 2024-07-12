@@ -1,27 +1,14 @@
 import { servicesURL } from 'services';
 import { Anthology } from 'types/anthology';
+import { AnthologiesUpdate } from 'types/services';
 
-const update = async ({
-	id,
-	addArticles = [],
-	removeArticles = [],
-	newName,
-	newDescription,
-	newIsPublic,
-}: {
-	id: number;
-	addArticles?: number[];
-	removeArticles?: number[];
-	newName?: string;
-	newDescription?: string;
-	newIsPublic?: boolean;
-}) =>
-	servicesURL.patch<Anthology>(`/anthologies/${id}`, {
-		addArticles,
-		removeArticles,
-		name: newName,
-		description: newDescription,
-		newIsPublic: newIsPublic,
+const update = async (params: AnthologiesUpdate) =>
+	servicesURL.patch<Anthology>(`/anthologies/${params.id}`, {
+		addArticles: params.addArticles || [],
+		removeArticles: params.removeArticles || [],
+		name: params.newName,
+		description: params.newDescription,
+		newIsPublic: params.newIsPublic,
 	});
 
 export default update;

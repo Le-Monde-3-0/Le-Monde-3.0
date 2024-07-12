@@ -1,46 +1,11 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState } from 'react';
 import { Badge, Select, Stack, Text, VStack } from '@chakra-ui/react';
 
-import services from 'services';
-import { useAuthContext } from 'contexts/auth';
-import { useUIContext } from 'contexts/ui';
 import SearchInput from 'components/Inputs/SearchInput';
-import handleRequest from 'utils/handleRequest';
 
-const UserProfil = (): JSX.Element => {
-	// const { auth } = useAuthContext();
-	// const { requestResponseToast } = useUIContext();
-	// const navigate = useNavigate();
-	// const { userId } = useParams();
+const Author = (): JSX.Element => {
 	const [search, setSearch] = useState('');
-
-	// const getUserProfil = async () => {
-	// 	try {
-	// 		const profilRes = await handleRequest<{
-	// 			id: number;
-	// 			email: string;
-	// 			username: string;
-	// 		}>({
-	// 			request: async () => {
-	// 				const res = await services.users.get({ token: auth.accessToken!, userId: +userId! });
-	// 				return res;
-	// 			},
-	// 			name: 'getUserProfil',
-	// 		});
-	// 		requestResponseToast(profilRes);
-	// 		if (profilRes.status === 'error') {
-	// 			navigate('/favoris');
-	// 		}
-	// 	} catch (error) {
-	// 		console.error(error);
-	// 	}
-	// };
-
-	// useEffect(() => {
-	// 	getUserProfil();
-	// }, []);
 
 	return (
 		<VStack align="start" w="100%" spacing={{ base: '24px', md: '32px', lg: '40px' }}>
@@ -85,4 +50,4 @@ const UserProfil = (): JSX.Element => {
 	);
 };
 
-export default UserProfil;
+export default Author;

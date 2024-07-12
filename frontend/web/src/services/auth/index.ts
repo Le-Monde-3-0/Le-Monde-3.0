@@ -1,17 +1,20 @@
-import signUp from './signUp';
-import signIn from './signIn';
-import signOut from './signOut';
-import refresh from './refresh';
-import { updateEmail, updatePassword, updateUsername } from './update';
+import me from './me';
+import { again, up, out, signIn } from './sign';
+import { password, email, username } from './update';
 
-const authService = {
-	signUp,
-	signIn,
-	signOut,
-	refresh,
-	updatePassword,
-	updateEmail,
-	updateUsername,
+const auth = {
+	sign: {
+		up,
+		in: signIn,
+		out,
+		again,
+	},
+	me,
+	update: {
+		password,
+		email,
+		username,
+	},
 };
 
-export default authService;
+export default auth;

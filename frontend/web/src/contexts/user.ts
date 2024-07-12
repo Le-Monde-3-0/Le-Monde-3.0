@@ -4,112 +4,68 @@ import { User } from 'types/user';
 import { Topic } from 'types/topic';
 import { Article } from 'types/article';
 import { Anthology } from 'types/anthology';
-import { EmptyType } from 'types/services';
-import { RequestResponse } from 'utils/handleRequest';
+import { Handler } from 'types/handler';
+import {
+	ArticlesCreate,
+	ArticlesDelete,
+	EmptyResponse,
+	ArticlesLike,
+	ArticlesSearchOne,
+	ArticlesSearchMany,
+	ArticlesUpdate,
+	AnthologiesArticles,
+	AnthologiesCreate,
+	AnthologiesDelete,
+	AnthologiesSearchOne,
+	AnthologiesSearchMany,
+	AnthologiesUpdate,
+	TopicsSearchOne,
+} from 'types/services';
 
 type UserContextType = {
-	//
-	// Data stored
-	//
-	user: User;
-
-	//
-	// Methods to manipulate data stored
-	//
-	clearUser: () => void;
-	uploadUser: (user: User) => void;
-	toggleIsOfflineState: () => void;
-
-	//
-	// Methods to interact with the services
-	//
-
-	// Articles
-	createArticle: ({
-		title,
-		subtitle,
-		content,
-		topic,
-		draft,
-	}: {
-		title: string;
-		subtitle?: string;
-		content: string;
-		topic: number;
-		draft: boolean;
-	}) => Promise<RequestResponse<Article>>;
-	deleteArticle: (id: number) => Promise<RequestResponse<EmptyType>>;
-	likeArticle: ({ id, isLiked }: { id: number; isLiked: boolean }) => Promise<RequestResponse<EmptyType>>;
-	loadWrittenArticles: () => Promise<RequestResponse<Article[]>>;
-	loadLikedArticles: () => Promise<RequestResponse<Article[]>>;
-	searchArticles: ({
-		author,
-		draft,
-		topic,
-		isLiked,
-		anthologyId,
-		query,
-	}: {
-		author?: string;
-		draft?: boolean;
-		topic?: number;
-		isLiked?: boolean;
-		anthologyId?: number;
-		query?: string;
-	}) => Promise<RequestResponse<Article[]>>;
-	searchArticle: (id: number) => Promise<RequestResponse<Article>>;
-	updateArticle: ({
-		id,
-		newTitle,
-		newSubtitle,
-		newContent,
-		newTopic,
-		newDraft,
-	}: {
-		id: number;
-		newTitle?: string;
-		newSubtitle?: string;
-		newContent?: string;
-		newTopic?: number;
-		newDraft?: boolean;
-	}) => Promise<RequestResponse<Article>>;
-
-	// Anthologies
-	loadAnthologyArticles: (id: number) => Promise<RequestResponse<Article[]>>;
-	createAnthology: ({
-		name,
-		description,
-		isPublic,
-		articles,
-	}: {
-		name: string;
-		description: string;
-		isPublic: boolean;
-		articles?: number[];
-	}) => Promise<RequestResponse<Anthology>>;
-	deleteAnthology: (id: number) => Promise<RequestResponse<EmptyType>>;
-	loadAnthologies: () => Promise<RequestResponse<Anthology[]>>;
-	searchAnthologies: ({ author, query }: { author?: string; query?: string }) => Promise<RequestResponse<Anthology[]>>;
-	searchAnthology: (id: number) => Promise<RequestResponse<Anthology>>;
-	updateAnthology: ({
-		id,
-		addArticles,
-		removeArticles,
-		newName,
-		newDescription,
-		newIsPublic,
-	}: {
-		id: number;
-		addArticles?: number[];
-		removeArticles?: number[];
-		newName?: string;
-		newDescription?: string;
-		newIsPublic?: boolean;
-	}) => Promise<RequestResponse<Anthology>>;
-
-	// Topics
-	searchAllTopics: () => Promise<RequestResponse<Topic[]>>;
-	searchTopic: (id: number) => Promise<RequestResponse<Topic>>;
+	// TODO: not clean, data: User would be better (implies a lot of changes (but easy))
+	// TODO: think about merging contexts auth & user
+	data: {
+		user: User;
+	};
+	methods: {
+		user: {
+			clear: () => void;
+			upload: (user: User) => void;
+			toggleIsOfflineState: () => void;
+		};
+		articles: {
+			create: (params: ArticlesCreate) => Promise<Handler<Article>>;
+			delete: (params: ArticlesDelete) => Promise<Handler<EmptyResponse>>;
+			like: (params: ArticlesLike) => Promise<Handler<EmptyResponse>>;
+			load: {
+				written: () => Promise<Handler<Article[]>>;
+				liked: () => Promise<Handler<Article[]>>;
+			};
+			search: {
+				one: (params: ArticlesSearchOne) => Promise<Handler<Article>>;
+				many: (params: ArticlesSearchMany) => Promise<Handler<Article[]>>;
+			};
+			update: (params: ArticlesUpdate) => Promise<Handler<Article>>;
+		};
+		anthologies: {
+			articles: (params: AnthologiesArticles) => Promise<Handler<Article[]>>;
+			create: (params: AnthologiesCreate) => Promise<Handler<Anthology>>;
+			delete: (params: AnthologiesDelete) => Promise<Handler<EmptyResponse>>;
+			load: () => Promise<Handler<Anthology[]>>;
+			search: {
+				one: (params: AnthologiesSearchOne) => Promise<Handler<Anthology>>;
+				many: (params: AnthologiesSearchMany) => Promise<Handler<Anthology[]>>;
+			};
+			update: (params: AnthologiesUpdate) => Promise<Handler<Anthology>>;
+		};
+		topics: {
+			search: {
+				one: (params: TopicsSearchOne) => Promise<Handler<Topic>>;
+				all: () => Promise<Handler<Topic[]>>;
+			};
+		};
+	};
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);

@@ -23,5 +23,6 @@ rules:
   "import/no-extraneous-dependencies": off
   "@typescript-eslint/no-non-null-assertion": off
   "@typescript-eslint/return-await": off
+  "react/jsx-no-comment-textnodes": off
 
   react-hooks/exhaustive-deps: off

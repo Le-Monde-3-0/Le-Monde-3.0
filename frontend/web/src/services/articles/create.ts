@@ -1,25 +1,14 @@
 import { servicesURL } from 'services';
 import { Article } from 'types/article';
+import { ArticlesCreate } from 'types/services';
 
-const create = async ({
-	title,
-	subtitle = 'subtitle',
-	content,
-	topic,
-	draft,
-}: {
-	title: string;
-	subtitle?: string;
-	content: string;
-	topic: number;
-	draft: boolean;
-}) =>
+const create = async (params: ArticlesCreate) =>
 	servicesURL.post<Article>('/articles', {
-		title,
-		subtitle,
-		content,
-		topic,
-		draft,
+		title: params.title,
+		subtitle: params.subtitle || 'subtitle',
+		content: params.content,
+		topic: params.topic,
+		draft: params.draft,
 	});
 
 export default create;

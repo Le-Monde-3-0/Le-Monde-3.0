@@ -1,10 +1,10 @@
 import axios from 'axios';
 
 import context from 'context';
-import authService from './auth';
-import articlesService from './articles';
-import topicsService from './topics';
-import anthologiesService from './anthologies';
+import auth from './auth';
+import articles from './articles';
+import topics from './topics';
+import anthologies from './anthologies';
 
 const servicesURL = axios.create({
 	withCredentials: true,
@@ -13,10 +13,10 @@ const servicesURL = axios.create({
 });
 
 const services = {
-	auth: authService,
-	articles: articlesService,
-	anthologies: anthologiesService,
-	topics: topicsService,
+	auth,
+	articles,
+	anthologies,
+	topics,
 };
 
 export { servicesURL };

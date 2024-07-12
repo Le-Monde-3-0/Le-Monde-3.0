@@ -9,16 +9,16 @@ import PwdInput from 'components/Inputs/PwdInput';
 
 const Connexion = (): JSX.Element => {
 	const navigate = useNavigate();
-	const { signIn } = useAuthContext();
-	const { requestResponseToast } = useUIContext();
+	const { methods } = useAuthContext();
+	const { handleToast } = useUIContext();
 	const [loginInput, setLoginInput] = useState('');
 	const [pwdInut, setPwdInut] = useState('');
 	const [validation, setValidation] = useState(false);
 
 	const connexion = async () => {
 		try {
-			const res = await signIn({ identifier: loginInput, password: pwdInut });
-			requestResponseToast(res, true);
+			const res = await methods.sign.in({ identifier: loginInput, password: pwdInut });
+			handleToast(res, true);
 			if (res.status === 'success') {
 				navigate('/favoris');
 			}

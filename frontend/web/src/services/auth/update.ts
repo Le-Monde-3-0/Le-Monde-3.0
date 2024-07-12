@@ -1,20 +1,18 @@
 import { servicesURL } from 'services';
-import { SignType } from 'types/services';
+import { EmptyResponse, AuthUpdateEmail, AuthUpdatePassword, AuthUpdateUsername } from 'types/services';
 
-const updatePassword = async ({ oldPassword, newPassword }: { oldPassword: string; newPassword: string }) =>
-	servicesURL.patch<SignType>('/authentication/password', {
-		oldPassword,
-		newPassword,
+export const password = async (params: AuthUpdatePassword) =>
+	servicesURL.patch<EmptyResponse>('/authentication/password', {
+		oldPassword: params.oldPassword,
+		newPassword: params.newPassword,
 	});
 
-const updateEmail = async ({ newEmail }: { newEmail: string }) =>
-	servicesURL.patch<SignType>('/authentication/email', {
-		newEmail,
+export const email = async (params: AuthUpdateEmail) =>
+	servicesURL.patch<EmptyResponse>('/authentication/email', {
+		newEmail: params.newEmail,
 	});
 
-const updateUsername = async ({ newUsername }: { newUsername: string }) =>
-	servicesURL.patch<SignType>('/authentication/username', {
-		newUsername,
+export const username = async (params: AuthUpdateUsername) =>
+	servicesURL.patch<EmptyResponse>('/authentication/username', {
+		newUsername: params.newUsername,
 	});
-
-export { updatePassword, updateEmail, updateUsername };

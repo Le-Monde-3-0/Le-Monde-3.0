@@ -1,32 +1,17 @@
 import { servicesURL } from 'services';
 import { Article } from 'types/article';
+import { ArticlesSearchMany, ArticlesSearchOne } from 'types/services';
 
-const searchMany = async ({
-	author = 'me',
-	draft,
-	topic,
-	isLiked,
-	anthologyId,
-	query,
-}: {
-	author?: string;
-	draft?: boolean;
-	topic?: number;
-	isLiked?: boolean;
-	anthologyId?: number;
-	query?: string;
-}) =>
+export const one = async (params: ArticlesSearchOne) => servicesURL.get<Article>(`/articles/${params.id}`);
+
+export const many = async (params: ArticlesSearchMany) =>
 	servicesURL.get<Article[]>('/articles', {
 		params: {
-			author,
-			draft,
-			topic,
-			isLiked,
-			anthologyId,
-			q: query,
+			author: params.author,
+			draft: params.draft,
+			topic: params.topic,
+			isLiked: params.isLiked,
+			anthologyId: params.anthologyId,
+			q: params.query,
 		},
 	});
-
-const searchOne = async (id: number) => servicesURL.get<Article>(`/articles/${id}`);
-
-export { searchMany, searchOne };
