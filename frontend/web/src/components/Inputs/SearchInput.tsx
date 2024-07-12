@@ -8,10 +8,10 @@ const SearchInput = ({
 	...props
 }: {
 	value: string;
-	inputId: string;
+	inputId?: string;
 } & InputProps): JSX.Element => {
 	return (
-		<InputGroup size="md">
+		<InputGroup size="md" w={props.w || '100%'}>
 			<InputLeftElement pointerEvents="none">
 				<SearchIcon color="white" />
 			</InputLeftElement>

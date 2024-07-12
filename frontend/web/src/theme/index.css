@@ -24,6 +24,10 @@ a {
   text-decoration: none !important;
 }
 
+#slide-navbar {
+  width: 320px !important;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
 }

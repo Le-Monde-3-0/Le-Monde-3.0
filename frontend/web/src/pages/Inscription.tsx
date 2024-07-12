@@ -30,7 +30,7 @@ const Inscription = (): JSX.Element => {
 	const inscription = async () => {
 		try {
 			const res = await methods.sign.up({ email, password: pwd, username });
-			handleToast(res);
+			handleToast(res, true);
 			if (res.status === 'success') {
 				navigate('/favoris');
 			}

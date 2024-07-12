@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
 	Box,
@@ -8,13 +9,14 @@ import {
 	DrawerOverlay,
 	HStack,
 	Icon,
+	Slide,
 	StackProps,
 	Text,
 	VStack,
 	useBreakpointValue,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { HamburgerIcon } from '@chakra-ui/icons';
+import { CloseIcon, HamburgerIcon } from '@chakra-ui/icons';
 import { FaPenFancy } from 'react-icons/fa6';
 import { IoLibrary } from 'react-icons/io5';
 import { MdAdminPanelSettings, MdTravelExplore } from 'react-icons/md';
@@ -91,7 +93,9 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 			}}
 		>
 			<VStack w="100%" spacing="16px" mt="48px">
-				<Text variant="h4" fontWeight="bold">{auth.data.username}</Text>
+				<Text variant="h4" fontWeight="bold">
+					{auth.data.username}
+				</Text>
 			</VStack>
 			<VStack w="100%" spacing="40px">
 				<VStack align="start" w="100%">
@@ -141,7 +145,9 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 
 const Private = ({ children }: PrivateProps): JSX.Element => {
 	const auth = useAuthContext();
-	const { isOpen, onOpen, onClose } = useDisclosure();
+	const drawer = useDisclosure();
+	const slide = useDisclosure();
+	const [showCross, setShowCross] = useState(false);
 	const collapseNavBar = useBreakpointValue({ base: true, xl: false });
 
 	return (
@@ -153,15 +159,15 @@ const Private = ({ children }: PrivateProps): JSX.Element => {
 						top={{ base: '8px', md: '16px', lg: '24px' }}
 						left={{ base: '8px', md: '16px', lg: '24px' }}
 						zIndex={100}
-						onClick={onOpen}
-						bg="gray.900"
+						onClick={drawer.onOpen}
+						bg="gray.900 !important"
 					>
 						<Icon fontSize="24px" as={HamburgerIcon} color="white" />
 						<Text ml="4px" variant="link">
 							{auth.data.username}
 						</Text>
 					</Button>
-					<Drawer isOpen={isOpen} placement="left" onClose={onClose}>
+					<Drawer isOpen={drawer.isOpen} placement="left" onClose={drawer.onClose}>
 						<DrawerOverlay />
 						<DrawerContent bg="black" w="360px !important">
 							<NavBar />
@@ -169,7 +175,33 @@ const Private = ({ children }: PrivateProps): JSX.Element => {
 					</Drawer>
 				</>
 			) : (
-				<NavBar w="480px !important" h="100% !important" />
+				<>
+					<Button
+						hidden={!slide.isOpen ? !showCross : false}
+						position="absolute"
+						top={{ base: '0px', lg: !slide.isOpen ? '8px' : '24px' }}
+						left={{ base: '0px', lg: !slide.isOpen ? '272px' : '24px' }}
+						zIndex={100}
+						onClick={slide.onToggle}
+						bg={!slide.isOpen ? 'transparent !important' : 'gray.900 !important'}
+						onMouseOver={() => setShowCross(true)}
+					>
+						<Icon
+							fontSize={!slide.isOpen ? '12px' : '24px'}
+							as={!slide.isOpen ? CloseIcon : HamburgerIcon}
+							color="white"
+						/>
+					</Button>
+					{/* WARNING: change index.css along with the width */}
+					<Slide direction="left" in={!slide.isOpen} style={{ zIndex: 10 }} id="slide-navbar">
+						<NavBar
+							w="320px !important"
+							h="100% !important"
+							onMouseOver={() => setShowCross(true)}
+							onMouseLeave={() => setShowCross(false)}
+						/>
+					</Slide>
+				</>
 			)}
 			<Box
 				w="100%"
@@ -184,8 +216,9 @@ const Private = ({ children }: PrivateProps): JSX.Element => {
 					base: '56px 8px 8px 8px',
 					md: '64px 16px 16px 16px',
 					lg: '72px 24px 24px 24px',
-					xl: '24px 24px 24px 24px',
+					xl: '80px 160px 80px 160px',
 				}}
+				ml={{ base: '0px', xl: !slide.isOpen ? '320px' : '88px' }}
 			>
 				{children}
 			</Box>

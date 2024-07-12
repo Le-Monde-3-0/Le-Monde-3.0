@@ -43,7 +43,7 @@ const button = {
 		'secondary-yellow': {
 			bg: 'black',
 			border: '1px',
-			borderStyle: 'dashed',
+			borderStyle: 'solid',
 			borderColor: 'primary.yellow',
 			color: 'primary.yellow',
 			px: '24px',
