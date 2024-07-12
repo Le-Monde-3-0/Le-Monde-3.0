@@ -112,6 +112,18 @@ const Writings = (): JSX.Element => {
 		};
 	}, [filter, search, topic, showDrafts, showPublications]);
 
+	useEffect(() => {
+		setArticles(
+			articles.sort((a, b) => {
+				if (sortLikes === 'UP') return b.likeCounter - a.likeCounter;
+				if (sortLikes === 'DOWN') return a.likeCounter - b.likeCounter;
+				if (sortViews === 'UP') return b.viewCounter - a.viewCounter;
+				if (sortViews === 'DOWN') return a.viewCounter - b.viewCounter;
+				return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+			}),
+		);
+	}, [sortLikes, sortViews, articles]);
+
 	return (
 		<VStack w="100%" spacing={{ base: '8px', md: '16px', lg: '24px', xl: '32px' }} align="start">
 			<HStack w="100%" align="center" spacing="24px">
@@ -262,8 +274,8 @@ const Writings = (): JSX.Element => {
 								</span>
 							</Tooltip>,
 						]}
-						likes={article.totalLikes}
-						views={article.totalViews}
+						likes={article.likeCounter}
+						views={article.viewCounter}
 						view="publisher"
 					/>
 				))}
@@ -297,7 +309,7 @@ const Writings = (): JSX.Element => {
 	// 						{data.user.articles.written
 	// 							.filter((a) => !a.draft)
 	// 							.filter((p) => (search !== '' ? p.title.includes(search) : true))
-	// 							.map((p) => p.totalLikes)
+	// 							.map((p) => p.likeCounter)
 	// 							.reduce((a, v) => a + v, 0)}{' '}
 	// 						like
 	// 					</Tag>
@@ -305,7 +317,7 @@ const Writings = (): JSX.Element => {
 	// 						{data.user.articles.written
 	// 							.filter((a) => !a.draft)
 	// 							.filter((p) => (search !== '' ? p.title.includes(search) : true))
-	// 							.map((p) => p.totalViews)
+	// 							.map((p) => p.viewCounter)
 	// 							.reduce((a, v) => a + v, 0)}{' '}
 	// 						view
 	// 					</Tag>
@@ -316,10 +328,10 @@ const Writings = (): JSX.Element => {
 	// 				w="100%"
 	// 			>
 	// 				<Collapse in={isLikeChartDisplayed} animateOpacity>
-	// 					<Chart yLabel="Likes" data={data.user.overallDailyTotalLikes} />
+	// 					<Chart yLabel="Likes" data={data.user.overallDailylikeCounter} />
 	// 				</Collapse>
 	// 				<Collapse in={isViewChartDisplayed} animateOpacity>
-	// 					<Chart yLabel="Vues" data={data.user.overallDailyTotalViews} />
+	// 					<Chart yLabel="Vues" data={data.user.overallDailyviewCounter} />
 	// 				</Collapse>
 	// 			</Grid> */}
 	// 				<Grid
@@ -353,8 +365,8 @@ const Writings = (): JSX.Element => {
 	// 											</span>
 	// 										</Tooltip>,
 	// 									]}
-	// 									likes={article.totalLikes}
-	// 									views={article.totalViews}
+	// 									likes={article.likeCounter}
+	// 									views={article.viewCounter}
 	// 									view="publisher"
 	// 								/>
 	// 							</GridItem>
@@ -377,13 +389,13 @@ const Writings = (): JSX.Element => {
 	// 						{data.user.articles.written
 	// 							.filter((a) => a.draft)
 	// 							.filter((p) => (search !== '' ? p.title.includes(search) : true))
-	// 							.map((p) => p.totalLikes)
+	// 							.map((p) => p.likeCounter)
 	// 							.reduce((a, v) => a + v, 0)}{' '}
 	// 						like
 	// 						{data.user.articles.written
 	// 							.filter((a) => a.draft)
 	// 							.filter((p) => (search !== '' ? p.title.includes(search) : true))
-	// 							.map((p) => p.totalLikes)
+	// 							.map((p) => p.likeCounter)
 	// 							.reduce((a, v) => a + v, 0) !== 1 && 's'}
 	// 					</Tag>
 	// 				</HStack>
@@ -419,8 +431,8 @@ const Writings = (): JSX.Element => {
 	// 										</Tooltip>,
 	// 									]}
 	// 									view="publisher"
-	// 									views={brouillon.totalViews}
-	// 									likes={+brouillon.totalLikes}
+	// 									views={brouillon.viewCounter}
+	// 									likes={+brouillon.likeCounter}
 	// 								/>
 	// 							</GridItem>
 	// 						))}

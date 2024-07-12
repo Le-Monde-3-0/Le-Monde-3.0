@@ -48,8 +48,8 @@ const ArticlePage = (): JSX.Element => {
 			if (res.code === 404) {
 				navigate('/favoris');
 			} else if (res.data !== undefined && res.status === 'success') {
-				// res.data.TotalViews = Math.floor(Math.random() * 1000);
-				// res.data.DailyViews = generateDailyStats(res.data.TotalViews);
+				// res.data.viewCounter = Math.floor(Math.random() * 1000);
+				// res.data.DailyViews = generateDailyStats(res.data.viewCounter);
 				// res.data.DailyLikes = generateDailyStats(Math.floor(Math.random() * 1000));
 				setArticle(res.data);
 			}
@@ -147,7 +147,7 @@ const ArticlePage = (): JSX.Element => {
 								// onClick={toggleLikeChartDisplay}
 								cursor={'pointer'}
 							>
-								{article.totalLikes} like{article.totalLikes !== 1 && 's'}
+								{article.likeCounter} like{article.likeCounter !== 1 && 's'}
 							</Badge>
 							<Badge
 								colorScheme="blue"
@@ -156,7 +156,7 @@ const ArticlePage = (): JSX.Element => {
 								cursor="pointer"
 								// onClick={toggleViewChartDisplay}
 							>
-								{article.totalViews} view{article.totalViews !== 1 && 's'}
+								{article.viewCounter} view{article.viewCounter !== 1 && 's'}
 							</Badge>
 						</HStack>
 						{/* <Grid

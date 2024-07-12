@@ -9,8 +9,8 @@ export type Article = {
 	subtitle: string;
 	content: string;
 	authorId: number;
-	totalViews: number;
-	totalLikes: number;
+	viewCounter: number;
+	likeCounter: number;
 	// TODO: clean this -> topicId or topic for all endpoints ?
 	topicId?: number;
 	topic?: Topic;
@@ -23,8 +23,8 @@ export type Article = {
 // 	draft: boolean;
 // 	title: string;
 // 	authorId: number;
-// 	totalViews: number;
-// 	totalLikes: number;
+// 	viewCounter: number;
+// 	likeCounter: number;
 // 	topicId: number;
 // };
 

@@ -120,8 +120,8 @@ const Folder = (): JSX.Element => {
 										</span>
 									</Tooltip>,
 								]}
-								likes={article.totalLikes}
-								views={article.totalViews}
+								likes={article.likeCounter}
+								views={article.viewCounter}
 							/>
 						</GridItem>
 					))}
