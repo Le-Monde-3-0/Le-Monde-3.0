@@ -217,7 +217,7 @@ const Settings = (): JSX.Element => {
 											Anthologia se dresse comme un phare d'espoir pour la liberté de la presse.
 										</Text>
 										<Text variant="p" textAlign="justify">
-											Au cœur d'Anthologia se trouve une vision audacieuse : créer un écosystème journalistique
+											Au cœur d'Anthologia se trouve une vision audacieuse: créer un écosystème journalistique
 											incensurable, capable de résister aux tentatives les plus acharnées de museler la liberté
 											d'expression.
 										</Text>
@@ -310,7 +310,7 @@ const Settings = (): JSX.Element => {
 											</Text>
 											<Text variant="p" textAlign="justify">
 												Si vous utilisez une <i>gateway</i> publique, renseignez son url. Si vous utilisez une{' '}
-												<i>gateway</i> privée, renseigner le point d'accès à votre noeud IPFS (trouvable dans les
+												<i>gateway</i> privée, renseigner le point d'accès de votre noeud IPFS (trouvable dans les
 												réglages).
 											</Text>
 											<InputGroup>
