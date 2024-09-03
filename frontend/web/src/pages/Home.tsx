@@ -10,7 +10,7 @@ const Home = (): JSX.Element => {
 
 	const enterOfflineMode = async () => {
 		methods.user.toggleIsOfflineState();
-		navigate('/ipfs-config');
+		navigate('/reglages');
 	};
 
 	return (

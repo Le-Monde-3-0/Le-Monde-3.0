@@ -9,6 +9,7 @@ import {
 	DrawerOverlay,
 	HStack,
 	Icon,
+	Image,
 	Slide,
 	StackProps,
 	Text,
@@ -21,6 +22,8 @@ import { FaPenFancy } from 'react-icons/fa6';
 import { IoLibrary } from 'react-icons/io5';
 import { MdAdminPanelSettings, MdTravelExplore } from 'react-icons/md';
 
+// import BlackLogo from 'theme/logos/black.svg';
+import WhiteLogo from 'theme/logos/white.svg';
 import { useUserContext } from 'contexts/user';
 import { useAuthContext } from 'contexts/auth';
 
@@ -92,9 +95,10 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 				},
 			}}
 		>
-			<VStack w="100%" spacing="16px" mt="48px">
-				<Text variant="h4" fontWeight="bold">
-					{auth.data.username}
+			<VStack w="100%" spacing="24px" mt="48px">
+				<Image src={WhiteLogo} w="100%" maxW="80px" maxH="80px" />
+				<Text variant="h5" fontWeight="bold">
+					{auth.data.username || 'Handling'}
 				</Text>
 			</VStack>
 			<VStack w="100%" spacing="40px">
