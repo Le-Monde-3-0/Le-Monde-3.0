@@ -18,24 +18,29 @@ const AnthologyModal = ({
 	onClose,
 	type,
 	action,
-	title = '',
+	name = '',
 	description = '',
 }: {
 	isOpen: boolean;
 	onClose: () => void;
 	type: 'CREATE' | 'UPDATE';
-	action: (title: string, description: string) => void;
-	title?: string;
+	action: (name: string, description: string) => Promise<void>;
+	name?: string;
 	description?: string;
 }) => {
-	const [newTitle, setNewTitle] = useState(title);
+	const [newName, setNewName] = useState(name);
 	const [newDescription, setNewDescription] = useState(description);
+
+	React.useEffect(() => {
+		setNewName(name);
+		setNewDescription(description);
+	}, [name, description]);
 
 	return (
 		<Modal
 			isOpen={isOpen}
 			onClose={() => {
-				setNewTitle(title);
+				setNewName(name);
 				setNewDescription(description);
 				onClose();
 			}}
@@ -50,8 +55,8 @@ const AnthologyModal = ({
 							variant="primary-1"
 							bg="gray.700"
 							placeholder="Titre"
-							onChange={(e) => setNewTitle(e.target.value)}
-							value={newTitle}
+							onChange={(e) => setNewName(e.target.value)}
+							value={newName}
 						/>
 						<Input
 							variant="primary-1"
@@ -66,10 +71,10 @@ const AnthologyModal = ({
 				<ModalFooter>
 					<Button
 						variant="primary-yellow"
-						onClick={() => {
-							action(newTitle, newDescription);
+						onClick={async () => {
+							await action(newName, newDescription);
 							// TODO: title and description cleared even if action failed
-							setNewTitle('');
+							setNewName('');
 							setNewDescription('');
 						}}
 					>

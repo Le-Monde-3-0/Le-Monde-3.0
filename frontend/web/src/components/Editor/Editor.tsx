@@ -3,14 +3,14 @@ import { useEffect, useState } from 'react';
 import { Button, HStack, Input, Select, Stack, Textarea, VStack } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 
-import { useUserContext } from 'contexts/user';
+import { useOnlineUserContext } from 'contexts/onlineUser';
 import { useUIContext } from 'contexts/ui';
 import { Topic } from 'types/topic';
 
 const Editor = (): JSX.Element => {
 	const navigate = useNavigate();
 	const { handleToast } = useUIContext();
-	const { methods } = useUserContext();
+	const onlineUser = useOnlineUserContext();
 	const [topics, setTopics] = useState<Topic[]>([]);
 	const [title, setTitle] = useState('');
 	const [topic, setTopic] = useState('');
@@ -18,7 +18,7 @@ const Editor = (): JSX.Element => {
 
 	const uiSearchAllTopics = async () => {
 		try {
-			const res = await methods.topics.search.all();
+			const res = await onlineUser.methods.topics.search.all();
 			handleToast(res);
 			if (res.status === 'success') setTopics(res.data!);
 		} catch (error) {
@@ -28,7 +28,7 @@ const Editor = (): JSX.Element => {
 
 	const uiCreateArticle = async (draft: boolean) => {
 		try {
-			const res = await methods.articles.create({
+			const res = await onlineUser.methods.articles.create({
 				title,
 				content,
 				topic: topics.find((t) => t.name === topic)!.id,

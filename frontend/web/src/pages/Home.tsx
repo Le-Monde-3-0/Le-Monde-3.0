@@ -6,11 +6,11 @@ import { useUserContext } from 'contexts/user';
 
 const Home = (): JSX.Element => {
 	const navigate = useNavigate();
-	const { methods } = useUserContext();
+	const { data, methods } = useUserContext();
 
 	const enterOfflineMode = async () => {
-		methods.user.toggleIsOfflineState();
-		navigate('/ipfs-config');
+		if (!data.isOffline) methods.toggleIsOfflineState();
+		navigate('/reglages');
 	};
 
 	return (
@@ -30,7 +30,7 @@ const Home = (): JSX.Element => {
 			</Link>
 			<br />
 			<Text>
-				Utilisez Le Monde 3.0 <b>hors ligne</b> pour lire dans un État censuré.
+				Utilisez Anthologia <b>hors-ligne</b> pour lire dans un État censuré.
 			</Text>
 			<Button onClick={enterOfflineMode} variant="primary-purple">
 				Mode hors ligne

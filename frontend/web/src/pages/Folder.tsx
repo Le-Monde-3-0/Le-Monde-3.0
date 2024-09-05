@@ -1,72 +1,41 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { AddIcon, CloseIcon } from '@chakra-ui/icons';
+import { useParams } from 'react-router-dom';
 import { CircularProgress, Grid, GridItem, Tag, Tooltip, VStack } from '@chakra-ui/react';
+import { FaFolderMinus } from 'react-icons/fa';
 
-import SearchInput from 'components/Inputs/SearchInput';
-import ArticleCard from 'components/Cards/ArticleCard';
 import { useUserContext } from 'contexts/user';
 import { useUIContext } from 'contexts/ui';
-import { Article } from 'types/article';
-import { Anthology } from 'types/anthology';
+import { Article, OfflineArticle } from 'types/article';
+import { Anthology, OfflineAnthology } from 'types/anthology';
+import SearchInput from 'components/Inputs/SearchInput';
+import ArticleCard from 'components/Cards/ArticleCard';
 
 const Folder = (): JSX.Element => {
-	const navigate = useNavigate();
-	const { handleToast } = useUIContext();
-	const { methods } = useUserContext();
+	const user = useUserContext();
+	const ui = useUIContext();
 	const { anthologyId } = useParams();
 	const [search, setSearch] = useState('');
-	const [anthology, setAnthology] = useState<Anthology | undefined>(undefined);
-	const [articles, setArticles] = useState<Article[]>([]);
-
-	const uiSearchAnthology = async () => {
-		try {
-			const res = await methods.anthologies.search.one({ id: +anthologyId! });
-			handleToast(res);
-			if (res.code === 404) {
-				navigate('/marque-pages');
-			} else if (res.status === 'success') {
-				setAnthology(res.data);
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
-	const uiLoadAnthologyArticles = async () => {
-		try {
-			const res = await methods.anthologies.articles({ id: +anthologyId! });
-			handleToast(res);
-			if (res.code === 404) {
-				navigate('/marque-pages');
-			} else if (res.status === 'success') {
-				if (res.data === null) setArticles([]);
-				else setArticles(res.data!);
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
-	const uiUpdateAnthology = async (id: number) => {
-		try {
-			const res = await methods.anthologies.update({ id: +anthologyId!, removeArticles: [id] });
-			handleToast(res, true);
-			if (res.status === 'success') {
-				setArticles(articles.filter((a) => a.id !== id));
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	};
+	const [onlineAnthology, setOnlineAnthology] = useState<Anthology | undefined>(undefined);
+	const [offlineAnthology, setOfflineAnthology] = useState<OfflineAnthology | undefined>(undefined);
+	const [onlineArticles, setOnlineArticles] = useState<Article[]>([]);
+	const [offlineArticles, setOfflineArticles] = useState<OfflineArticle[]>([]);
 
 	useEffect(() => {
-		uiSearchAnthology();
-		uiLoadAnthologyArticles();
+		if (user.data.isOffline) {
+			ui.offline.anthologies.search.one(anthologyId!, setOfflineAnthology);
+			ui.offline.anthologies.articles(anthologyId!, setOfflineArticles);
+		} else {
+			ui.online.anthologies.search.one(+anthologyId!, setOnlineAnthology);
+			ui.online.anthologies.articles(+anthologyId!, setOnlineArticles);
+		}
 	}, []);
 
-	if (!anthology) {
+	useEffect(() => {
+		console.log(offlineArticles);
+	}, [offlineArticles]);
+
+	if (user.data.isOffline ? !offlineAnthology : !onlineAnthology) {
 		return (
 			<>
 				<VStack w="100%" h="100vh" justify="center">
@@ -87,44 +56,94 @@ const Folder = (): JSX.Element => {
 				variant="primary-1"
 			/>
 			<Tag bg="primary.yellow">
-				{articles.length} article
-				{articles.length !== 1 && 's'}
+				{user.data.isOffline
+					? `${offlineAnthology!.articles.length} article${offlineAnthology!.articles.length === 1 ? '' : 's'}`
+					: `${onlineArticles.length} article${onlineArticles.length === 1 ? '' : 's'}`}
 			</Tag>
 			<Grid
-				templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
+				templateColumns={{
+					base: 'repeat(1, 1fr)',
+					md: 'repeat(2, minmax(0, 1fr));',
+					'2xl': 'repeat(3, minmax(0, 1fr));',
+				}}
 				gap={{ base: 2, lg: 4 }}
 				w="100%"
 			>
-				{articles
-					.filter((a) => (search !== '' ? a.title.includes(search) : true))
-					.map((article, index) => (
-						<GridItem key={`${index.toString()}`}>
-							<ArticleCard
-								id={article.id}
-								title={article.title}
-								// TODO: author name
-								author="Author"
-								date={new Date(article.createdAt).toLocaleDateString('fr-FR')}
-								// TODO: Topic name
-								topic="Topic"
-								content={article.content}
-								actions={[
-									<Tooltip label="Ajouter à un marque-page">
-										<span>
-											<AddIcon onClick={() => {}} color="black" />
-										</span>
-									</Tooltip>,
-									<Tooltip label="Supprimer du marque-page">
-										<span>
-											<CloseIcon onClick={() => uiUpdateAnthology(article.id)} color="black" />
-										</span>
-									</Tooltip>,
-								]}
-								likes={article.likeCounter}
-								views={article.viewCounter}
-							/>
-						</GridItem>
-					))}
+				{user.data.isOffline
+					? offlineArticles
+							.filter((a) => (search !== '' ? a.title.includes(search) : true))
+							.map((article, index) => (
+								<GridItem key={index.toString()}>
+									<ArticleCard
+										navigateUrl={`/articles/${article.cid}`}
+										title={article.title}
+										// TODO: author name ? Or nothing
+										author={`Author #${article.authorId}`}
+										date={new Date(article.createdAt).toLocaleDateString('fr-FR')}
+										// TODO: Topic name ? Or nothing
+										topic={`Topic #${article.topicId}`}
+										content={article.preview || ''}
+										actions={[
+											// TODO: add article to other anthology
+											// <Tooltip label="Ajouter à un dossier">
+											// 	<span>
+											// 		<AddIcon onClick={() => {}} color="black" />
+											// 	</span>
+											// </Tooltip>,
+											<Tooltip label="Supprimer du dossier">
+												<span>
+													<FaFolderMinus
+														onClick={() =>
+															ui.offline.anthologies.removeArticle(anthologyId!, article.cid, async () => {
+																await ui.offline.anthologies.articles(anthologyId!, setOfflineArticles);
+															})
+														}
+														color="white"
+													/>
+												</span>
+											</Tooltip>,
+										]}
+									/>
+								</GridItem>
+							))
+					: onlineArticles
+							.filter((a) => (search !== '' ? a.title.includes(search) : true))
+							.map((article, index) => (
+								<GridItem key={index.toString()}>
+									<ArticleCard
+										navigateUrl={`/articles/${article.id.toString()}`}
+										title={article.title}
+										// TODO: author name
+										author={`Author #${article.authorId}`}
+										date={new Date(article.createdAt).toLocaleDateString('fr-FR')}
+										// TODO: Topic name
+										topic={`Topic #${article.topicId}`}
+										content={article.content}
+										actions={[
+											// TODO: add article to other anthology
+											// <Tooltip label="Ajouter à un dossier">
+											// 	<span>
+											// 		<AddIcon onClick={() => {}} color="black" />
+											// 	</span>
+											// </Tooltip>,
+											<Tooltip label="Supprimer du dossier">
+												<span>
+													<FaFolderMinus
+														onClick={() =>
+															ui.online.anthologies.removeArticle(+anthologyId!, article.id, async () => {
+																await ui.online.anthologies.articles(+anthologyId!, setOnlineArticles);
+															})
+														}
+														color="white"
+													/>
+												</span>
+											</Tooltip>,
+										]}
+										likes={article.likeCounter}
+										views={article.viewCounter}
+									/>
+								</GridItem>
+							))}
 			</Grid>
 		</VStack>
 	);

@@ -2,7 +2,7 @@ import me from './me';
 import { again, out, signIn, up } from './sign';
 import { email, password, username } from './update';
 
-const actions = {
+const auth = {
 	me,
 	sign: {
 		up,
@@ -17,4 +17,4 @@ const actions = {
 	},
 };
 
-export default actions;
+export default auth;

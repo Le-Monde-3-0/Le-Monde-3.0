@@ -16,7 +16,7 @@ jobs:
           echo CLIENT_PORT=3000 >> .env
 
       - name: Build and run project
-        run: docker-compose up --build -d > build-results
+        run: docker compose up --build -d > build-results
 
       - name: Get build results
         uses: actions/upload-artifact@v1

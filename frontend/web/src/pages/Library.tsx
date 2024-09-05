@@ -1,92 +1,62 @@
 import * as React from 'react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-	Badge,
-	Button,
-	Grid,
-	GridItem,
-	HStack,
-	Stack,
-	Tag,
-	Text,
-	Tooltip,
-	VStack,
-	useDisclosure,
-} from '@chakra-ui/react';
-import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import { useState, useEffect } from 'react';
+import { Grid, GridItem, Stack, Tag, VStack, useDisclosure } from '@chakra-ui/react';
+import { PlusSquareIcon } from '@chakra-ui/icons';
 
 import { useUIContext } from 'contexts/ui';
 import { useUserContext } from 'contexts/user';
-import { Anthology } from 'types/anthology';
+import { useOfflineUserContext } from 'contexts/offlineUser';
+import { Article } from 'types/article';
+import { Anthology, OfflineAnthology } from 'types/anthology';
 import SearchInput from 'components/Inputs/SearchInput';
 import AnthologyModal from 'components/modals/Anthology';
+import AnthologyCard from 'components/Cards/AnthologyCard';
 
 const Library = (): JSX.Element => {
-	const navigate = useNavigate();
-	const { handleToast } = useUIContext();
-	const { data, methods } = useUserContext();
+	const ui = useUIContext();
+	const user = useUserContext();
+	const offlineUser = useOfflineUserContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [search, setSearch] = useState('');
 	const [type, setType] = useState<'CREATE' | 'UPDATE'>('CREATE');
-	const [anthologyToUpdate, setAnthologyToUpdate] = useState<Anthology | undefined>(undefined);
+	const [onlineAnthologies, setOnlineAnthologies] = useState<Anthology[]>([]);
+	const [onlineLikedArticles, setOnlineLikedArticles] = useState<Article[]>([]);
+	const [onlineAnthologyToUpdate, setOnlineAnthologyToUpdate] = useState<Anthology | undefined>(undefined);
+	const [offlineAnthologyToUpdate, setOfflineAnthologyToUpdate] = useState<OfflineAnthology | undefined>(undefined);
 
-	const uiCreateAnthology = async (title: string, description: string) => {
-		try {
-			const res = await methods.anthologies.create({ name: title, description, isPublic: false });
-			handleToast(res, true);
-			if (res.status === 'success') onClose();
-		} catch (error) {
-			console.error(error);
+	useEffect(() => {
+		if (!user.data.isOffline) {
+			ui.online.anthologies.load(setOnlineAnthologies);
+			ui.online.articles.load.liked(setOnlineLikedArticles);
 		}
-	};
-
-	const uiUpdateAnthology = async (title: string, description: string) => {
-		try {
-			const res = await methods.anthologies.update({
-				id: anthologyToUpdate!.id,
-				newName: title,
-				newDescription: description,
-			});
-			handleToast(res, true);
-			if (res.status === 'success') {
-				onClose();
-				setType('CREATE');
-				setAnthologyToUpdate(undefined);
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
-	const uiDeleteAnthology = async (id: number) => {
-		try {
-			const res = await methods.anthologies.delete({ id });
-			handleToast(res, true);
-		} catch (error) {
-			console.error(error);
-		}
-	};
+	}, []);
 
 	return (
 		<>
 			<VStack w="100%" spacing={{ base: '8px', md: '12px', lg: '16px' }} align="start">
-				<Stack direction={{ base: 'column', md: 'row' }} w="100%" justifyContent="flex-start">
+				<Stack direction={{ base: 'column', md: 'row' }} w="100%" align="center">
 					<SearchInput
 						value={search}
 						inputId="bookmarks-search-input"
 						w={{ base: '100%', xl: '640px' }}
-						placeholder="Cherchez parmis vos marques-pages"
+						placeholder="Cherchez parmis vos dossiers"
 						onChange={(e) => setSearch(e.target.value)}
 						variant="primary-1"
 					/>
-					<Button variant="secondary-yellow" onClick={onOpen}>
-						Nouveau marque-page
-					</Button>
+					<PlusSquareIcon cursor="pointer" boxSize={8} color="primary.yellow" onClick={onOpen} />
 				</Stack>
 				<Tag bg="primary.yellow">
-					{data.user.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length} marque-page
-					{data.user.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length !== 1 && 's'}
+					{/* TODO: use anthologies search */}
+					{user.data.isOffline
+						? `${
+								offlineUser.data.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length
+						  } dossier${
+								offlineUser.data.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length !==
+									1 && 's'
+						  }`
+						: `${onlineAnthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length} dossier${
+								onlineAnthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length !== 1 && 's'
+						  }`}
 				</Tag>
 				<Grid
 					templateColumns={{
@@ -97,69 +67,101 @@ const Library = (): JSX.Element => {
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
 				>
-					{data.user.anthologies
-						.filter((b) => (search !== '' ? b.name.includes(search) : true))
-						.map((anthology, index) => (
-							<GridItem key={`${index.toString()}`}>
-								<HStack
-									w="100%"
-									h="100%"
-									p={{ base: '8px', xl: '16px' }}
-									bg="gray.200"
-									borderRadius="sm"
-									justifyContent="space-between"
-									align="start"
-								>
-									<VStack align="start" spacing="0px">
-										// TODO: number of articles
-										<Badge colorScheme="green" borderRadius="xsm">
-											x articles
-										</Badge>
-										<Text
-											variant="h6"
-											color="black !important"
-											cursor="pointer"
-											_hover={{ opacity: '0.8' }}
-											onClick={() => navigate(`/marque-page/${anthology.id}`)}
-										>
-											{anthology.name}
-										</Text>
-										<Text variant="p" color="black !important">
-											{anthology.description}
-										</Text>
-									</VStack>
-									<HStack>
-										<Tooltip label="Modifier le marque-page">
-											<span>
-												<EditIcon
-													onClick={() => {
-														setAnthologyToUpdate(anthology);
-														setType('UPDATE');
-														onOpen();
-													}}
-													color="black"
-												/>
-											</span>
-										</Tooltip>
-										<Tooltip label="Supprimer le marque-page">
-											<span>
-												<DeleteIcon onClick={() => uiDeleteAnthology(anthology.id)} color="black" />
-											</span>
-										</Tooltip>
-									</HStack>
-								</HStack>
-							</GridItem>
-						))}
+					<GridItem>
+						<AnthologyCard
+							navigateUrl={'/bibliotheque/favoris'}
+							name="Favoris"
+							description="Tous les articles que vous avez aimé"
+							nbArticles={user.data.isOffline ? offlineUser.data.articles.liked.length : onlineLikedArticles.length}
+						/>
+					</GridItem>
+					{user.data.isOffline
+						? offlineUser.data.anthologies
+								.filter((b) => (search !== '' ? b.name.includes(search) : true))
+								.map((anthology, index) => (
+									<GridItem key={index.toString()}>
+										<AnthologyCard
+											navigateUrl={`/bibliotheque/dossiers/${anthology.id}`}
+											name={anthology.name}
+											description={anthology.description}
+											nbArticles={anthology.articles.length}
+											deleteAnthology={() => ui.offline.anthologies.delete(anthology.id)}
+											setAnthologyToUpdate={() => setOfflineAnthologyToUpdate(anthology)}
+											setType={setType}
+											onOpen={onOpen}
+										/>
+									</GridItem>
+								))
+						: onlineAnthologies
+								.filter((b) => (search !== '' ? b.name.includes(search) : true))
+								.map((anthology, index) => (
+									<GridItem key={index.toString()}>
+										<AnthologyCard
+											navigateUrl={`/bibliotheque/dossiers/${anthology.id}`}
+											name={anthology.name}
+											description={anthology.description}
+											// TODO: number of articles
+											nbArticles={0}
+											deleteAnthology={() =>
+												ui.online.anthologies.delete(anthology.id, async () => {
+													await ui.online.anthologies.load(setOnlineAnthologies);
+												})
+											}
+											setAnthologyToUpdate={() => setOnlineAnthologyToUpdate(anthology)}
+											setType={setType}
+											onOpen={onOpen}
+										/>
+									</GridItem>
+								))}
 				</Grid>
 			</VStack>
 
 			<AnthologyModal
 				isOpen={isOpen}
-				onClose={onClose}
+				onClose={() => {
+					setType('CREATE');
+					onClose();
+				}}
 				type={type}
-				action={type === 'CREATE' ? uiCreateAnthology : uiUpdateAnthology}
-				title={type === 'CREATE' ? '' : anthologyToUpdate!.name}
-				description={type === 'CREATE' ? '' : anthologyToUpdate!.description}
+				action={async (name: string, description: string) => {
+					type === 'CREATE'
+						? user.data.isOffline
+							? await ui.offline.anthologies.create({
+									params: { name, description },
+									callback: () => {
+										onClose();
+									},
+							  })
+							: await ui.online.anthologies.create({
+									params: { name, description },
+									callback: async () => {
+										onClose();
+										await ui.online.anthologies.load(setOnlineAnthologies);
+									},
+							  })
+						: user.data.isOffline
+						? await ui.offline.anthologies.update(offlineAnthologyToUpdate!.id, name, description, () => {
+								onClose();
+								setType('CREATE');
+								setOfflineAnthologyToUpdate(undefined);
+						  })
+						: await ui.online.anthologies.update(onlineAnthologyToUpdate!.id, name, description, async () => {
+								onClose();
+								setType('CREATE');
+								setOnlineAnthologyToUpdate(undefined);
+								await ui.online.anthologies.load(setOnlineAnthologies);
+						  });
+				}}
+				name={
+					type === 'CREATE' ? '' : user.data.isOffline ? offlineAnthologyToUpdate!.name : onlineAnthologyToUpdate!.name
+				}
+				description={
+					type === 'CREATE'
+						? ''
+						: user.data.isOffline
+						? offlineAnthologyToUpdate!.description
+						: onlineAnthologyToUpdate!.description
+				}
 			/>
 		</>
 	);

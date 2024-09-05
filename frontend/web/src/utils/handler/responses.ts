@@ -1,5 +1,13 @@
 import { Handler } from 'types/handler';
 
+export const noResponse: Handler<never> = {
+	code: -1,
+	status: 'warning',
+	message: 'No response.',
+	subMessage: 'You might be censored...',
+	data: undefined,
+};
+
 export const unknowError: Handler<never> = {
 	code: 0,
 	status: 'info',
