@@ -3,21 +3,22 @@ import { useEffect, useState } from 'react';
 import { Link as RouteLink, useNavigate } from 'react-router-dom';
 import { Button, Input, Link } from '@chakra-ui/react';
 
-import { useAuthContext } from 'contexts/auth';
+import { useOnlineUserContext } from 'contexts/onlineUser';
 import { useUIContext } from 'contexts/ui';
 import PwdInput from 'components/Inputs/PwdInput';
 
 const Connexion = (): JSX.Element => {
 	const navigate = useNavigate();
-	const { methods } = useAuthContext();
+	const { methods } = useOnlineUserContext();
 	const { handleToast } = useUIContext();
 	const [loginInput, setLoginInput] = useState('');
 	const [pwdInut, setPwdInut] = useState('');
 	const [validation, setValidation] = useState(false);
 
+	// TODO: put in UI context ?
 	const connexion = async () => {
 		try {
-			const res = await methods.sign.in({ identifier: loginInput, password: pwdInut });
+			const res = await methods.auth.sign.in({ identifier: loginInput, password: pwdInut });
 			handleToast(res, true);
 			if (res.status === 'success') {
 				navigate('/favoris');

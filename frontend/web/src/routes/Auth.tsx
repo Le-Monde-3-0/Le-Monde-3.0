@@ -4,16 +4,17 @@ import { Outlet, useNavigate } from 'react-router-dom';
 
 import AuthLayout from 'layouts/Auth';
 import { useUIContext } from 'contexts/ui';
-import { useAuthContext } from 'contexts/auth';
+import { useOnlineUserContext } from 'contexts/onlineUser';
 
 const Auth = (): JSX.Element => {
 	const navigate = useNavigate();
-	const { methods } = useAuthContext();
+	const { methods } = useOnlineUserContext();
 	const { handleToast } = useUIContext();
 
+	// TODO: in UI context ?
 	const uiSignAgain = async () => {
 		try {
-			const res = await methods.sign.again();
+			const res = await methods.auth.sign.again();
 			handleToast(res, false, false, true);
 			if (res.status === 'success') {
 				navigate('/favoris');

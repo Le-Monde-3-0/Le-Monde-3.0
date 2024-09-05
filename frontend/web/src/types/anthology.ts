@@ -7,3 +7,12 @@ export type Anthology = {
 	description: string;
 	isPublic: boolean;
 };
+
+export type OfflineAnthology = {
+	id: string;
+	createdAt: Date;
+	updatedAt: Date;
+	name: string;
+	description: string;
+	articles: string[];
+};

@@ -24,8 +24,9 @@ import { MdAdminPanelSettings, MdTravelExplore } from 'react-icons/md';
 
 // import BlackLogo from 'theme/logos/black.svg';
 import WhiteLogo from 'theme/logos/white.svg';
+import { useOnlineUserContext } from 'contexts/onlineUser';
 import { useUserContext } from 'contexts/user';
-import { useAuthContext } from 'contexts/auth';
+import { useOfflineUserContext } from 'contexts/offlineUser';
 
 type PrivateProps = { children: JSX.Element };
 
@@ -73,8 +74,9 @@ const Option = ({
 );
 
 const NavBar = ({ ...props }: StackProps): JSX.Element => {
-	const auth = useAuthContext();
 	const user = useUserContext();
+	const onlineUser = useOnlineUserContext();
+	const offlineUser = useOfflineUserContext();
 	const location = useLocation();
 	const navigate = useNavigate();
 
@@ -98,7 +100,7 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 			<VStack w="100%" spacing="24px" mt="48px">
 				<Image src={WhiteLogo} w="100%" maxW="80px" maxH="80px" />
 				<Text variant="h5" fontWeight="bold">
-					{auth.data.username || 'Handling'}
+					{user.data.isOffline ? '' : onlineUser.data.username}
 				</Text>
 			</VStack>
 			<VStack w="100%" spacing="40px">
@@ -108,8 +110,7 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 						name="Bibliothèque"
 						isSelected={location.pathname === '/bibliotheque'}
 						onClick={() => navigate('/bibliotheque')}
-						// TODO: IPFS managment
-						// isEnable={!user.data.user.isOffline}
+						isEnable={user.data.isOffline ? offlineUser.data.config.step === 4 : true}
 					/>
 				</VStack>
 				<VStack align="start" w="100%">
@@ -118,8 +119,7 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 						name="Explorer"
 						isSelected={location.pathname === '/explorer'}
 						onClick={() => navigate('/explorer')}
-						// TODO: IPFS managment
-						// isEnable={!user.data.user.isOffline}
+						isEnable={user.data.isOffline ? offlineUser.data.config.step === 4 : true}
 					/>
 				</VStack>
 				<VStack align="start" w="100%">
@@ -128,8 +128,7 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 						name="Rédactions"
 						isSelected={location.pathname === '/redactions'}
 						onClick={() => navigate('/redactions')}
-						// TODO: IPFS managment
-						// isEnable={!user.data.user.isOffline}
+						isEnable={!user.data.isOffline}
 					/>
 				</VStack>
 				<VStack align="start" w="100%">
@@ -138,8 +137,6 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 						name="Réglages"
 						isSelected={location.pathname === '/reglages'}
 						onClick={() => navigate('/reglages')}
-						// TODO: IPFS managment
-						// isEnable={!user.data.user.isOffline}
 					/>
 				</VStack>
 			</VStack>
@@ -148,7 +145,8 @@ const NavBar = ({ ...props }: StackProps): JSX.Element => {
 };
 
 const Private = ({ children }: PrivateProps): JSX.Element => {
-	const auth = useAuthContext();
+	const user = useUserContext();
+	const onlineUser = useOnlineUserContext();
 	const drawer = useDisclosure();
 	const slide = useDisclosure();
 	const [showCross, setShowCross] = useState(false);
@@ -168,7 +166,7 @@ const Private = ({ children }: PrivateProps): JSX.Element => {
 					>
 						<Icon fontSize="24px" as={HamburgerIcon} color="white" />
 						<Text ml="4px" variant="link">
-							{auth.data.username}
+							{user.data.isOffline ? '' : onlineUser.data.username}
 						</Text>
 					</Button>
 					<Drawer isOpen={drawer.isOpen} placement="left" onClose={drawer.onClose}>

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link as RouteLink, useNavigate } from 'react-router-dom';
 import { Button, Link } from '@chakra-ui/react';
 
-import { useAuthContext } from 'contexts/auth';
+import { useOnlineUserContext } from 'contexts/onlineUser';
 import { useUIContext } from 'contexts/ui';
 import FormInput from 'components/Inputs/FormInput';
 import PwdInput from 'components/Inputs/PwdInput';
@@ -11,7 +11,7 @@ import emailRegex from 'utils/emailRegex';
 
 const Inscription = (): JSX.Element => {
 	const navigate = useNavigate();
-	const { methods } = useAuthContext();
+	const { methods } = useOnlineUserContext();
 	const { handleToast } = useUIContext();
 	const [email, setEmail] = useState('');
 	const [username, setUsername] = useState('');
@@ -27,9 +27,10 @@ const Inscription = (): JSX.Element => {
 		},
 	});
 
+	// TODO: put in UI context ?
 	const inscription = async () => {
 		try {
-			const res = await methods.sign.up({ email, password: pwd, username });
+			const res = await methods.auth.sign.up({ email, password: pwd, username });
 			handleToast(res, true);
 			if (res.status === 'success') {
 				navigate('/favoris');

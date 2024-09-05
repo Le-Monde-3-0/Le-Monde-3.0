@@ -1,8 +1,8 @@
 import services from 'services';
-import { Auth } from 'types/auth';
+import { OnlineUser } from 'types/user';
 import handle from 'utils/handler/handle';
 
-const me = ({ callback }: { callback: (auth: Auth) => void }) =>
+const me = ({ callback }: { callback: (data: OnlineUser) => void }) =>
 	handle({
 		request: async () => {
 			const res = await services.auth.me();

@@ -1,55 +1,35 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Grid, GridItem, HStack, Text, Tooltip, VStack, useDisclosure } from '@chakra-ui/react';
-import { AddIcon, CloseIcon } from '@chakra-ui/icons';
+import { FaFolderPlus } from 'react-icons/fa';
+import { FcLike } from 'react-icons/fc';
 
-import { Article } from 'types/article';
-import { useUserContext } from 'contexts/user';
 import { useUIContext } from 'contexts/ui';
+import { useUserContext } from 'contexts/user';
+import { useOfflineUserContext } from 'contexts/offlineUser';
+import { Article } from 'types/article';
 import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
 import AnthologiesModal from 'components/modals/Anthologies';
+import { Anthology } from 'types/anthology';
 
 const Favorites = (): JSX.Element => {
-	const { handleToast } = useUIContext();
-	const { data, methods } = useUserContext();
+	const user = useUserContext();
+	const offlineUser = useOfflineUserContext();
+	const ui = useUIContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [search, setSearch] = useState('');
-	const [articleToAdd, setArticleToAdd] = useState<Article | undefined>(undefined);
+	const [onlineLikedArticles, setOnlineLikedArticles] = useState<Article[]>([]);
+	const [onlineAnthologies, setOnlineAnthologies] = useState<Anthology[]>([]);
+	const [onlineArticleToAdd, setOnlineArticleToAdd] = useState<number | undefined>(undefined);
+	const [offlineArticleToAdd, setOfflineArticleToAdd] = useState<string | undefined>(undefined);
 
-	const uiUnlikeArticle = async (id: number) => {
-		try {
-			const res = await methods.articles.like({ id, isLiked: false });
-			handleToast(res, true);
-		} catch (error) {
-			console.error(error);
+	useEffect(() => {
+		if (!user.data.isOffline) {
+			ui.online.articles.load.liked(setOnlineLikedArticles);
+			ui.online.anthologies.load(setOnlineAnthologies);
 		}
-	};
-
-	const uiCreateAnthology = async (title: string, description: string) => {
-		try {
-			const res = await methods.anthologies.create({
-				name: title,
-				description,
-				isPublic: false,
-				articles: [articleToAdd!.id],
-			});
-			handleToast(res, true);
-			if (res.status === 'success') onClose();
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
-	const uiAddArticleToAnthology = async (id: number) => {
-		try {
-			const res = await methods.anthologies.update({ id, addArticles: [articleToAdd!.id] });
-			handleToast(res, true, true, false, 'Article ajouté au dossier.');
-			if (res.status === 'success') onClose();
-		} catch (error) {
-			console.error(error);
-		}
-	};
+	}, []);
 
 	return (
 		<>
@@ -63,7 +43,16 @@ const Favorites = (): JSX.Element => {
 					variant="primary-1"
 				/>
 				<HStack>
-					<Text variant="h5">Favori{data.user.articles.liked.length !== 1 && 's'}</Text>
+					<Text variant="h5">
+						Favori
+						{user.data.isOffline
+							? offlineUser.data.articles.liked.length === 1
+								? ''
+								: 's'
+							: onlineLikedArticles.length === 1
+							? ''
+							: 's'}
+					</Text>
 					<Text
 						variant="h5"
 						bg="primary.yellow"
@@ -72,59 +61,131 @@ const Favorites = (): JSX.Element => {
 						p="0px 8px"
 						borderRadius="md"
 					>
-						{data.user.articles.liked.length}
+						{user.data.isOffline ? offlineUser.data.articles.liked.length : onlineLikedArticles.length}
 					</Text>
 				</HStack>
 				<Grid
-					templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, minmax(0, 1fr));' }}
+					templateColumns={{
+						base: 'repeat(1, 1fr)',
+						md: 'repeat(2, minmax(0, 1fr));',
+						'2xl': 'repeat(3, minmax(0, 1fr));',
+					}}
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
 				>
-					{data.user.articles.liked
-						.filter((a) => (search !== '' ? a.title.includes(search) : true))
-						.map((article, index) => (
-							<GridItem key={`${index.toString()}`}>
-								<ArticleCard
-									id={article.id}
-									title={article.title}
-									// TODO: author name
-									author="Author"
-									date={new Date(article.createdAt).toLocaleDateString('fr-FR')}
-									// TODO: topic name
-									topic="Topic"
-									content={article.content}
-									actions={[
-										<Tooltip label="Ajouter à un dossier">
-											<span>
-												<AddIcon
-													onClick={() => {
-														setArticleToAdd(article);
-														onOpen();
-													}}
-													color="black"
-												/>
-											</span>
-										</Tooltip>,
-										<Tooltip label="Supprimer des favoris">
-											<span>
-												<CloseIcon onClick={() => uiUnlikeArticle(article.id)} color="black" />
-											</span>
-										</Tooltip>,
-									]}
-									likes={article.likeCounter}
-									views={article.viewCounter}
-								/>
-							</GridItem>
-						))}
+					{user.data.isOffline
+						? offlineUser.data.articles.liked
+								.filter((a) => (search !== '' ? a.title.includes(search) : true))
+								.map((article, index) => (
+									<GridItem key={index.toString()}>
+										<ArticleCard
+											navigateUrl={`/articles/${article.cid}`}
+											title={article.title}
+											// TODO: author name ? Or nothing
+											author={`Author #${article.authorId}`}
+											date={new Date(article.createdAt).toLocaleDateString('fr-FR')}
+											// TODO: topic name ? Or nothing
+											topic={`Topic #${article.topicId}`}
+											content={article.preview || ''}
+											actions={[
+												<Tooltip label="Ajouter à un dossier">
+													<span>
+														<FaFolderPlus
+															onClick={() => {
+																setOfflineArticleToAdd(article.cid);
+																onOpen();
+															}}
+															color="white"
+														/>
+													</span>
+												</Tooltip>,
+												<Tooltip label="Supprimer des favoris">
+													<span>
+														<FcLike onClick={() => ui.offline.articles.like(article.cid, true)} />
+													</span>
+												</Tooltip>,
+											]}
+										/>
+									</GridItem>
+								))
+						: onlineLikedArticles
+								.filter((a) => (search !== '' ? a.title.includes(search) : true))
+								.map((article, index) => (
+									<GridItem key={index.toString()}>
+										<ArticleCard
+											navigateUrl={`/articles/${article.id}`}
+											title={article.title}
+											// TODO: author name
+											author={`Author #${article.authorId}`}
+											date={new Date(article.createdAt).toLocaleDateString('fr-FR')}
+											// TODO: topic name
+											topic={`Topic #${article.topicId}`}
+											content={article.content}
+											actions={[
+												<Tooltip label="Ajouter à un dossier">
+													<span>
+														<FaFolderPlus
+															onClick={() => {
+																setOnlineArticleToAdd(article.id);
+																onOpen();
+															}}
+															color="white"
+														/>
+													</span>
+												</Tooltip>,
+												<Tooltip label="Supprimer des favoris">
+													<span>
+														<FcLike
+															onClick={() =>
+																ui.online.articles.like(article.id, true, async () => {
+																	await ui.online.articles.load.liked(setOnlineLikedArticles);
+																})
+															}
+														/>
+													</span>
+												</Tooltip>,
+											]}
+											likes={article.likeCounter}
+											views={article.viewCounter}
+										/>
+									</GridItem>
+								))}
 				</Grid>
 			</VStack>
 
 			<AnthologiesModal
 				isOpen={isOpen}
 				onClose={onClose}
-				anthologies={data.user.anthologies}
-				createAnthology={uiCreateAnthology}
-				action={uiAddArticleToAnthology}
+				isOffline={user.data.isOffline}
+				onlineAnthologies={user.data.isOffline ? undefined : onlineAnthologies}
+				offlineAnthologies={user.data.isOffline ? offlineUser.data.anthologies : undefined}
+				createAnthology={async (name: string, description: string) =>
+					user.data.isOffline
+						? await ui.offline.anthologies.create({
+								params: { name, description },
+								callback: () => {
+									onClose();
+								},
+						  })
+						: await ui.online.anthologies.create({
+								params: { name, description },
+								callback: async () => {
+									onClose();
+									await ui.online.anthologies.load(setOnlineAnthologies);
+								},
+						  })
+				}
+				onlineAction={async (id: number) =>
+					await ui.online.anthologies.addArticle(id, onlineArticleToAdd!, async () => {
+						onClose();
+						await ui.online.anthologies.load(setOnlineAnthologies);
+					})
+				}
+				offlineAction={async (id: string) =>
+					ui.offline.anthologies.addArticle(id, offlineArticleToAdd!, () => {
+						onClose();
+					})
+				}
 			/>
 		</>
 	);

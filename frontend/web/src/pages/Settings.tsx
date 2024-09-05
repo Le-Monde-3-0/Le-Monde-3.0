@@ -2,8 +2,6 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-	Alert,
-	AlertIcon,
 	Box,
 	Button,
 	FormControl,
@@ -12,6 +10,7 @@ import {
 	Input,
 	InputGroup,
 	InputRightElement,
+	Link,
 	Step,
 	StepDescription,
 	StepIcon,
@@ -33,16 +32,13 @@ import {
 	useSteps,
 	useToast,
 } from '@chakra-ui/react';
-
-import { Article } from 'types/article';
-import { useIpfsContext } from 'contexts/ipfs';
-import { useUserContext } from 'contexts/user';
-import { useAuthContext } from 'contexts/auth';
-import { useUIContext } from 'contexts/ui';
-import FormInput from 'components/Inputs/FormInput';
 import { CheckIcon, CloseIcon, SpinnerIcon } from '@chakra-ui/icons';
 
-// TODO: attention déconnexion quand user pas mode hors-ligne
+import { useUserContext } from 'contexts/user';
+import { useOnlineUserContext } from 'contexts/onlineUser';
+import { useOfflineUserContext } from 'contexts/offlineUser';
+import { useUIContext } from 'contexts/ui';
+import FormInput from 'components/Inputs/FormInput';
 
 const steps = [
 	{ title: 'Introduction', description: 'Livre blanc' },
@@ -51,49 +47,57 @@ const steps = [
 	{ title: 'Confirmation', description: 'Profil hors-ligne' },
 ];
 
+// TODO: cut this component
 const Settings = (): JSX.Element => {
-	const auth = useAuthContext();
 	const user = useUserContext();
-	const navigate = useNavigate();
+	const onlineUser = useOnlineUserContext();
+	const offlineUser = useOfflineUserContext();
 	const { handleToast } = useUIContext();
-	const { ipfs, setArticles, setGateway, getIPFSFile } = useIpfsContext();
+	const toast = useToast();
+	const navigate = useNavigate();
+	const [isCensored, setIsCensored] = useState<boolean | undefined>(undefined);
 	const [password, setPassword] = useState('');
 	const [newPassword, setNewPassword] = useState('');
 	const [isGatewayWorking, setIsGatewayWorking] = useState<true | false | 'loading'>(false);
 	const [isRefreshWorking, setIsRefreshWorking] = useState<true | false | 'loading'>(false);
 	const [timeLeft, setTimeLeft] = useState(0);
 	const horizontalStepper = useBreakpointValue({ base: false, '3xl': true });
-	const toast = useToast();
 
 	const { activeStep, setActiveStep } = useSteps({
-		index: 0,
+		index: offlineUser.data.config.step,
 		count: steps.length,
 	});
 
+	const testCensorship = async () => {
+		try {
+			const res = await onlineUser.methods.auth.me();
+			if (res.code === -1) setIsCensored(true);
+			else setIsCensored(false);
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
 	const testGateway = async () => {
 		setTimeLeft(30);
-		const cid = 'Qmf8e9tCBH62GNKwYc6jypzqf5hcP5L61SMdZVBVFiqSip';
 		try {
 			setIsGatewayWorking('loading');
-			const file = await getIPFSFile<{ message: string }>(cid);
-			setIsGatewayWorking(file.message === 'OK');
-			console.log(file);
+			const test = await offlineUser.methods.config.testGateway();
+			setIsGatewayWorking(test);
 		} catch (error) {
 			setIsGatewayWorking(false);
 			console.error(error);
 		}
 	};
 
+	// TODO: Annoying as it needs to be executed each refresh
 	const refresh = async () => {
 		setTimeLeft(30);
-		const cid = 'QmdpUHUNR2wwkE1gXb3i7ZA62MjMy9v2ykFM6endBMfFPn';
 		try {
 			setIsRefreshWorking('loading');
-			const file = await getIPFSFile<{ message: string; articles: Article[] }>(cid);
-			setIsRefreshWorking(file.message === 'OK');
-			console.log(file);
-			setArticles(file.articles);
-			setIsRefreshWorking(true);
+			const load = await offlineUser.methods.articles.loadCatalog();
+			console.log(offlineUser.articlesCatalog);
+			setIsRefreshWorking(load);
 		} catch (error) {
 			setIsRefreshWorking(false);
 			console.error(error);
@@ -102,7 +106,7 @@ const Settings = (): JSX.Element => {
 
 	const downloadProfil = () => {
 		const element = document.createElement('a');
-		const file = new Blob([JSON.stringify(user, null, '\t')], { type: 'application/json' });
+		const file = new Blob([JSON.stringify(offlineUser.data, null, '\t')], { type: 'application/json' });
 		element.href = URL.createObjectURL(file);
 		element.download = 'profil.json';
 		document.body.appendChild(element); // Required for this to work in FireFox
@@ -118,10 +122,11 @@ const Settings = (): JSX.Element => {
 			reader.onload = async (e: any) => {
 				try {
 					const content = JSON.parse(e.target.result);
-					user.methods.user.upload(content);
+					console.log(content);
+					offlineUser.methods.data.upload(content);
 					toast({
 						status: 'success',
-						title: 'Profil chargé!',
+						title: 'Profil chargé !',
 						duration: 5000,
 						isClosable: true,
 					});
@@ -142,7 +147,7 @@ const Settings = (): JSX.Element => {
 
 	const deconnect = async () => {
 		try {
-			const res = await auth.methods.sign.out();
+			const res = await onlineUser.methods.auth.sign.out();
 			handleToast(res, true);
 			if (res.status === 'success') {
 				navigate('/');
@@ -154,7 +159,11 @@ const Settings = (): JSX.Element => {
 
 	useEffect(() => {
 		testGateway();
-	}, [ipfs.config.gateway]);
+	}, [offlineUser.data.config.gateway]);
+
+	useEffect(() => {
+		offlineUser.methods.config.setStep(activeStep);
+	}, [activeStep]);
 
 	useEffect(() => {
 		if (timeLeft === 0) return;
@@ -163,14 +172,6 @@ const Settings = (): JSX.Element => {
 		}, 1000);
 		return () => clearInterval(intervalId);
 	}, [timeLeft]);
-
-	useEffect(() => {
-		if (ipfs.config.gateway === undefined) {
-			setGateway('http://localhost:8080');
-		}
-		testGateway();
-		refresh();
-	}, []);
 
 	return (
 		<>
@@ -236,25 +237,37 @@ const Settings = (): JSX.Element => {
 											librement tous les articles publiés. Cependant, vous ne pouvez pas encore écrire d'article.
 										</Text>
 										<Text variant="link" textAlign="justify">
-											Pour plus d'information, lisez notre <u>Livre Blanc</u>.
+											{/* TODO: use something else than google doc */}
+											Pour plus d'information, lisez notre{' '}
+											<Link
+												href="https://docs.google.com/document/d/11RIsW4aiMNqTvEdjwzu6p3mA6TN_FH0gSYrbj699pds/edit?usp=sharing"
+												isExternal
+											>
+												<u>Livre Blanc</u>
+											</Link>
+											.
 										</Text>
-										<Text variant="p" textAlign="justify">
+										<Text variant="p" textAlign="justify" cursor="pointer" onClick={testCensorship}>
 											Pour savoir si vous êtes censuré, cliquez{' '}
 											<b>
 												<u>ici</u>
 											</b>
 											.
 										</Text>
-										<Text variant="link">
-											Vous êtes censuré, cliquez sur le bouton "Suivant" en bas de page pour configurer et activer le
-											mode
-											<i>hors-ligne</i>.
-										</Text>
-										{/* <Text variant="p">
-											Vous n'êtes pas censuré, nous vous conseillons de ne pas aller plus loin afin de garder accès à
-											toutes les fonctionnalités. Libre à vous cependant de continuer and cliquant sur le bouton
-											"Suivant" en bas de pas pour configurer et tester le mode <i>hors-ligne</i>.
-										</Text> */}
+										{isCensored === true && (
+											<Text variant="link">
+												Vous êtes censuré, cliquez sur le bouton "Suivant" en bas de page pour configurer et activer le
+												mode
+												<i>hors-ligne</i>.
+											</Text>
+										)}
+										{isCensored === false && (
+											<Text variant="p">
+												Vous n'êtes pas censuré, nous vous conseillons de ne pas aller plus loin afin de garder accès à
+												toutes les fonctionnalités. Libre à vous cependant de continuer and cliquant sur le bouton
+												"Suivant" en bas de pas pour configurer et tester le mode <i>hors-ligne</i>.
+											</Text>
+										)}
 									</VStack>
 									<Button variant="primary-purple" maxW="240px" onClick={() => setActiveStep(1)}>
 										Suivant
@@ -283,9 +296,11 @@ const Settings = (): JSX.Element => {
 											</Text>
 											<Text variant="p" textAlign="justify">
 												Pour avoir une liste de <i>gateways</i> publiques, cliquez{' '}
-												<b>
-													<u>ici</u>
-												</b>
+												<Link href="https://ipfs.github.io/public-gateway-checker/" isExternal>
+													<b>
+														<u>ici</u>
+													</b>
+												</Link>
 												.
 											</Text>
 											<Text variant="p" textAlign="justify">
@@ -298,9 +313,11 @@ const Settings = (): JSX.Element => {
 											</Text>
 											<Text variant="p" textAlign="justify">
 												Pour comprendre comment faire tourner un noeud IPFS, cliquez{' '}
-												<b>
-													<u>ici</u>
-												</b>
+												<Link href="https://docs.ipfs.tech/how-to/desktop-app/#install-ipfs-desktop" isExternal>
+													<b>
+														<u>ici</u>
+													</b>
+												</Link>
 												.
 											</Text>
 										</VStack>
@@ -313,12 +330,16 @@ const Settings = (): JSX.Element => {
 												<i>gateway</i> privée, renseigner le point d'accès de votre noeud IPFS (trouvable dans les
 												réglages).
 											</Text>
+											{/* TODO: redirect here if there is an IPFS problem somewhere else */}
 											<InputGroup>
 												<Input
 													variant="primary-1"
 													placeholder="https://ipfs.io"
-													value={ipfs.config.gateway}
-													onChange={(e) => setGateway(e.target.value)}
+													value={offlineUser.data.config.gateway}
+													onChange={(e) => {
+														console.log(e.target.value);
+														offlineUser.methods.config.setGateway(e.target.value);
+													}}
 												/>
 												<InputRightElement w={isGatewayWorking === 'loading' ? '80px' : '48px'}>
 													{isGatewayWorking === 'loading' ? (
@@ -339,7 +360,12 @@ const Settings = (): JSX.Element => {
 										<Button variant="primary-purple" maxW="240px" onClick={() => setActiveStep(0)}>
 											Précédent
 										</Button>
-										<Button variant="primary-purple" maxW="240px" onClick={() => setActiveStep(2)}>
+										<Button
+											variant="primary-purple"
+											maxW="240px"
+											onClick={() => setActiveStep(2)}
+											isDisabled={!isGatewayWorking}
+										>
 											Suivant
 										</Button>
 									</HStack>
@@ -402,7 +428,12 @@ const Settings = (): JSX.Element => {
 										<Button variant="primary-purple" maxW="240px" onClick={() => setActiveStep(1)}>
 											Précédent
 										</Button>
-										<Button variant="primary-purple" maxW="240px" onClick={() => setActiveStep(4)}>
+										<Button
+											variant="primary-purple"
+											maxW="240px"
+											onClick={() => setActiveStep(4)}
+											isDisabled={!isRefreshWorking}
+										>
 											Suivant
 										</Button>
 									</HStack>
@@ -425,7 +456,10 @@ const Settings = (): JSX.Element => {
 												N'oubliez pas qu'en utilisant le mode hors-ligne, certaines actions ne sont pas disponibles
 												comme la publication d'articles par exemple. Notez également qu'accèder à certains articles peut
 												être parfois long (environ 30 secondes), puisque leur contenu n'est récupéré uniquement lorsque
-												nécéssaire afin de fluidifier au maximum votre interaction avec Anthologia.
+												nécéssaire afin de fluidifier au maximum votre interaction avec Anthologia. Pour finir, les
+												données entre compte en-ligne et compte hors-ligne ne sont pas partagées: un changement sur le
+												compte en-ligne n'est valable que pour le compte en-ligne; un changement sur le compte
+												hors-ligne n'est valable que pour le compte hors-ligne.
 											</Text>
 											<Text variant="p" textAlign="justify">
 												Il est donc conseillé d'utiliser le mode hors-ligne uniquement en cas de censure, ou bien pour
@@ -435,8 +469,15 @@ const Settings = (): JSX.Element => {
 												Pour confirmer votre utilisation du mode hors-ligne, veuillez cliquer sur le bouton ci-dessous.
 												Il vous suffit de re-cliquer dessus retourner au mode en-ligne.
 											</Text>
-											<Button variant="primary-yellow" onClick={user.methods.user.toggleIsOfflineState}>
-												{user.data.user.isOffline ? 'Mode hors-ligne sélectionné' : 'Mode en-ligne sélectionné'}
+											<Button
+												variant="primary-yellow"
+												onClick={async () => {
+													// TODO: verify with backend the user is redirected if not already login
+													if (user.data.isOffline) await onlineUser.methods.auth.me();
+													user.methods.toggleIsOfflineState();
+												}}
+											>
+												{user.data.isOffline ? 'Mode hors-ligne sélectionné' : 'Mode en-ligne sélectionné'}
 											</Button>
 										</VStack>
 										<Text variant="p" textAlign="justify">

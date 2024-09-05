@@ -18,7 +18,6 @@ const Auth = ({ children }: AuthProps): JSX.Element => {
 
 	return (
 		<Stack
-			id="mevoistu"
 			direction={{ base: 'column', xl: 'row-reverse' }}
 			alignItems="center"
 			justifyContent="space-evenly"

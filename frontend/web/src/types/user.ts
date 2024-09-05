@@ -1,15 +1,24 @@
-import { Article } from './article';
-import { Anthology } from './anthology';
+import { OfflineArticle } from './article';
+import { OfflineAnthology } from './anthology';
 
 export type User = {
 	isOffline: boolean;
-	articles: {
-		written: Article[];
-		liked: Article[];
+};
+
+export type OnlineUser = {
+	id: number;
+	createdAt: Date;
+	email: string;
+	username: string;
+};
+
+export type OfflineUser = {
+	config: {
+		gateway: string;
+		step: number;
 	};
-	anthologies: Anthology[];
-	anthologiesArticles: {
-		id: number;
-		articles: Article[];
-	}[];
+	articles: {
+		liked: OfflineArticle[];
+	};
+	anthologies: OfflineAnthology[];
 };
