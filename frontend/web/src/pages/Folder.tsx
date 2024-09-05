@@ -31,10 +31,6 @@ const Folder = (): JSX.Element => {
 		}
 	}, []);
 
-	useEffect(() => {
-		console.log(offlineArticles);
-	}, [offlineArticles]);
-
 	if (user.data.isOffline ? !offlineAnthology : !onlineAnthology) {
 		return (
 			<>
@@ -57,7 +53,9 @@ const Folder = (): JSX.Element => {
 			/>
 			<Tag bg="primary.yellow">
 				{user.data.isOffline
-					? `${offlineAnthology!.articles.length} article${offlineAnthology!.articles.length === 1 ? '' : 's'}`
+					? // TODO: find a better way
+					  // ? `${offlineAnthology!.articles.length} article${offlineAnthology!.articles.length === 1 ? '' : 's'}`
+					  `${offlineArticles.length} article${offlineArticles.length === 1 ? '' : 's'}`
 					: `${onlineArticles.length} article${onlineArticles.length === 1 ? '' : 's'}`}
 			</Tag>
 			<Grid
@@ -95,7 +93,9 @@ const Folder = (): JSX.Element => {
 													<FaFolderMinus
 														onClick={() =>
 															ui.offline.anthologies.removeArticle(anthologyId!, article.cid, async () => {
-																await ui.offline.anthologies.articles(anthologyId!, setOfflineArticles);
+																// await ui.offline.anthologies.articles(anthologyId!, setOfflineArticles);
+																// TODO: find a better way
+																setOfflineArticles((articles) => articles.filter((a) => a.cid !== article.cid));
 															})
 														}
 														color="white"
