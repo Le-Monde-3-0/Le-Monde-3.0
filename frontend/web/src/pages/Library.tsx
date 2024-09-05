@@ -51,11 +51,15 @@ const Library = (): JSX.Element => {
 						? `${
 								offlineUser.data.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length
 						  } dossier${
-								offlineUser.data.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length !==
-									1 && 's'
+								offlineUser.data.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length ===
+								1
+									? ''
+									: 's'
 						  }`
 						: `${onlineAnthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length} dossier${
-								onlineAnthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length !== 1 && 's'
+								onlineAnthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length === 1
+									? ''
+									: 's'
 						  }`}
 				</Tag>
 				<Grid
