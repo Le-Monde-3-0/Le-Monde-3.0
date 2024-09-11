@@ -21,10 +21,10 @@ jobs:
         with:
           node-version: 18
           cache: npm
-          cache-dependency-path: './frontend/web'
+          cache-dependency-path: './web'
 
       - name: Run IPFS script
-        working-directory: ./frontend/web/ipfs
+        working-directory: ./web/ipfs
         run: ./publish.sh > script-results
         shell: bash
         env:
@@ -38,4 +38,4 @@ jobs:
         if: always()
         with:
           name: web-ipfs-deployment-results
-          path: ./frontend/web/ipfs/script-results
+          path: ./web/ipfs/script-results

@@ -1,7 +1,4 @@
 .env
-<<<<<<< HEAD
-.idea
-=======
-tmp/
 .envrc
->>>>>>> origin/beta-sprint-ipfs-features
+.idea
+/tmp
