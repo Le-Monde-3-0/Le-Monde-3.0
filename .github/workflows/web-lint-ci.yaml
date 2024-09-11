@@ -15,14 +15,14 @@ jobs:
         with:
           node-version: 18
           cache: npm
-          cache-dependency-path: './frontend/web'
+          cache-dependency-path: './web'
 
       - name: Install dependencies
-        working-directory: ./frontend/web
+        working-directory: ./web
         run: npm install
 
       - name: Run lint
-        working-directory: ./frontend/web
+        working-directory: ./web
         run: npm run lint > lint-results
 
       - name: Get lint results
@@ -30,4 +30,4 @@ jobs:
         if: failure()
         with:
           name: web-lint-results
-          path: ./frontend/web/lint-results
+          path: ./web/lint-results
