@@ -34,7 +34,7 @@ jobs:
           REACT_APP_BACKEND_URL: "https://lemonde-3-0.com"
 
       - name: Get script results
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         if: always()
         with:
           name: web-ipfs-deployment-results
