@@ -33,10 +33,10 @@ const Auth = ({ children }: AuthProps): JSX.Element => {
 			<VStack spacing="56px">
 				<VStack spacing="0px">
 					<Text id="app-title" variant="h1" textAlign="center">
-						Le Monde 3.0
+						Anthologia
 					</Text>
 					<Text id="app-description" variant="p" textAlign="center">
-						Le journal décentralisé luttant contre la censure. (version BETA)
+						Le journal décentralisé luttant contre la censure.
 					</Text>
 				</VStack>
 				<VStack w="100%" maxW="496px">

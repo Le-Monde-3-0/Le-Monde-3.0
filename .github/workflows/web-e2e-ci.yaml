@@ -1,6 +1,6 @@
 name: web e2e tests
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   web-e2e:
@@ -29,14 +29,14 @@ jobs:
           wait-on: 'http://localhost:3000'
 
       - name: Get e2e screenshots
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: web-e2e-screenshots
           path: ./web/cypress/screenshots
 
       - name: Get e2e videos
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: web-e2e-videos

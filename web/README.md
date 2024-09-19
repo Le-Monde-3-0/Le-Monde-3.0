@@ -1,4 +1,4 @@
-# Le Monde 3.0 - Web
+# Anthologia - Web
 
 ## Run with npm
 

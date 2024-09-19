@@ -1,6 +1,6 @@
 name: web build tests
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   web-build:
@@ -15,7 +15,7 @@ jobs:
         run: docker build . -t anthologia-web:latest > build-results
 
       - name: Get build results
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: web-build-results

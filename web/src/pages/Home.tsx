@@ -16,7 +16,7 @@ const Home = (): JSX.Element => {
 	return (
 		<>
 			<Text>
-				Utilisez Le Monde 3.0 <b>en ligne</b> pour publier des articles.
+				Utilisez Anthologia <b>en ligne</b> pour publier des articles.
 			</Text>
 			<Link as={RouteLink} to="/connexion" w="100%">
 				<Button id="home-connexion-btn" variant="primary-yellow">
