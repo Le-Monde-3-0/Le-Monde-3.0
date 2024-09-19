@@ -17,3 +17,4 @@ jobs:
         with:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_ACCESS_KEY }}
           NETLIFY_DEPLOY_TO_PROD: true
+          monorepo_package: ./web
