@@ -1,41 +1,41 @@
-name: IPFS deployment
+# name: IPFS deployment
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - frontend/web/**
+# on:
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - frontend/web/**
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment: production
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     environment: production
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
 
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: npm
-          cache-dependency-path: './web'
+#       - name: Setup node
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: 18
+#           cache: npm
+#           cache-dependency-path: './web'
 
-      - name: Run IPFS script
-        working-directory: ./web/ipfs
-        run: ./publish.sh > script-results
-        shell: bash
-        env:
-          SCALEWAY_AUTH_TOKEN: ${{secrets.SCALEWAY_AUTH_TOKEN}}
-          REACT_APP_HOST: localhost
-          REACT_APP_PORT: 3000
-          REACT_APP_BACKEND_URL: "https://lemonde-3-0.com"
+#       - name: Run IPFS script
+#         working-directory: ./web/ipfs
+#         run: ./publish.sh > script-results
+#         shell: bash
+#         env:
+#           SCALEWAY_AUTH_TOKEN: ${{secrets.SCALEWAY_AUTH_TOKEN}}
+#           REACT_APP_HOST: localhost
+#           REACT_APP_PORT: 3000
+#           REACT_APP_BACKEND_URL: "https://lemonde-3-0.com"
 
-      - name: Get script results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: web-ipfs-deployment-results
-          path: ./web/ipfs/script-results
+#       - name: Get script results
+#         uses: actions/upload-artifact@v4
+#         if: always()
+#         with:
+#           name: web-ipfs-deployment-results
+#           path: ./web/ipfs/script-results

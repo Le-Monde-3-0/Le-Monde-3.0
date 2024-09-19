@@ -4,7 +4,7 @@ describe('[LAYOUT] Home page', () => {
 	});
 
 	it('Title', () => {
-		cy.get('#app-title').should('contain', 'Le Monde 3.0');
+		cy.get('#app-title').should('contain', 'Anthologia');
 	});
 
 	it('Description', () => {
