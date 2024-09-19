@@ -1,5 +1,0 @@
-[build]
-  # Directory where the build system installs dependencies
-  # and runs your build. Store your package.json, .nvmrc, etc here.
-  # If not set, defaults to the root directory.
-  base = "web/"

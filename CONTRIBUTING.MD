@@ -2,8 +2,8 @@
 
 ## Create an issue
 
-- If you've encountered a bug, open a [Bug Report](https://github.com/Anthologia-Newspaper/anthologia-ui/issues/new?assignees=&labels=&template=bug_report.md&title=).
-- If you want Anthologia to have a new functionality, open a [Feature Request](https://github.com/Anthologia-Newspaper/anthologia-ui/issues/new?assignees=&labels=&template=feature_request.md&title=).
+- If you've encountered a bug, open a [Bug Report](https://github.com/Anthologia-Newspaper/anthologia-ui/issues/new?assignees=&labels=&template=bug_report.yml&title=).
+- If you want Anthologia to have a new functionality, open a [Feature Request](https://github.com/Anthologia-Newspaper/anthologia-ui/issues/new?assignees=&labels=&template=feature_request.yml&title=).
 
 ## Resolve an issue
 
