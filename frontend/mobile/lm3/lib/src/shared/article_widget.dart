@@ -25,97 +25,137 @@ class ArticleWidget extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         elevation: 4.0,
         margin: EdgeInsets.all(12.0),
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Text(
-                      article.title,
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            // Utilisation de l'image statique pour tous les articles
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(8.0),
+                topRight: Radius.circular(8.0),
+              ),
+              child: Image.network(
+                'https://start-in-blockchain.fr/wp-content/uploads/2023/03/IPFS.jpg', // URL statique pour tous les articles
+                height: 200.0,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  } else {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 200.0,
+                    color: Colors.grey,
+                    child: Center(
+                      child: Icon(
+                        Icons.broken_image,
                         color: Colors.white,
+                        size: 50.0,
                       ),
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      if (article.draft)
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-                          decoration: BoxDecoration(
-                            color: Colors.grey,
-                            borderRadius: BorderRadius.circular(8.0),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          article.title,
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
-                          child: Text(
-                            'Draft',
-                            style: TextStyle(
-                              fontSize: 12.0,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      SizedBox(height: 4.0),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Icon(
-                              Icons.favorite, 
-                              size: 16.0,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 4.0),
-                            Text(
-                              '${article.likes.length}',
-                              style: TextStyle(
-                                fontSize: 12.0,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
                         ),
                       ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          if (article.draft)
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                              decoration: BoxDecoration(
+                                color: Colors.grey,
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: Text(
+                                'Draft',
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          SizedBox(height: 4.0),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                Icon(
+                                  Icons.favorite,
+                                  size: 16.0,
+                                  color: Colors.white,
+                                ),
+                                SizedBox(width: 4.0),
+                                Text(
+                                  '${article.likes.length}',
+                                  style: TextStyle(
+                                    fontSize: 12.0,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
                     ],
-                  )
+                  ),
+                  SizedBox(height: 8.0),
+                  Text(
+                    article.authorName,
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  SizedBox(height: 8.0),
+                  Text(
+                    article.createdAt.toLocal().toString(),
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                  SizedBox(height: 8.0),
+                  Text(
+                    _truncateWithEllipsis(article.content, 60),
+                    style: TextStyle(
+                      fontSize: 16.0,
+                    ),
+                  ),
                 ],
               ),
-              SizedBox(height: 8.0),
-              Text(
-                article.authorName,
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.grey[700],
-                ),
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                article.createdAt.toLocal().toString(),
-                style: TextStyle(
-                  fontSize: 14.0,
-                  color: Colors.grey[500],
-                ),
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                _truncateWithEllipsis(article.content, 60),
-                style: TextStyle(
-                  fontSize: 16.0,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

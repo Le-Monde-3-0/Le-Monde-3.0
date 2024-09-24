@@ -268,7 +268,9 @@ Widget _buildArticlesList() {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ArticleDetailPage(article: Articleinbookmark.fromArticleModel(selectedArticles[index])),
+                            builder: (context) => ArticleDetailPage(
+                              article: selectedArticles[index],
+                              isBookmarked: _selectedBookmark != null),
                           ),
                         );
                       },
@@ -432,10 +434,12 @@ Widget _buildArticlesList() {
   }
 }
 
-class ArticleDetailPage extends StatelessWidget {
-  final Articleinbookmark article;
 
-  ArticleDetailPage({required this.article});
+class ArticleDetailPage extends StatelessWidget {
+  final ArticleModel article;
+  final bool isBookmarked;
+
+  ArticleDetailPage({required this.article, this.isBookmarked = false});
 
   @override
   Widget build(BuildContext context) {
@@ -446,11 +450,21 @@ class ArticleDetailPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Text(article.content),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 16.0),
+            Text(
+              article.content,
+              style: TextStyle(fontSize: 18.0),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+
 
 class Articleinbookmark extends ArticleModel {
   Articleinbookmark({

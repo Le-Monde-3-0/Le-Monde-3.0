@@ -10,6 +10,8 @@ class ArticleModel {
   final String topic;
   final bool draft;
   final List<int> likes;
+  final String? imageUrl;
+
 
   ArticleModel({
     required this.id,
@@ -23,6 +25,7 @@ class ArticleModel {
     required this.topic,
     required this.draft,
     required this.likes,
+    this.imageUrl,
   });
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +41,7 @@ class ArticleModel {
       topic: json['Topic'] as String,
       draft: json['Draft'] as bool,
       likes: List<int>.from(json['Likes']),
+       imageUrl: json['imageUrl'],
     );
   }
   factory ArticleModel.fromMap(Map<String, dynamic> map) {

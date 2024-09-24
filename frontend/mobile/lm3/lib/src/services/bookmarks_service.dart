@@ -43,7 +43,9 @@ class Articleinbookmark extends ArticleModel {
     required String authorName,
     required String subtitle,
     required String topic,
+    required String imageUrl,
     required bool draft,
+
     int ?likes,
   }) : super(
           id: id,
@@ -57,6 +59,7 @@ class Articleinbookmark extends ArticleModel {
           topic: topic,
           draft: draft,
           likes: likes != null ? [likes] : [],
+          imageUrl: "https://www.google.com/imgres?q=IPFS&imgurl=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F1%2F18%2FIpfs-logo-1024-ice-text.png&imgrefurl=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FInterPlanetary_File_System&docid=WEYfAPaq-lVKuM&tbnid=ZntGolxQKCxVpM&vet=12ahUKEwiiyYq-laqIAxVGAPsDHSnJLjoQM3oECHwQAA..i&w=1024&h=1024&hcb=2&ved=2ahUKEwiiyYq-laqIAxVGAPsDHSnJLjoQM3oECHwQAA",
         );
 
 factory Articleinbookmark.fromJson(Map<String, dynamic> json) {
@@ -73,6 +76,7 @@ factory Articleinbookmark.fromJson(Map<String, dynamic> json) {
     topic: json['Topic'] ?? '',
     draft: json['Draft'] ?? false,
     likes: json['Likes'] ?? 0,
+    imageUrl: json["imageUrl"],
   );
 }
 
@@ -220,6 +224,27 @@ Future<List<Articleinbookmark>> getArticlesFromBookmark(int bookmarkId) async {
       throw Exception('Failed to remove article from bookmark');
     }
   }
+
+  Future<void> updateArticleImage(int articleId, String imageUrl) async {
+  final token = await _userService.getToken();
+
+  final response = await http.put(
+    Uri.parse('$_baseUrl/articles/$articleId/'),
+    headers: <String, String>{
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+    body: jsonEncode(<String, String>{
+      'ImageUrl': imageUrl,
+    }),
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception('Failed to update article image');
+  }
+  print(imageUrl);
+  print("image");
+}
 
   Future<List<String>> getBookmarkTitles() async {
     List<Bookmark> bookmarks = await getAllBookmarks();
