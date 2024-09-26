@@ -8,8 +8,8 @@ export type User = {
 export type OnlineUser = {
 	id: number;
 	createdAt: Date;
-	email: string;
 	username: string;
+	email: string;
 };
 
 export type OfflineUser = {

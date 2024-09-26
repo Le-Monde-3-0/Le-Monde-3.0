@@ -1,8 +1,8 @@
 import { servicesURL } from 'services';
 import { Article } from 'types/article';
-import { ArticlesUpdate } from 'types/services';
+import { ParamsArticlesUpdate } from 'types/services';
 
-const update = async (params: ArticlesUpdate) =>
+const update = async (params: ParamsArticlesUpdate) =>
 	servicesURL.patch<Article>(`/articles/${params.id}`, {
 		title: params.newTitle,
 		subtitle: params.newSubtitle,

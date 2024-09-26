@@ -1,21 +1,17 @@
 import services from 'services';
-import { ArticlesSearchMany, ArticlesSearchOne } from 'types/services';
+import { ParamsArticlesSearch } from 'types/services';
 import handle from 'utils/handler/handle';
 
-export const one = async (params: ArticlesSearchOne) =>
-	handle({
-		request: async () => {
-			const res = await services.articles.search.one(params);
-			return res;
-		},
-		name: 'articles.search.one',
-	});
+export const allPublications = async (params: ParamsArticlesSearch) =>
+	handle(async () => await services.articles.search.allPublications(params));
 
-export const many = async (params: ArticlesSearchMany) =>
-	handle({
-		request: async () => {
-			const res = await services.articles.search.many(params);
-			return res;
-		},
-		name: 'articles.search.many',
-	});
+export const myArticles = async (params: ParamsArticlesSearch) =>
+	handle(async () => await services.articles.search.myArticles(params));
+
+export const likedPublications = async (params: ParamsArticlesSearch) =>
+	handle(async () => await services.articles.search.likedPublications(params));
+
+export const oneDraft = async (id: number) => handle(async () => await services.articles.search.oneDraft(id));
+
+export const onePublication = async (id: number) =>
+	handle(async () => await services.articles.search.onePublication(id));

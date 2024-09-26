@@ -1,6 +1,4 @@
-import me from './me';
 import { again, up, out, signIn } from './sign';
-import { password, email, username } from './update';
 
 const auth = {
 	sign: {
@@ -8,12 +6,6 @@ const auth = {
 		in: signIn,
 		out,
 		again,
-	},
-	me,
-	update: {
-		password,
-		email,
-		username,
 	},
 };
 

@@ -7,29 +7,57 @@ import { FcLike } from 'react-icons/fc';
 import { useUIContext } from 'contexts/ui';
 import { useUserContext } from 'contexts/user';
 import { useOfflineUserContext } from 'contexts/offlineUser';
-import { Article } from 'types/article';
+import { Article, OfflineArticle } from 'types/article';
 import SearchInput from 'components/Inputs/SearchInput';
 import ArticleCard from 'components/Cards/ArticleCard';
 import AnthologiesModal from 'components/modals/Anthologies';
-import { Anthology } from 'types/anthology';
+import { Anthology, OfflineAnthology } from 'types/anthology';
 
 const Favorites = (): JSX.Element => {
+	const ui = useUIContext();
 	const user = useUserContext();
 	const offlineUser = useOfflineUserContext();
-	const ui = useUIContext();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [search, setSearch] = useState('');
-	const [onlineLikedArticles, setOnlineLikedArticles] = useState<Article[]>([]);
+	const [refresh, setRefresh] = useState(1);
+
+	// online
 	const [onlineAnthologies, setOnlineAnthologies] = useState<Anthology[]>([]);
+	const [onlineLikedArticles, setOnlineLikedArticles] = useState<Article[]>([]);
 	const [onlineArticleToAdd, setOnlineArticleToAdd] = useState<number | undefined>(undefined);
+
+	// offline
+	const [offlineAnthologies, setOfflineAnthologies] = useState<OfflineAnthology[]>([]);
+	const [offlineLikedArticles, setOfflineLikedArticles] = useState<OfflineArticle[]>([]);
 	const [offlineArticleToAdd, setOfflineArticleToAdd] = useState<string | undefined>(undefined);
 
 	useEffect(() => {
 		if (!user.data.isOffline) {
-			ui.online.articles.load.liked(setOnlineLikedArticles);
-			ui.online.anthologies.load(setOnlineAnthologies);
+			ui.online.anthologies.search.many({ author: 'me' }, setOnlineAnthologies);
+			ui.online.articles.search.likedPublications({ query: search }, setOnlineLikedArticles);
+		} else {
+			setOfflineAnthologies(offlineUser.data.anthologies);
+			setOfflineLikedArticles(
+				offlineUser.data.articles.liked.filter((a) => (search !== '' ? a.title.includes(search) : true)),
+			);
 		}
-	}, []);
+	}, [refresh]);
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			if (!user.data.isOffline) {
+				ui.online.articles.search.likedPublications({ query: search }, setOnlineLikedArticles);
+			} else {
+				// TODO: filter in UI context ?
+				setOfflineLikedArticles(
+					offlineUser.data.articles.liked.filter((a) => (search !== '' ? a.title.includes(search) : true)),
+				);
+			}
+		}, 0.7 * 1000);
+		return () => {
+			clearTimeout(timer);
+		};
+	}, [search]);
 
 	return (
 		<>
@@ -44,14 +72,9 @@ const Favorites = (): JSX.Element => {
 				/>
 				<HStack>
 					<Text variant="h5">
-						Favori
-						{user.data.isOffline
-							? offlineUser.data.articles.liked.length === 1
-								? ''
-								: 's'
-							: onlineLikedArticles.length === 1
-							? ''
-							: 's'}
+						{!user.data.isOffline
+							? `Favori ${onlineLikedArticles.length === 1 ? '' : 's'}`
+							: `Favori ${offlineLikedArticles.length === 1 ? '' : 's'}`}
 					</Text>
 					<Text
 						variant="h5"
@@ -61,7 +84,7 @@ const Favorites = (): JSX.Element => {
 						p="0px 8px"
 						borderRadius="md"
 					>
-						{user.data.isOffline ? offlineUser.data.articles.liked.length : onlineLikedArticles.length}
+						{!user.data.isOffline ? onlineLikedArticles.length : offlineLikedArticles.length}
 					</Text>
 				</HStack>
 				<Grid
@@ -73,83 +96,81 @@ const Favorites = (): JSX.Element => {
 					gap={{ base: 2, lg: 4 }}
 					w="100%"
 				>
-					{user.data.isOffline
-						? offlineUser.data.articles.liked
-								.filter((a) => (search !== '' ? a.title.includes(search) : true))
-								.map((article, index) => (
-									<GridItem key={index.toString()}>
-										<ArticleCard
-											navigateUrl={`/articles/${article.cid}`}
-											title={article.title}
-											// TODO: author name ? Or nothing
-											author={`Author #${article.authorId}`}
-											date={new Date(article.createdAt).toLocaleDateString('fr-FR')}
-											// TODO: topic name ? Or nothing
-											topic={`Topic #${article.topicId}`}
-											content={article.preview || ''}
-											actions={[
-												<Tooltip label="Ajouter à un dossier">
-													<span>
-														<FaFolderPlus
-															onClick={() => {
-																setOfflineArticleToAdd(article.cid);
-																onOpen();
-															}}
-															color="white"
-														/>
-													</span>
-												</Tooltip>,
-												<Tooltip label="Supprimer des favoris">
-													<span>
-														<FcLike onClick={() => ui.offline.articles.like(article.cid, true)} />
-													</span>
-												</Tooltip>,
-											]}
-										/>
-									</GridItem>
-								))
-						: onlineLikedArticles
-								.filter((a) => (search !== '' ? a.title.includes(search) : true))
-								.map((article, index) => (
-									<GridItem key={index.toString()}>
-										<ArticleCard
-											navigateUrl={`/articles/${article.id}`}
-											title={article.title}
-											// TODO: author name
-											author={`Author #${article.authorId}`}
-											date={new Date(article.createdAt).toLocaleDateString('fr-FR')}
-											// TODO: topic name
-											topic={`Topic #${article.topicId}`}
-											content={article.content}
-											actions={[
-												<Tooltip label="Ajouter à un dossier">
-													<span>
-														<FaFolderPlus
-															onClick={() => {
-																setOnlineArticleToAdd(article.id);
-																onOpen();
-															}}
-															color="white"
-														/>
-													</span>
-												</Tooltip>,
-												<Tooltip label="Supprimer des favoris">
-													<span>
-														<FcLike
-															onClick={() =>
-																ui.online.articles.like(article.id, true, async () => {
-																	await ui.online.articles.load.liked(setOnlineLikedArticles);
-																})
-															}
-														/>
-													</span>
-												</Tooltip>,
-											]}
-											likes={article.likeCounter}
-											views={article.viewCounter}
-										/>
-									</GridItem>
-								))}
+					{!user.data.isOffline
+						? onlineLikedArticles.map((article, index) => (
+								<GridItem key={index.toString()}>
+									<ArticleCard
+										navigateUrl={`/articles/${article.id}`}
+										title={article.title}
+										// TODO: author name
+										author={`Author #${article.authorId}`}
+										date={new Date(article.createdAt).toLocaleDateString('fr-FR')}
+										// TODO: topic name
+										topic={`Topic #${article.topicId}`}
+										content={article.content}
+										actions={[
+											<Tooltip label="Ajouter à un dossier">
+												<span>
+													<FaFolderPlus
+														onClick={() => {
+															setOnlineArticleToAdd(article.id);
+															onOpen();
+														}}
+														color="white"
+													/>
+												</span>
+											</Tooltip>,
+											<Tooltip label="Supprimer des favoris">
+												<span>
+													<FcLike
+														onClick={async () =>
+															await ui.online.articles.like({ id: article.id, isLiked: true }, () =>
+																setRefresh((r) => r + 1),
+															)
+														}
+													/>
+												</span>
+											</Tooltip>,
+										]}
+										likes={article.likeCounter}
+										views={article.viewCounter}
+									/>
+								</GridItem>
+						  ))
+						: offlineUser.data.articles.liked.map((article, index) => (
+								<GridItem key={index.toString()}>
+									<ArticleCard
+										navigateUrl={`/articles/${article.cid}`}
+										title={article.title}
+										// TODO: author name ? Or nothing
+										author={`Author #${article.authorId}`}
+										date={new Date(article.createdAt).toLocaleDateString('fr-FR')}
+										// TODO: topic name ? Or nothing
+										topic={`Topic #${article.topicId}`}
+										content={article.preview || ''}
+										actions={[
+											<Tooltip label="Ajouter à un dossier">
+												<span>
+													<FaFolderPlus
+														onClick={() => {
+															setOfflineArticleToAdd(article.cid);
+															onOpen();
+														}}
+														color="white"
+													/>
+												</span>
+											</Tooltip>,
+											<Tooltip label="Supprimer des favoris">
+												<span>
+													<FcLike
+														onClick={() => ui.offline.articles.like(article.cid, true, () => setRefresh((r) => r + 1))}
+													/>
+												</span>
+											</Tooltip>,
+										]}
+									/>
+								</GridItem>
+						  ))}
 				</Grid>
 			</VStack>
 
@@ -157,33 +178,32 @@ const Favorites = (): JSX.Element => {
 				isOpen={isOpen}
 				onClose={onClose}
 				isOffline={user.data.isOffline}
-				onlineAnthologies={user.data.isOffline ? undefined : onlineAnthologies}
-				offlineAnthologies={user.data.isOffline ? offlineUser.data.anthologies : undefined}
+				onlineAnthologies={!user.data.isOffline ? onlineAnthologies : undefined}
+				offlineAnthologies={!user.data.isOffline ? undefined : offlineAnthologies}
 				createAnthology={async (name: string, description: string) =>
-					user.data.isOffline
-						? await ui.offline.anthologies.create({
+					!user.data.isOffline
+						? await ui.online.anthologies.create({ name, description, isPublic: false }, async () => {
+								onClose();
+								setRefresh((r) => r + 1);
+						  })
+						: ui.offline.anthologies.create({
 								params: { name, description },
 								callback: () => {
 									onClose();
-								},
-						  })
-						: await ui.online.anthologies.create({
-								params: { name, description },
-								callback: async () => {
-									onClose();
-									await ui.online.anthologies.load(setOnlineAnthologies);
+									setRefresh((r) => r + 1);
 								},
 						  })
 				}
 				onlineAction={async (id: number) =>
 					await ui.online.anthologies.addArticle(id, onlineArticleToAdd!, async () => {
 						onClose();
-						await ui.online.anthologies.load(setOnlineAnthologies);
+						setRefresh((r) => r + 1);
 					})
 				}
-				offlineAction={async (id: string) =>
+				offlineAction={(id: string) =>
 					ui.offline.anthologies.addArticle(id, offlineArticleToAdd!, () => {
 						onClose();
+						setRefresh((r) => r + 1);
 					})
 				}
 			/>

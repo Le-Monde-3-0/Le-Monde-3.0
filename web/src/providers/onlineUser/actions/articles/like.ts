@@ -1,14 +1,7 @@
 import services from 'services';
-import { ArticlesLike } from 'types/services';
+import { ParamsArticlesLike } from 'types/services';
 import handle from 'utils/handler/handle';
 
-const like = async (params: ArticlesLike) =>
-	handle({
-		request: async () => {
-			const res = await services.articles.like(params);
-			return res;
-		},
-		name: 'articles.like',
-	});
+const like = async (params: ParamsArticlesLike) => handle(async () => await services.articles.like(params));
 
 export default like;

@@ -1,14 +1,7 @@
 import services from 'services';
-import { AnthologiesUpdate } from 'types/services';
+import { ParamsAnthologiesUpdate } from 'types/services';
 import handle from 'utils/handler/handle';
 
-const update = (params: AnthologiesUpdate) =>
-	handle({
-		request: async () => {
-			const res = await services.anthologies.update(params);
-			return res;
-		},
-		name: 'anthologies.update',
-	});
+const update = (params: ParamsAnthologiesUpdate) => handle(async () => await services.anthologies.update(params));
 
 export default update;

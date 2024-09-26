@@ -3,31 +3,25 @@ import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 
 import PrivateLayout from 'layouts/Private';
+import { useUserContext } from 'contexts/user';
 import { useUIContext } from 'contexts/ui';
 import { useOnlineUserContext } from 'contexts/onlineUser';
-import { useUserContext } from 'contexts/user';
 
 const Private = (): JSX.Element => {
 	const user = useUserContext();
-	const { methods } = useOnlineUserContext();
-	const { handleToast } = useUIContext();
-
-	// TODO: in UI context ?
-	const uiMe = async () => {
-		try {
-			const res = await methods.auth.me();
-			handleToast(res);
-		} catch (error) {
-			console.error(error);
-		}
-	};
+	const onlineUser = useOnlineUserContext();
+	const ui = useUIContext();
 
 	useEffect(() => {
 		if (!user.data.isOffline) {
-			console.log(user);
-			uiMe();
+			ui.online.user.me();
 		}
 	}, []);
+
+	// TODO: replace with loader
+	if (onlineUser.data.id === 0) {
+		return <></>;
+	}
 
 	return (
 		<PrivateLayout>

@@ -1,8 +1,8 @@
 import { servicesURL } from 'services';
-import { ArticlesLike, EmptyResponse } from 'types/services';
+import { ParamsArticlesLike, ResponseEmpty } from 'types/services';
 
-const like = async (params: ArticlesLike) =>
-	servicesURL.patch<EmptyResponse>(`/articles/${params.id}/like`, {
+const like = async (params: ParamsArticlesLike) =>
+	servicesURL.patch<ResponseEmpty>(`/articles/${params.id}/like`, {
 		isLiked: params.isLiked,
 	});
 

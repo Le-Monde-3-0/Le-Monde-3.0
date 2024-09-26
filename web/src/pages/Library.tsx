@@ -6,7 +6,7 @@ import { PlusSquareIcon } from '@chakra-ui/icons';
 import { useUIContext } from 'contexts/ui';
 import { useUserContext } from 'contexts/user';
 import { useOfflineUserContext } from 'contexts/offlineUser';
-import { Article } from 'types/article';
+import { Article, OfflineArticle } from 'types/article';
 import { Anthology, OfflineAnthology } from 'types/anthology';
 import SearchInput from 'components/Inputs/SearchInput';
 import AnthologyModal from 'components/modals/Anthology';
@@ -16,20 +16,48 @@ const Library = (): JSX.Element => {
 	const ui = useUIContext();
 	const user = useUserContext();
 	const offlineUser = useOfflineUserContext();
-	const { isOpen, onOpen, onClose } = useDisclosure();
+	const createModal = useDisclosure();
+	const updateModal = useDisclosure();
 	const [search, setSearch] = useState('');
-	const [type, setType] = useState<'CREATE' | 'UPDATE'>('CREATE');
+	const [refresh, setRefresh] = useState(1);
+
+	// online
 	const [onlineAnthologies, setOnlineAnthologies] = useState<Anthology[]>([]);
 	const [onlineLikedArticles, setOnlineLikedArticles] = useState<Article[]>([]);
 	const [onlineAnthologyToUpdate, setOnlineAnthologyToUpdate] = useState<Anthology | undefined>(undefined);
+
+	// offline
+	const [offlineAnthologies, setOfflineAnthologies] = useState<OfflineAnthology[]>([]);
+	const [offlineLikedArticles, setOfflineLikedArticles] = useState<OfflineArticle[]>([]);
 	const [offlineAnthologyToUpdate, setOfflineAnthologyToUpdate] = useState<OfflineAnthology | undefined>(undefined);
 
 	useEffect(() => {
 		if (!user.data.isOffline) {
-			ui.online.anthologies.load(setOnlineAnthologies);
-			ui.online.articles.load.liked(setOnlineLikedArticles);
+			ui.online.anthologies.search.many({ author: 'me', query: search }, setOnlineAnthologies);
+			ui.online.articles.search.likedPublications({}, setOnlineLikedArticles);
+		} else {
+			setOfflineAnthologies(
+				offlineUser.data.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)),
+			);
+			setOfflineLikedArticles(offlineUser.data.articles.liked);
 		}
-	}, []);
+	}, [refresh]);
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			if (!user.data.isOffline) {
+				ui.online.anthologies.search.many({ author: 'me', query: search }, setOnlineAnthologies);
+			} else {
+				// TODO: filter in UI context ?
+				setOfflineAnthologies(
+					offlineUser.data.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)),
+				);
+			}
+		}, 0.7 * 1000);
+		return () => {
+			clearTimeout(timer);
+		};
+	}, [search]);
 
 	return (
 		<>
@@ -43,24 +71,12 @@ const Library = (): JSX.Element => {
 						onChange={(e) => setSearch(e.target.value)}
 						variant="primary-1"
 					/>
-					<PlusSquareIcon cursor="pointer" boxSize={8} color="primary.yellow" onClick={onOpen} />
+					<PlusSquareIcon cursor="pointer" boxSize={8} color="primary.yellow" onClick={createModal.onOpen} />
 				</Stack>
 				<Tag bg="primary.yellow">
-					{/* TODO: use anthologies search */}
-					{user.data.isOffline
-						? `${
-								offlineUser.data.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length
-						  } dossier${
-								offlineUser.data.anthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length ===
-								1
-									? ''
-									: 's'
-						  }`
-						: `${onlineAnthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length} dossier${
-								onlineAnthologies.filter((b) => (search !== '' ? b.name.includes(search) : true)).length === 1
-									? ''
-									: 's'
-						  }`}
+					{!user.data.isOffline
+						? `${onlineAnthologies.length} dossier${onlineAnthologies.length === 1 ? '' : 's'}`
+						: `${offlineAnthologies.length} dossier${offlineAnthologies.length === 1 ? '' : 's'}`}
 				</Tag>
 				<Grid
 					templateColumns={{
@@ -76,11 +92,27 @@ const Library = (): JSX.Element => {
 							navigateUrl={'/bibliotheque/favoris'}
 							name="Favoris"
 							description="Tous les articles que vous avez aimé"
-							nbArticles={user.data.isOffline ? offlineUser.data.articles.liked.length : onlineLikedArticles.length}
+							nbArticles={!user.data.isOffline ? onlineLikedArticles.length : offlineLikedArticles.length}
 						/>
 					</GridItem>
-					{user.data.isOffline
-						? offlineUser.data.anthologies
+					{!user.data.isOffline
+						? onlineAnthologies.map((anthology, index) => (
+								<GridItem key={index.toString()}>
+									<AnthologyCard
+										navigateUrl={`/bibliotheque/dossiers/${anthology.id}`}
+										name={anthology.name}
+										description={anthology.description}
+										// TODO: number of articles
+										nbArticles={0}
+										deleteAnthology={async () =>
+											await ui.online.anthologies.delete(anthology.id, () => setRefresh((r) => r + 1))
+										}
+										setAnthologyToUpdate={() => setOnlineAnthologyToUpdate(anthology)}
+										onOpen={updateModal.onOpen}
+									/>
+								</GridItem>
+						  ))
+						: offlineUser.data.anthologies
 								.filter((b) => (search !== '' ? b.name.includes(search) : true))
 								.map((anthology, index) => (
 									<GridItem key={index.toString()}>
@@ -89,31 +121,11 @@ const Library = (): JSX.Element => {
 											name={anthology.name}
 											description={anthology.description}
 											nbArticles={anthology.articles.length}
-											deleteAnthology={() => ui.offline.anthologies.delete(anthology.id)}
-											setAnthologyToUpdate={() => setOfflineAnthologyToUpdate(anthology)}
-											setType={setType}
-											onOpen={onOpen}
-										/>
-									</GridItem>
-								))
-						: onlineAnthologies
-								.filter((b) => (search !== '' ? b.name.includes(search) : true))
-								.map((anthology, index) => (
-									<GridItem key={index.toString()}>
-										<AnthologyCard
-											navigateUrl={`/bibliotheque/dossiers/${anthology.id}`}
-											name={anthology.name}
-											description={anthology.description}
-											// TODO: number of articles
-											nbArticles={0}
 											deleteAnthology={() =>
-												ui.online.anthologies.delete(anthology.id, async () => {
-													await ui.online.anthologies.load(setOnlineAnthologies);
-												})
+												ui.offline.anthologies.delete(anthology.id, () => setRefresh((r) => r + 1))
 											}
-											setAnthologyToUpdate={() => setOnlineAnthologyToUpdate(anthology)}
-											setType={setType}
-											onOpen={onOpen}
+											setAnthologyToUpdate={() => setOfflineAnthologyToUpdate(anthology)}
+											onOpen={updateModal.onOpen}
 										/>
 									</GridItem>
 								))}
@@ -121,51 +133,43 @@ const Library = (): JSX.Element => {
 			</VStack>
 
 			<AnthologyModal
-				isOpen={isOpen}
-				onClose={() => {
-					setType('CREATE');
-					onClose();
-				}}
-				type={type}
+				isOpen={updateModal.isOpen}
+				onClose={updateModal.onClose}
+				type={'UPDATE'}
 				action={async (name: string, description: string) => {
-					type === 'CREATE'
-						? user.data.isOffline
-							? await ui.offline.anthologies.create({
-									params: { name, description },
-									callback: () => {
-										onClose();
-									},
-							  })
-							: await ui.online.anthologies.create({
-									params: { name, description },
-									callback: async () => {
-										onClose();
-										await ui.online.anthologies.load(setOnlineAnthologies);
-									},
-							  })
-						: user.data.isOffline
-						? await ui.offline.anthologies.update(offlineAnthologyToUpdate!.id, name, description, () => {
-								onClose();
-								setType('CREATE');
-								setOfflineAnthologyToUpdate(undefined);
-						  })
-						: await ui.online.anthologies.update(onlineAnthologyToUpdate!.id, name, description, async () => {
-								onClose();
-								setType('CREATE');
+					!user.data.isOffline
+						? await ui.online.anthologies.update(onlineAnthologyToUpdate!.id, name, description, () => {
+								updateModal.onClose();
 								setOnlineAnthologyToUpdate(undefined);
-								await ui.online.anthologies.load(setOnlineAnthologies);
+								setRefresh((r) => r + 1);
+						  })
+						: ui.offline.anthologies.update(offlineAnthologyToUpdate!.id, name, description, () => {
+								updateModal.onClose();
+								setOfflineAnthologyToUpdate(undefined);
 						  });
 				}}
-				name={
-					type === 'CREATE' ? '' : user.data.isOffline ? offlineAnthologyToUpdate!.name : onlineAnthologyToUpdate!.name
-				}
+				name={!user.data.isOffline ? onlineAnthologyToUpdate!.name : offlineAnthologyToUpdate!.name}
 				description={
-					type === 'CREATE'
-						? ''
-						: user.data.isOffline
-						? offlineAnthologyToUpdate!.description
-						: onlineAnthologyToUpdate!.description
+					!user.data.isOffline ? onlineAnthologyToUpdate!.description : offlineAnthologyToUpdate!.description
 				}
+			/>
+			<AnthologyModal
+				isOpen={createModal.isOpen}
+				onClose={createModal.onClose}
+				type={'CREATE'}
+				action={async (name: string, description: string) => {
+					!user.data.isOffline
+						? await ui.online.anthologies.create({ name, description, isPublic: false }, () => {
+								createModal.onClose();
+								setRefresh((r) => r + 1);
+						  })
+						: ui.offline.anthologies.create({
+								params: { name, description },
+								callback: () => createModal.onClose(),
+						  });
+				}}
+				name={''}
+				description={''}
 			/>
 		</>
 	);
