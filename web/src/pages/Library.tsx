@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Grid, GridItem, Stack, Tag, VStack, useDisclosure } from '@chakra-ui/react';
+import { CircularProgress, Grid, GridItem, Stack, Tag, VStack, useDisclosure } from '@chakra-ui/react';
 import { PlusSquareIcon } from '@chakra-ui/icons';
 
 import { useUIContext } from 'contexts/ui';
@@ -58,6 +58,16 @@ const Library = (): JSX.Element => {
 			clearTimeout(timer);
 		};
 	}, [search]);
+
+	if (!user.data.isOffline ? !onlineAnthologies : !offlineAnthologies) {
+		return (
+			<>
+				<VStack w="100%" h="100vh" justify="center">
+					<CircularProgress size="120px" isIndeterminate color="black" />
+				</VStack>
+			</>
+		);
+	}
 
 	return (
 		<>
