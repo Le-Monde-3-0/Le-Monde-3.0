@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'dart:math';
-import 'package:heart_overlay/heart_overlay.dart';
 
-import '../services/Article_service.dart';
-import '../models/article.dart';
-import '../shared/article_widget.dart';
+import '../../services/Article_service.dart';
+import '../../models/article.dart';
+import '../../shared/article_widget.dart';
+
+import 'package:lm3/src/bloc/user/user_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FavArticleWidget extends StatefulWidget {
   @override
@@ -14,29 +14,28 @@ class FavArticleWidget extends StatefulWidget {
 
 
 class _FavArticleWidgetState extends State<FavArticleWidget> with SingleTickerProviderStateMixin {
-  final ArticleService _articleService = ArticleService();
+  late final ArticleService _articleService;
   late Future<List<ArticleModel>> futureArticles;
 
   @override
   void initState() {
     super.initState();
+    final userBloc = BlocProvider.of<UserBloc>(context);
+    _articleService = ArticleService(userBloc: userBloc);
     futureArticles = _articleService.getFavoriteArticle();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.dark(),
-      home: Scaffold(
+    return  Scaffold(
         appBar: AppBar(
-          title: Text('Mes Articles Favoris', style: TextStyle(fontFamily: 'LeMonde', fontSize: 30.0, fontWeight: FontWeight.bold, color: Colors.white)),
+          title: Text('Mes Articles Favoris', style: TextStyle(fontFamily: 'LeMonde', fontSize: 30.0, fontWeight: FontWeight.bold)),
         ),
         body: Stack(
           children: [
             _buildArticlesList(),
           ],
         ),
-      ),
     );
   }
 

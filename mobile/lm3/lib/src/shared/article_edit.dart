@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import '../models/article_input.dart';
 import '../models/article.dart';
 import '../services/Article_service.dart';
 
-class ArticleEditPage extends StatefulWidget {
-  final ArticleModel article;
+import 'package:lm3/src/bloc/user/user_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+class ArticleEditPage extends StatefulWidget {
   const ArticleEditPage({Key? key, required this.article}) : super(key: key);
+  final ArticleModel article;
 
   @override
   _ArticleEditPageState createState() => _ArticleEditPageState();
 }
 
 class _ArticleEditPageState extends State<ArticleEditPage> {
+
   late TextEditingController _titleController;
   late TextEditingController _contentController;
   late TextEditingController _topicController;
@@ -25,17 +29,20 @@ class _ArticleEditPageState extends State<ArticleEditPage> {
     super.initState();
     _titleController = TextEditingController(text: widget.article.title);
     _contentController = TextEditingController(text: widget.article.content);
-    _topicController = TextEditingController(text: widget.article.topic);
+    _topicController = TextEditingController(text: widget.article.topicId.toString());
   }
 
   void _updateArticle(BuildContext context) async {
+    final article = ArticleInputModel(draft: false, 
+                                      topic: _topicController.text as int, 
+                                      title: _titleController.text, 
+                                      subtitle: 'subtitle', 
+                                      content: _contentController.text);
     try {
-      await ArticleService().updateArticle(
+      final userBloc = BlocProvider.of<UserBloc>(context);
+      await ArticleService(userBloc: userBloc).updateArticle(
         widget.article.id,
-        _contentController.text,
-        'subtsile',
-        _titleController.text,
-        _topicController.text,
+        article,
       );
       Navigator.of(context).pop();
     } catch (e) {

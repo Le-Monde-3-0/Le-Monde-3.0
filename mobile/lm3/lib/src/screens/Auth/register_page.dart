@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'auth_page.dart';
-import '../services/Auth_service.dart';
+import '../../services/Auth_service.dart';
 
 class CreateProfilePage extends StatefulWidget {
   @override
@@ -12,7 +12,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
   String? _name;
   String? _email;
   String? _password;
-  UserService _userService = UserService();
+  AuthService _authService = AuthService();
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
@@ -22,7 +22,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
   }
 
   Future<void> _createAccount() async {
-    var response = await _userService.createUser(_email!, _name!, _password!);
+    var response = await _authService.createUser(_email!, _name!, _password!);
     if (response.statusCode == 201) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => AuthPage()),

@@ -1,53 +1,71 @@
 import 'dart:convert';
-import 'dart:ffi';
-// import 'dart:ffi';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import 'package:lm3/src/bloc/user/user_bloc.dart';
+
+import '../models/article_input.dart';
 import '../models/article.dart';
 
 class ArticleService {
   final storage = new FlutterSecureStorage();
-  var baseUrl = 'http://20.13.168.88';
+  final UserBloc userBloc;
+  var baseUrl = 'https://anthologia-xwv6huylia-ew.a.run.app';
+  // var baseUrl = 'http://20.13.168.88:3000';
 
-  Future<dynamic> createArticle(String authorname, String content, String subtitle, String title, String topic, bool draft) async {
-    var token = await storage.read(key: "token");
-    var url = Uri.parse('${baseUrl}:8080/articles');
-    var body = json.encode({'authorname': authorname, 'content': content, 'draft': draft, 'subtitle': subtitle, 'title': title, 'topic': topic});
+  ArticleService({required this.userBloc});
 
+  Future<dynamic> createArticle(ArticleInputModel article) async {
+    var token = userBloc.state.user?.token;
+    print("darft status: ${article.draft}");
+    var url = Uri.parse('${baseUrl}/articles');
+    var body = json.encode({"draft": article.draft,
+                            "topic": article.topic,
+                            "title": article.title,
+                            "subtitle": article.subtitle,
+                            "content": article.content,
+                            "cid": "string"
+                            });
+    print(body);
     var response = await http.post(
       url,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
+        "Authorization": "Bearer $userBloc.state.user?.token",
+        "Cookie": "jwt=$token"
       },
       body: body
     );
-
     if (response.statusCode == 201) {
       return json.decode(response.body);
     } else {
+      print(response.body);
       throw Exception('Impossible de creer cet article');
     }
   }
 
   Future<List<ArticleModel>> getArticles() async {
-    var token = await storage.read(key: "token");
-    var url = Uri.parse('${baseUrl}:8080/articles');
-
+    var token = userBloc.state.user?.token;
+    var url = Uri.parse('${baseUrl}/articles');
     var response = await http.get(
       url,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
+        "Authorization": "Bearer $userBloc.state.user?.token"
       }
     );
-    if (response.statusCode == 200) {
+   if (response.statusCode == 200) {
       Iterable jsonResponse = json.decode(response.body);
-      print(jsonResponse);
       List<ArticleModel> articlesList = [];
       for (var article in jsonResponse) {
-          articlesList.add(ArticleModel.fromJson(article, false));
+        try {
+          articlesList.add(ArticleModel.fromJson(article));
+        } catch (e, stackTrace) {
+          print('Error parsing article: $e');
+          print(stackTrace);
+        }
       }
+      // print(articlesList);
       return articlesList;
     } else {
       throw Exception('Impossible de recuperer les articles');
@@ -56,13 +74,14 @@ class ArticleService {
 
   Future<ArticleModel> getArticleById(int articleId) async {
     var token = await storage.read(key: "token");
-    var url = Uri.parse('${baseUrl}:8080/articles/$articleId');
+    var url = Uri.parse('${baseUrl}/articles/$articleId');
 
     var response = await http.get(
       url,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
+        "Authorization": "Bearer $userBloc.state.user?.token",
+        "Cookie": "jwt=$token"
       }
     );
 
@@ -75,99 +94,127 @@ class ArticleService {
     }
   }
 
-
-
-
   Future<List<ArticleModel>> getMyPublishedArticle() async {
-    var token = await storage.read(key: "token");
-    var url = Uri.parse('${baseUrl}:8080/articles/me');
-
+    var token = userBloc.state.user?.token;
+    var myId = userBloc.state.user?.id;
+    var url = Uri.parse('${baseUrl}/articles/me?draft=false');
     var response = await http.get(
       url,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
-      }
+        "Authorization": "Bearer $userBloc.state.user?.token",
+        "Cookie": "jwt=$token"
+      },
     );
-    if (response.statusCode == 200) {
+    print(response.statusCode);
+    print(response.body);
+   if (response.statusCode == 200) {
       Iterable jsonResponse = json.decode(response.body);
+      print(jsonResponse);
       List<ArticleModel> articlesList = [];
       for (var article in jsonResponse) {
-        if (article['Draft'] == false) {
-          articlesList.add(ArticleModel.fromJson(article, true));
+        try {
+          print('Processing article: $article');
+        if (article['draft'] == false) {
+          articlesList.add(ArticleModel.fromJson(article));
+        }
+        } catch (e, stackTrace) {
+          print('Error parsing article: $e');
+          print(stackTrace);
         }
       }
+      print(articlesList);
       return articlesList;
     } else {
-      throw Exception('Impossible de recuperer les articles publiés');
+      return [];
     }
   }
 
   Future<List<ArticleModel>> getMyDraftArticle() async {
-    var token = await storage.read(key: "token");
-    var url = Uri.parse('${baseUrl}:8080/articles/me');
-
+    var token = userBloc.state.user?.token;
+    var myId = userBloc.state.user?.id;
+    var url = Uri.parse('${baseUrl}/articles/me?draft=true');
     var response = await http.get(
       url,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
-      }
+        "Authorization": "Bearer $userBloc.state.user?.token",
+        "Cookie": "jwt=$token"
+      },
     );
-    if (response.statusCode == 200) {
+    print(response.statusCode);
+    print(response.body);
+   if (response.statusCode == 200) {
       Iterable jsonResponse = json.decode(response.body);
+      print(jsonResponse);
       List<ArticleModel> articlesList = [];
       for (var article in jsonResponse) {
-        if (article['Draft'] == true) {
-          articlesList.add(ArticleModel.fromJson(article, true));
+        try {
+          print('Processing article: $article');
+        if (article['draft'] == true) {
+          articlesList.add(ArticleModel.fromJson(article));
+        }
+        } catch (e, stackTrace) {
+          print('Error parsing article: $e');
+          print(stackTrace);
         }
       }
+      print(articlesList);
       return articlesList;
     } else {
-      throw Exception('Impossible de recuperer les articles en brouillon');
+      return [];
     }
   }
-
-  Future<List<ArticleModel>> getFavoriteArticle() async {
-    var token = await storage.read(key: "token");
-    var url = Uri.parse('${baseUrl}:8080/articles/liked');
-
-    var response = await http.get(
-      url,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
-      }
-    );
-    if (response.statusCode == 200) {
-      Iterable jsonResponse = json.decode(response.body);
-      List<ArticleModel> articlesList = [];
-      for (var article in jsonResponse) {
-        if (article['Draft'] == false) {
-          articlesList.add(ArticleModel.fromJson(article, true));
-        }
-      }
-      return articlesList;
-    } else {
-      throw Exception('Impossible de charger les articles favoris');
-    }
-  }
-
-
 
   // FAV
-
-  void favArticle(int articleId) async {
-    var token = await storage.read(key: "token");
-    var url = Uri.parse('${baseUrl}:8082/articles/${articleId}/likes');
-
-    var response = await http.post(
+  Future<List<ArticleModel>> getFavoriteArticle() async {
+    var token = userBloc.state.user?.token;
+    var url = Uri.parse('${baseUrl}/articles?isLiked=true');
+    var response = await http.get(
       url,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
-      }
+        "Authorization": "Bearer $userBloc.state.user?.token",
+        "Cookie": "jwt=$token"
+      },
     );
+   if (response.statusCode == 200) {
+      Iterable jsonResponse = json.decode(response.body);
+      List<ArticleModel> articlesList = [];
+      for (var article in jsonResponse) {
+        try {
+          if (article['draft'] == false) {
+            articlesList.add(ArticleModel.fromJson(article));
+          }
+        } catch (e, stackTrace) {
+          print('Error parsing article: $e');
+          print(stackTrace);
+        }
+      }
+      return articlesList;
+    } else {
+      return [];
+      // throw Exception('Impossible de recuperer les articles');
+    }
+  }
+
+  void favArticle(int articleId, bool isLiked) async {
+    var token = userBloc.state.user?.token;
+    var url = Uri.parse('${baseUrl}/articles/${articleId}/like');
+    print(articleId);
+    var response = await http.patch(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $userBloc.state.user?.token",
+        "Cookie": "jwt=$token"
+      },
+      body: json.encode({
+        "isLiked": isLiked,
+      }),
+    );
+    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
 
     } else {
@@ -176,14 +223,15 @@ class ArticleService {
   }
 
   void unFavArticle(int articleId) async {
-    var token = await storage.read(key: "token");
-    var url = Uri.parse('${baseUrl}:8082/articles/${articleId}/likes');
+    var token = userBloc.state.user?.token;
+    var url = Uri.parse('${baseUrl}/articles/${articleId}/likes');
 
     var response = await http.delete(
       url,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
+        "Authorization": "Bearer $userBloc.state.user?.token",
+        "Cookie": "jwt=$token"
       }
     );
     if (response.statusCode == 200) {
@@ -193,8 +241,8 @@ class ArticleService {
   }
 
   Future<bool> isFavArticle(int articleId) async {
-    var token = await storage.read(key: "token");
-    var url = Uri.parse('${baseUrl}:8082/articles/liked');
+    var token = userBloc.state.user?.token;
+    var url = Uri.parse('${baseUrl}/articles/liked');
 
     var response = await http.get(
       url,
@@ -220,16 +268,19 @@ class ArticleService {
 
   // DELETE
   void deleteArticle(int articleId) async {
-    var token = await storage.read(key: "token");
-    var url = Uri.parse('${baseUrl}:8082/articles/${articleId}');
+    var token = userBloc.state.user?.token;
+    var url = Uri.parse('${baseUrl}/articles/${articleId}');
 
     var response = await http.delete(
       url,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
+        "Authorization": "Bearer $userBloc.state.user?.token",
+        "Cookie": "jwt=$token"
       }
     );
+    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
 
     } else {
@@ -239,39 +290,51 @@ class ArticleService {
 
 
   // PUT
-  Future<bool> updateArticle(int articleId, String content, String subtitle, String title, String topic) async {
-    var token = await storage.read(key: "token");
-    var url = Uri.parse('${baseUrl}:8082/articles/${articleId}');
-    var body = json.encode({'content': content, 'title': title, 'subtitle': subtitle, 'topic': topic});
-    var response = await http.put(
+  Future<bool> updateArticle(int articleId, ArticleInputModel article) async {
+    var token = userBloc.state.user?.token;
+    var url = Uri.parse('${baseUrl}/articles/${articleId}');
+    var body = json.encode({'draft': article.draft,
+                            'topic': article.topic,
+                            'title': article.title,
+                            'subtitle': article.subtitle,
+                            'content': article.content});
+    var response = await http.patch(
       url,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
+        "Authorization": "Bearer $userBloc.state.user?.token",
+        "Cookie": "jwt=$token"
       },
       body: body
     );
-
-    if (response.statusCode == 201) {
+    print(response.statusCode);
+    print(response.body);
+    if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
       throw Exception('Impossible de mettre a jour cet article');
     }
   }
 
-  Future ChangeDraftState(int articleId, bool draft) async {
-    var token = await storage.read(key: "token");
-    var url = Uri.parse('${baseUrl}:8082/articles/${articleId}/draft');
-    var body = json.encode({'draft' : draft});
-    var response = await http.put(
+  Future ChangeDraftState(int articleId, ArticleModel article, bool draft) async {
+    var token = userBloc.state.user?.token;
+    var url = Uri.parse('${baseUrl}/articles/${articleId}/');
+    var body = json.encode({'draft': draft,
+                            'topic': article.topicId,
+                            'title': article.title,
+                            'subtitle': article.subtitle,
+                            'content': article.content});    
+    var response = await http.patch(
       url,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
+        "Authorization": "Bearer $userBloc.state.user?.token",
+        "Cookie": "jwt=$token"
       },
       body: body
     );
-
+    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {

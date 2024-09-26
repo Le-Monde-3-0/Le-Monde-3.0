@@ -8,6 +8,7 @@ List<GoRoute> get $appRoutes => [
       $articlesRoute,
       $writeRoute,
       $profileRoute,
+      $searchRoute,
       $authRoute,
 ];
 
@@ -19,7 +20,7 @@ extension $ArticlesRouteExtension on ArticlesRoute {
   static ArticlesRoute _fromState(GoRouterState state) => ArticlesRoute();
 
   String get location => GoRouteData.$location(
-    '/articles',
+    '/articles'
   );
 
   void go(BuildContext context) => context.go(location, extra: this);
@@ -50,6 +51,21 @@ extension $ProfileRouteExtension on ProfileRoute {
 
   String get location => GoRouteData.$location(
     '/profile',
+  );
+
+  void go(BuildContext context) => context.go(location, extra: this);
+  void push(BuildContext context) => context.push(location, extra: this);
+}
+
+GoRoute get $searchRoute => GoRouteData.$route(
+  path: '/search',
+  factory: $SearchRouteExtension._fromState,
+);
+extension $SearchRouteExtension on SearchRoute {
+  static SearchRoute _fromState(GoRouterState state) => SearchRoute();
+
+  String get location => GoRouteData.$location(
+    '/search',
   );
 
   void go(BuildContext context) => context.go(location, extra: this);

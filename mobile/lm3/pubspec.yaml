@@ -35,16 +35,22 @@ dependencies:
   flutter_secure_storage: ^5.1.0
   go_router: ^13.1.0
   heart_overlay: ^1.4.1
-
-
-
+  flutter_bloc: ^8.1.6
+  equatable: ^2.0.5
+  json_annotation: ^4.3.0
+  encrypt: ^5.0.3
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^2.4.11
+  json_serializable: ^6.8.0
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.2.15
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -52,6 +58,24 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo_white.png"
+  adaptive_icon_background: "#5d43bf" # pour Android
+  background_color: "#5d43bf" # pour Android
+  background_color_android: "#5d43bf" # pour Android
+  # adaptive_icon_foreground: "assets/images/logo_black.png" # pour Android
+
+flutter_native_splash:
+  color: "#000000" # Couleur de fond du splash screen (blanc dans cet exemple)
+  image: "assets/images/logo_white.png" # Chemin vers votre logo pour le splash screen
+  android: true
+  ios: true
+  android_gravity: center # Centrer l'image sur Android
+  ios_content_mode: scaleAspectFit # Ajuster l'image au centre sur iOS
+  web: false # Désactiver pour le Web si ce n'est pas nécessaire
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

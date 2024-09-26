@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
-import '../services/Article_service.dart';
-import '../models/article.dart';
-import '../shared/article_widget.dart';
+import '../../services/Article_service.dart';
+import '../../models/article.dart';
+import '../../shared/article_widget.dart';
+
+import 'package:lm3/src/bloc/user/user_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PublishedWidget extends StatefulWidget {
   @override
@@ -11,12 +14,14 @@ class PublishedWidget extends StatefulWidget {
 }
 
 class _PublishedWidgetState extends State<PublishedWidget> {
-  final ArticleService _articleService = ArticleService();
+  late final ArticleService _articleService;
   late Future<List<ArticleModel>> futureArticles;
 
   @override
   void initState() {
     super.initState();
+    final userBloc = BlocProvider.of<UserBloc>(context);
+    _articleService = ArticleService(userBloc: userBloc);
     futureArticles = _articleService.getMyPublishedArticle();
   }
 
@@ -26,11 +31,9 @@ class _PublishedWidgetState extends State<PublishedWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.dark(),
-      home: Scaffold(
+    return Scaffold(
         appBar: AppBar(
-          title: Text('Mes Articles Publiés', style: TextStyle(fontFamily: 'LeMonde', fontSize: 30.0, fontWeight: FontWeight.bold, color: Colors.white)),
+          title: Text('Mes Articles Publiés', style: TextStyle(fontFamily: 'LeMonde', fontSize: 30.0, fontWeight: FontWeight.bold)),
         ),
         body: Column(
           children: [
@@ -40,7 +43,6 @@ class _PublishedWidgetState extends State<PublishedWidget> {
             ),
           ],
         ),
-      ),
     );
   }
 

@@ -1,27 +1,29 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import '../services/article_service.dart';
-import '../models/article.dart'; // Assurez-vous que le chemin d'importation est correct
-import '../router/router.dart';
+import '../models/article.dart';
 import './article_edit.dart';
+
+import 'package:lm3/src/bloc/user/user_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ArticleDetailPage extends StatefulWidget {
   final ArticleModel article;
 
-  ArticleDetailPage({required this.article});
+  const ArticleDetailPage({super.key, required this.article});
 
   @override
   _ArticleDetailPageState createState() => _ArticleDetailPageState();
 }
 
 class _ArticleDetailPageState extends State<ArticleDetailPage> {
-  final ArticleService _articleService = ArticleService();
   bool isFav = false;
+  late final ArticleService _articleService;
 
   @override
   void initState() {
     super.initState();
+    final userBloc = BlocProvider.of<UserBloc>(context);
+    _articleService = ArticleService(userBloc: userBloc);
     _checkIfArticleIsFav();
   }
 
@@ -33,32 +35,24 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
   }
 
   void _fav() async {
-    bool result = await _articleService.isFavArticle(widget.article.id);
-    if (result) {
-      setState(() {
-        isFav = false;
-      });
-      widget.article.likes.removeLast();
-      _articleService.unFavArticle(widget.article.id);
-    } else {
-      setState(() {
-        isFav = true;
-      });
-      _articleService.favArticle(widget.article.id);
-      widget.article.likes.add(1);
-    }
+    _articleService.favArticle(widget.article.id, true);
+    setState(() {
+      widget.article.likeCounter++;
+      isFav = !isFav;
+    });
   }
 
   void _publishArticle(BuildContext context) async {
     try {
-      await _articleService.ChangeDraftState(widget.article.id, false);
+      await _articleService.ChangeDraftState(widget.article.id, widget.article, false);
     } catch (e) {
       print(e.toString());
     }
   }
+
   void _unPublishArticle(BuildContext context) async {
     try {
-      await _articleService.ChangeDraftState(widget.article.id, true);
+      await _articleService.ChangeDraftState(widget.article.id, widget.article, true);
     } catch (e) {
       print(e.toString());
     }
@@ -72,18 +66,11 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.article.topic.toUpperCase(),
-          style: TextStyle(
-            fontSize: 10,
-          ),
-        ),
+        title: Text(widget.article.topicId.toString()),
         actions: [
           IconButton(
             icon: Icon(Icons.close),
@@ -93,7 +80,6 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
             IconButton(
               icon: Icon(Icons.settings),
               onPressed: () {
-                // Logique pour ouvrir les paramètres
               },
             ),
         ],
@@ -101,148 +87,136 @@ class _ArticleDetailPageState extends State<ArticleDetailPage> {
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
               widget.article.title,
+              textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
+                fontSize: 28.0,
               ),
             ),
             SizedBox(height: 8.0),
             Text(
-              widget.article.authorName,
-              style: TextStyle(
-                fontSize: 18.0,
-                color: Colors.grey[600],
-              ),
+              widget.article.authorId.toString(),
+              textAlign: TextAlign.center,
             ),
             SizedBox(height: 8.0),
             Text(
-              widget.article.createdAt.toLocal().toString(),
-              style: TextStyle(
-                fontSize: 16.0,
-                color: Colors.grey,
-              ),
+              widget.article.createdAt.toLocal().toString().split(' ')[0],
+              textAlign: TextAlign.center,
             ),
             SizedBox(height: 16.0),
             Text(
               widget.article.content,
-              style: TextStyle(
-                fontSize: 16.0,
-              ),
+              textAlign: TextAlign.left,
             ),
           ],
         ),
       ),
       bottomNavigationBar: BottomAppBar(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            if (widget.article.draft)
-              ElevatedButton(
-                child: Text('Publier'),
-                onPressed: widget.article.owner ? () { 
-                  _publishArticle(context);
-                  Navigator.of(context).pop();
-                } : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                )
-            ),
-            if (!widget.article.draft)
-              ElevatedButton(
-                child: Text('Partager'),
-                onPressed: () {
-                },
-              ),
-            GestureDetector(
-              onTap: _fav, // Assurez-vous que la fonction _fav met à jour l'état de isFav correctement
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 18.0, vertical: 8.0),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(8.0),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              if (widget.article.draft)
+                ElevatedButton(
+                  child: Text('Publier'),
+                  onPressed: (widget.article.authorId == context.read<UserBloc>().state.user?.id)
+                      ? () {
+                          _publishArticle(context);
+                          Navigator.of(context).pop();
+                        }
+                      : null,
                 ),
+              if (!widget.article.draft)
+                ElevatedButton(
+                  child: Text('Partager'),
+                  onPressed: () {
+                  },
+                ),
+              GestureDetector(
+                onTap: _fav,
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     Icon(
                       this.isFav ? Icons.favorite : Icons.favorite_border,
-                      size: 16.0,
-                      color: Colors.white,
+                      size: 24.0,
                     ),
                     SizedBox(width: 4.0),
-                    Text(
-                      '${widget.article.likes.length}',
-                      style: const TextStyle(
-                        fontSize: 12.0,
-                        color: Colors.white,
-                      ),
-                    ),
+                    Text('${widget.article.likeCounter}'),
                   ],
                 ),
               ),
-            ),
-            if (widget.article.owner)
-              PopupMenuButton<String>(
-                onSelected: (String value) {
-                  if (value == 'Modifier') {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => ArticleEditPage(article: widget.article),
-                    ));
-                  } else if (value == 'Supprimer') {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text("Confirmer la suppression"),
-                          content: Text("Êtes-vous sûr de vouloir supprimer cet élément ?"),
-                          actions: <Widget>[
-                            TextButton(
-                              child: Text("Annuler"),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            TextButton (
-                              child: Text("Supprimer"),
-                              onPressed: () {
-                                _deleteArticle();
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } else if (value == 'unPublish') {
-                    _unPublishArticle(context);
-                    Navigator.of(context).pop();
-                  }
-                },
-                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                  const PopupMenuItem<String>(
-                    value: 'Modifier',
-                    child: Text('Modifier'),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'Supprimer',
-                    child: Text('Supprimer'),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'unPublish',
-                    child: Text('Mettre en brouillon'),
-                  ),
+              Row(
+                children: <Widget>[
+                  Icon(Icons.visibility, size: 24.0),
+                  SizedBox(width: 4.0),
+                  Text('${widget.article.viewCounter}'),
                 ],
-                icon: Icon(Icons.more_vert),
               ),
-          ],
+              if (widget.article.authorId == context.read<UserBloc>().state.user?.id)
+                PopupMenuButton<String>(
+                  onSelected: (String value) {
+                    if (value == 'Modifier') {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ArticleEditPage(article: widget.article),
+                      ));
+                    } else if (value == 'Supprimer') {
+                      _showDeleteDialog(context);
+                    } else if (value == 'unPublish') {
+                      _unPublishArticle(context);
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: 'Modifier',
+                      child: Text('Modifier'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'Supprimer',
+                      child: Text('Supprimer'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'unPublish',
+                      child: Text('Mettre en brouillon'),
+                    ),
+                  ],
+                  icon: Icon(Icons.more_vert),
+                ),
+            ],
+          ),
         ),
       ),
+    );
+  }
 
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirmer la suppression"),
+          content: Text("Êtes-vous sûr de vouloir supprimer cet article ?"),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Annuler"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text("Supprimer"),
+              onPressed: () {
+                _deleteArticle();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

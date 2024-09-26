@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../screens/profile_page.dart';
-import '../screens/write_page.dart';
-import '../screens/articles_page.dart';
-import '../screens/auth_page.dart';
+import 'package:lm3/src/screens/profile/profile_page.dart';
+import 'package:lm3/src/screens/write_page.dart';
+import 'package:lm3/src/screens/articles_page.dart';
+import 'package:lm3/src/screens/Auth/auth_page.dart';
+import 'package:lm3/src/screens/search_page.dart';
 
 part './router_g.dart';
 
@@ -44,6 +45,16 @@ class ProfileRoute extends GoRouteData {
     return const ProfilePage();
   }
 }
+
+@TypedGoRoute<SearchRoute>(path: '/search')
+@immutable
+class SearchRoute extends GoRouteData {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const SearchPage();
+  }
+}
+
 
 @TypedGoRoute<AuthRoute>(path: '/auth')
 @immutable

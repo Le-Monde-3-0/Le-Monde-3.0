@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/article.dart';
-import './article_page.dart'; // Assurez-vous que ce chemin d'importation est correct
+import './article_page.dart';
 
 class ArticleWidget extends StatelessWidget {
   final ArticleModel article;
@@ -22,102 +22,64 @@ class ArticleWidget extends StatelessWidget {
         );
       },
       child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
         elevation: 4.0,
-        margin: EdgeInsets.all(12.0),
+        margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              Text(
+                article.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 22.0),
+              ),
+              SizedBox(height: 16.0),
+              Text(
+                _truncateWithEllipsis(article.content, 100),
+              ),
+              SizedBox(height: 16.0),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: Text(
-                      article.title,
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      if (article.draft)
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-                          decoration: BoxDecoration(
-                            color: Colors.grey,
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: Text(
-                            'Brouillon',
-                            style: TextStyle(
-                              fontSize: 12.0,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      SizedBox(height: 4.0),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Icon(
-                              Icons.favorite, 
-                              size: 16.0,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 4.0),
-                            Text(
-                              '${article.likes.length}',
-                              style: TextStyle(
-                                fontSize: 12.0,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today, size: 16.0),
+                      SizedBox(width: 4.0),
+                      Text(article.createdAt.toLocal().toString().split(' ')[0]),
                     ],
-                  )
+                  ),
+                  _buildIconWithText(icon: Icons.favorite_border, text: '${article.likeCounter}'),
+                  _buildIconWithText(icon: Icons.visibility_outlined, text: '${article.viewCounter}'),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.grey[300],
+                        radius: 12.0,
+                        child: Icon(Icons.person, size: 16.0),
+                      ),
+                      SizedBox(width: 8.0),
+                      Text('${article.authorId}'),
+                    ],
+                  ),
                 ],
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                article.authorName,
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.grey[700],
-                ),
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                article.createdAt.toLocal().toString(),
-                style: TextStyle(
-                  fontSize: 14.0,
-                  color: Colors.grey[500],
-                ),
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                _truncateWithEllipsis(article.content, 60),
-                style: TextStyle(
-                  fontSize: 16.0,
-                ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildIconWithText({required IconData icon, required String text}) {
+    return Row(
+      children: [
+        Icon(icon, size: 18.0),
+        SizedBox(width: 4.0),
+        Text(text),
+      ],
     );
   }
 }

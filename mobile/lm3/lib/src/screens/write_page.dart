@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../shared/article_page_previsual.dart';
-import '../models/article.dart';
+import '../models/article_input.dart';
+
+import 'package:lm3/src/services/topic_service.dart';
+import 'package:lm3/src/models/topic.dart';
+
+//BLOC
+import 'package:lm3/src/bloc/user/user_bloc.dart';
+import 'package:lm3/src/bloc/user/user_state.dart';
 
 class WritePage extends StatefulWidget {
   const WritePage({super.key});
@@ -10,11 +20,22 @@ class WritePage extends StatefulWidget {
 
 class _WritePageState extends State<WritePage> {
   final _formKey = GlobalKey<FormState>();
+  final storage = new FlutterSecureStorage();
+  late final TopicService _topicService;
 
   final _articleTitle = TextEditingController();
-  final _articleTheme = TextEditingController();
+  int? _selectedTopicId;
   final _articleContent = TextEditingController();
-  
+  late Future<List<TopicModel>> _topics;
+
+  @override
+  void initState() {
+    super.initState();
+    final userBloc = BlocProvider.of<UserBloc>(context);
+    _topicService = TopicService(userBloc: userBloc);
+    _topics = _topicService.getTopics();
+  }  
+
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -23,7 +44,7 @@ class _WritePageState extends State<WritePage> {
       appBar: AppBar(
         title: const Text('Création d\'un Article'),
       ),
-      body: SingleChildScrollView( 
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
@@ -34,108 +55,89 @@ class _WritePageState extends State<WritePage> {
                 TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Titre de l\'article',
-                    labelStyle: const TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
-                    fillColor: Colors.white, 
-                    filled: true,
-                    border: OutlineInputBorder( 
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: const Color.fromARGB(255, 0, 0, 0)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 2.0),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 2.0),
-                    ),
-                    prefixIcon: const Icon(Icons.title, color: const Color.fromARGB(255, 0, 0, 0)), 
-                    suffixIcon: const Icon(Icons.edit, color: const Color.fromARGB(255, 0, 0, 0)),
-                  ),
-                  validator: (value) => value!.isEmpty ? 'Ce champ est obligatoire' : null,
-                  controller: _articleTitle,
-                  style: const TextStyle(
-                    color:const Color.fromARGB(255, 0, 0, 0),
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Theme de l\'article',
-                    labelStyle: const TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+                    labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                     fillColor: Colors.white, 
                     filled: true,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: const Color.fromARGB(255, 0, 0, 0)),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 2.0),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: const BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 2.0),
-                    ),
-                    prefixIcon: const Icon(Icons.title, color: const Color.fromARGB(255, 0, 0, 0)),
-                    suffixIcon: const Icon(Icons.edit, color: const Color.fromARGB(255, 0, 0, 0)),
                   ),
                   validator: (value) => value!.isEmpty ? 'Ce champ est obligatoire' : null,
-                  controller: _articleTheme,
-                  style: TextStyle(
-                    color: const Color.fromARGB(255, 0, 0, 0),
-                  ),
-                ), 
+                  controller: _articleTitle,
+                ),
+                SizedBox(height: 16.0),
+
+                FutureBuilder<List<TopicModel>>(
+                  future: _topics,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Text('Erreur: ${snapshot.error}');
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Text('Aucun thème disponible');
+                    } else {
+                      List<TopicModel> topics = snapshot.data!;
+
+                      return DropdownButtonFormField<int>(
+                        decoration: InputDecoration(
+                          labelText: 'Sélectionnez un thème',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        items: topics.map((TopicModel topic) {
+                          return DropdownMenuItem<int>(
+                            value: topic.id,
+                            child: Text(topic.name),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedTopicId = value;
+                          });
+                        },
+                        validator: (value) => value == null ? 'Sélectionnez un thème' : null,
+                      );
+                    }
+                  },
+                ),
+
                 const SizedBox(height: 16.0),
+
                 ConstrainedBox(
                   constraints: BoxConstraints(
                     minHeight: screenHeight / 2,
                   ),
-                  child: Container(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          labelText: 'Contenu de l\'article',
-                          labelStyle: const TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 1.0),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Color.fromARGB(255, 0, 0, 0), width: 2.0),
-
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          fillColor: Colors.white,
-                          filled: true,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Contenu de l\'article',
+                        labelStyle: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
-                        keyboardType: TextInputType.multiline,
-                        maxLines: null,
-                        validator: (value) => value!.isEmpty ? 'Ce champ est obligatoire' : null,
-                        controller: _articleContent,
-                        style: TextStyle(
-                          color: const Color.fromARGB(255, 0, 0, 0),
-                        ),
+                        fillColor: Colors.white,
+                        filled: true,
                       ),
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
+                      validator: (value) => value!.isEmpty ? 'Ce champ est obligatoire' : null,
+                      controller: _articleContent,
                     ),
                   ),
                 ),
-                ElevatedButton.icon(
+
+                ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      var article = ArticleModel(
-                        id: 1,
-                        createdAt: DateTime.now(),
-                        updatedAt: DateTime.now(),
-                        userId: 1,
-                        authorName: "moi",
+                      var article = ArticleInputModel(
+                        draft: false,
+                        topic: _selectedTopicId!,
                         title: _articleTitle.text,
                         subtitle: "subtile",
                         content: _articleContent.text,
-                        topic: _articleTheme.text,
-                        draft: false,
-                        likes: [],
                       );
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -144,20 +146,13 @@ class _WritePageState extends State<WritePage> {
                       );
                     }
                   },
-                  icon: Icon(Icons.arrow_forward),
-                  label: const Text('Suivant'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromARGB(255, 112, 243, 121),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    textStyle: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    shape: CircleBorder(),
+                    padding: EdgeInsets.all(20),
                   ),
+                  child: Icon(Icons.arrow_forward),
                 ),
               ],
             ),

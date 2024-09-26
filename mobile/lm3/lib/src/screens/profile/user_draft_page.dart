@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
-import '../services/Article_service.dart';
-import '../models/article.dart';
-import '../shared/article_widget.dart';
+import '../../services/Article_service.dart';
+import '../../models/article.dart';
+import '../../shared/article_widget.dart';
+
+import 'package:lm3/src/bloc/user/user_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BrouillonsWidget extends StatefulWidget {
   @override
@@ -11,32 +14,16 @@ class BrouillonsWidget extends StatefulWidget {
 }
 
 class _BrouillonsWidgetState extends State<BrouillonsWidget> {
-  final ArticleService _articleService = ArticleService();
+  late final ArticleService _articleService;
   late Future<List<ArticleModel>> futureArticles;
 
   @override
   void initState() {
     super.initState();
+    final userBloc = BlocProvider.of<UserBloc>(context);
+    _articleService = ArticleService(userBloc: userBloc);
     futureArticles = _articleService.getMyDraftArticle();
   }
-
-  // Future<List<ArticleModel>> _getArticle() async {
-  //   try {
-  //     var response = await _articleService.getMyArticle();
-  //     Iterable jsonResponse = response;
-  //     List<ArticleModel> articlesList = [];
-  //       for (var article in jsonResponse) {
-  //         if (article['Draft'] == true) {
-  //           articlesList.add(ArticleModel.fromJson(article));
-  //         }
-  //     }
-  //     print(articlesList);
-  //     return articlesList;
-  //   } catch (e) {
-  //     print(e.toString());
-  //     return [];
-  //   }
-  // }
 
   String _truncateWithEllipsis(String text, int cutoff) {
     return (text.length <= cutoff) ? text : '${text.substring(0, cutoff)}...';
@@ -44,11 +31,9 @@ class _BrouillonsWidgetState extends State<BrouillonsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.dark(),
-      home: Scaffold(
+    return Scaffold(
         appBar: AppBar(
-          title: Text('Mes brouillons', style: TextStyle(fontFamily: 'LeMonde', fontSize: 30.0, fontWeight: FontWeight.bold, color: Colors.white)),
+          title: Text('Mes brouillons', style: TextStyle(fontFamily: 'LeMonde', fontSize: 30.0, fontWeight: FontWeight.bold)),
         ),
         body: Column(
           children: [
@@ -58,7 +43,6 @@ class _BrouillonsWidgetState extends State<BrouillonsWidget> {
             ),
           ],
         ),
-      ),
     );
   }
 
