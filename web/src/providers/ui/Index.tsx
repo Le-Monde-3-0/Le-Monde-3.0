@@ -29,7 +29,8 @@ const UIProvider = ({ children }: { children: JSX.Element }) => {
 
 	const uiContextValue: UIContextType = {
 		handleToast: ({ res, settings, messages }: UIHandling) => {
-			if (!settings.showIfAuthError && res.code === 401) {
+			if (settings.showIfAuthError && res.code === 401) {
+				// TODO: not always -> ex: if logged user but asks for someone else resource
 				navigate('/connexion');
 			} else if (
 				(settings.showIfSuccess && res.status === 'success') ||

@@ -1,18 +1,18 @@
 import { servicesURL } from 'services';
-import { EmptyResponse, AuthUpdateEmail, AuthUpdatePassword, AuthUpdateUsername } from 'types/services';
+import { ParamsUserUpdatePassword, ResponseEmpty } from 'types/services';
 
-export const password = async (params: AuthUpdatePassword) =>
-	servicesURL.patch<EmptyResponse>('/authentication/password', {
+export const password = async (params: ParamsUserUpdatePassword) =>
+	servicesURL.patch<ResponseEmpty>('/authentication/password', {
 		oldPassword: params.oldPassword,
 		newPassword: params.newPassword,
 	});
 
-export const email = async (params: AuthUpdateEmail) =>
-	servicesURL.patch<EmptyResponse>('/authentication/email', {
-		newEmail: params.newEmail,
+export const email = async (newEmail: string) =>
+	servicesURL.patch<ResponseEmpty>('/authentication/email', {
+		newEmail,
 	});
 
-export const username = async (params: AuthUpdateUsername) =>
-	servicesURL.patch<EmptyResponse>('/user/username', {
-		newUsername: params.newUsername,
+export const username = async (newUsername: string) =>
+	servicesURL.patch<ResponseEmpty>('/user/username', {
+		newUsername,
 	});

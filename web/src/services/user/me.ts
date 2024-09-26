@@ -1,6 +1,6 @@
 import { servicesURL } from 'services';
-import { MeResponse } from 'types/services';
+import { OnlineUser } from 'types/user';
 
-const me = async () => servicesURL.get<MeResponse>('/user/me');
+const me = async () => servicesURL.get<OnlineUser>('/user/me');
 
 export default me;

@@ -45,7 +45,7 @@ const Routes = (): JSX.Element => (
 								{/* <Route path="/auteurs/:userId" element={<Author />} /> */}
 								<Route path="/reglages" element={<Settings />} />
 							</Route>
-							<Route path="*" element={<Navigate replace to="/bibliotheque" />} />
+							<Route path="*" element={<Navigate replace to="/" />} />
 						</RouterRoutes>
 					</UIProvider>
 				</OnlineUserProvider>

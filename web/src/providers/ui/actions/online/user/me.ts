@@ -12,7 +12,7 @@ const me = async (
 			settings: {
 				showIfSuccess: false,
 				showIfNotSuccess: true,
-				showIfAuthError: false,
+				showIfAuthError: true,
 			},
 			messages: {
 				200: { message: 'Profil récupéré.', subMessage: res.message },

@@ -95,7 +95,7 @@ export const again = async (
 			settings: {
 				showIfSuccess: false,
 				showIfNotSuccess: false,
-				showIfAuthError: true,
+				showIfAuthError: false,
 			},
 			messages: {
 				200: { message: 'Connexion rafraîchie.', subMessage: res.message },
