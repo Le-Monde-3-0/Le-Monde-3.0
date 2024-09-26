@@ -10,7 +10,6 @@ const AnthologyCard = ({
 	nbArticles,
 	deleteAnthology,
 	setAnthologyToUpdate,
-	setType,
 	onOpen,
 }: {
 	navigateUrl: string;
@@ -19,7 +18,6 @@ const AnthologyCard = ({
 	nbArticles: number;
 	deleteAnthology?: () => void;
 	setAnthologyToUpdate?: () => void;
-	setType?: (t: 'CREATE' | 'UPDATE') => void;
 	onOpen?: () => void;
 }): JSX.Element => {
 	const navigate = useNavigate();
@@ -51,14 +49,13 @@ const AnthologyCard = ({
 					{description}
 				</Text>
 			</VStack>
-			{deleteAnthology && setAnthologyToUpdate && onOpen && setType && (
+			{deleteAnthology && setAnthologyToUpdate && onOpen && (
 				<HStack>
 					<Tooltip label="Modifier le marque-page">
 						<span>
 							<EditIcon
 								onClick={() => {
 									setAnthologyToUpdate();
-									setType('UPDATE');
 									onOpen();
 								}}
 								color="black"

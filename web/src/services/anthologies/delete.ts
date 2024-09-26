@@ -1,6 +1,6 @@
 import { servicesURL } from 'services';
-import { AnthologiesDelete, EmptyResponse } from 'types/services';
+import { ResponseEmpty } from 'types/services';
 
-const hardDelete = async (params: AnthologiesDelete) => servicesURL.delete<EmptyResponse>(`/anthologies/${params.id}`);
+const hardDelete = async (id: number) => servicesURL.delete<ResponseEmpty>(`/anthologies/${id}`);
 
 export default hardDelete;

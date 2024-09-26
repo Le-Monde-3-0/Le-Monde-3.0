@@ -1,21 +1,17 @@
-// Params
-export type AuthSignUp = { email: string; username: string; password: string };
-export type AuthSignIn = { identifier: string; password: string };
-export type AuthUpdatePassword = { oldPassword: string; newPassword: string };
-export type AuthUpdateEmail = { newEmail: string };
-export type AuthUpdateUsername = { newUsername: string };
+export type ParamsAuthSignUp = { email: string; username: string; password: string };
+export type ParamsAuthSignIn = { identifier: string; password: string };
 
-export type ArticlesCreate = {
+export type ParamsUserUpdatePassword = { oldPassword: string; newPassword: string };
+
+export type ParamsArticlesCreate = {
 	title: string;
 	subtitle?: string;
 	content: string;
 	topic: number;
 	draft: boolean;
 };
-export type ArticlesDelete = { id: number };
-export type ArticlesLike = { id: number; isLiked: boolean };
-export type ArticlesSearchOne = { id: number };
-export type ArticlesSearchMany = {
+export type ParamsArticlesLike = { id: number; isLiked: boolean };
+export type ParamsArticlesSearch = {
 	author?: string;
 	draft?: boolean;
 	topic?: number;
@@ -23,7 +19,7 @@ export type ArticlesSearchMany = {
 	anthologyId?: number;
 	query?: string;
 };
-export type ArticlesUpdate = {
+export type ParamsArticlesUpdate = {
 	id: number;
 	newTitle?: string;
 	newSubtitle?: string;
@@ -32,17 +28,14 @@ export type ArticlesUpdate = {
 	newDraft?: boolean;
 };
 
-export type AnthologiesArticles = { id: number };
-export type AnthologiesCreate = {
+export type ParamsAnthologiesCreate = {
 	name: string;
 	description: string;
 	isPublic: boolean;
 	articles?: number[];
 };
-export type AnthologiesDelete = { id: number };
-export type AnthologiesSearchOne = { id: number };
-export type AnthologiesSearchMany = { author?: string; query?: string };
-export type AnthologiesUpdate = {
+export type ParamsAnthologiesSearch = { author?: string; query?: string };
+export type ParamsAnthologiesUpdate = {
 	id: number;
 	addArticles?: number[];
 	removeArticles?: number[];
@@ -51,23 +44,4 @@ export type AnthologiesUpdate = {
 	newIsPublic?: boolean;
 };
 
-export type TopicsSearchOne = { id: number };
-
-// Responses
-export type EmptyResponse = Record<string, never>;
-// TODO: not clean, same as Auth type
-export type SignResponse = {
-	user: {
-		id: number;
-		createdAt: Date;
-		email: string;
-		username: string;
-	};
-};
-// TODO: not clean, same as Auth type
-export type MeResponse = {
-	id: number;
-	createdAt: Date;
-	email: string;
-	username: string;
-};
+export type ResponseEmpty = Record<string, never>;

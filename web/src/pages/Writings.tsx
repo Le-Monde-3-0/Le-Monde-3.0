@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { DeleteIcon, ViewOffIcon } from '@chakra-ui/icons';
-import { Button, HStack, Icon, Select, Stack, Text, Tooltip, VStack } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import { DeleteIcon } from '@chakra-ui/icons';
+import { Button, HStack, Icon, Select, Stack, Text, Tooltip, VStack } from '@chakra-ui/react';
 import { CiSquarePlus } from 'react-icons/ci';
 import { FaFilter, FaSort } from 'react-icons/fa';
 import { FaSortDown, FaSortUp } from 'react-icons/fa6';
@@ -14,84 +14,42 @@ import { Article } from 'types/article';
 import ArticleCard from 'components/Cards/ArticleCard';
 import SearchInput from 'components/Inputs/SearchInput';
 import { useUIContext } from 'contexts/ui';
-import { useOnlineUserContext } from 'contexts/onlineUser';
 
 const Writings = (): JSX.Element => {
+	const ui = useUIContext();
 	const navigate = useNavigate();
-	const { handleToast } = useUIContext();
-	const { methods } = useOnlineUserContext();
+	const [refresh, setRefresh] = useState(1);
 	const [filter, setFilter] = useState(false);
 	const [search, setSearch] = useState('');
-	const [topic, setTopic] = useState('');
+	const [topic, setTopic] = useState<Topic | undefined>(undefined);
 	const [sortLikes, setSortLikes] = useState<'UP' | 'DOWN' | 'NONE'>('NONE');
 	const [sortViews, setSortViews] = useState<'UP' | 'DOWN' | 'NONE'>('NONE');
 	const [showDrafts, setShowDrafts] = useState(true);
 	const [showPublications, setShowPublications] = useState(true);
-	const [writtenArticles, setWrittenArticles] = useState<Article[]>([]);
-	const [articles, setArticles] = useState<Article[]>([]);
 	const [topics, setTopics] = useState<Topic[]>([]);
-
-	// TODO: put in UI context ?
-	const uiLoadData = async () => {
-		try {
-			const res = await methods.articles.load.written();
-			handleToast(res);
-			if (res.status === 'success') {
-				setArticles(res.data!);
-				setWrittenArticles(res.data!);
-				setTopics(
-					res
-						.data!.map((a) => a.topic!.name)
-						.filter((value, index, array) => array.indexOf(value) === index)
-						.map((n) => res.data!.find((a) => a.topic!.name === n)!.topic!),
-				);
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
-	const uiFilterArticles = async () => {
-		console.log(filter);
-		console.log(topics.find((t) => t.name === topic));
-		console.log(search);
-		try {
-			const res = await methods.articles.search.many({
-				author: 'me',
-				draft: showDrafts,
-				topic: topics.find((t) => t.name === topic)?.id,
-				query: search === '' ? undefined : search,
-			});
-			handleToast(res);
-			setArticles(res.data!);
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
-	const uiDeleteArticle = async (id: number) => {
-		try {
-			const res = await methods.articles.delete({ id });
-			handleToast(res, true);
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
-	const uiUpdateArticle = async (id: number) => {
-		try {
-			const res = await methods.articles.update({ id, newDraft: true });
-			handleToast(res, true);
-		} catch (error) {
-			console.error(error);
-		}
-	};
+	const [articles, setArticles] = useState<Article[]>([]);
 
 	useEffect(() => {
-		if (!filter) setArticles(writtenArticles);
+		ui.online.articles.search.myArticles({ query: search, topic: topic?.id }, (returnedArticles: Article[]) =>
+			setArticles(returnedArticles.filter((a) => a.draft === showDrafts || !a.draft === showPublications)),
+		);
+	}, [refresh]);
+
+	useEffect(() => {
+		const topicsIds = articles.map((a) => a.topicId).filter((value, index, array) => array.indexOf(value) === index);
+		ui.online.topics.search.all((allTopics: Topic[]) =>
+			setTopics(topicsIds.map((id) => allTopics.find((t) => t.id === id)!)),
+		);
+	}, [articles]);
+
+	useEffect(() => {
 		const timer = setTimeout(() => {
-			if (filter && (topic || search !== '')) {
-				uiFilterArticles();
+			if (!filter) {
+				ui.online.articles.search.myArticles({}, setArticles);
+			} else {
+				ui.online.articles.search.myArticles({ query: search, topic: topic?.id }, (returnedArticles: Article[]) =>
+					setArticles(returnedArticles.filter((a) => a.draft === showDrafts || !a.draft === showPublications)),
+				);
 			}
 		}, 0.7 * 1000);
 		return () => {
@@ -110,10 +68,6 @@ const Writings = (): JSX.Element => {
 			}),
 		);
 	}, [sortLikes, sortViews, articles]);
-
-	useEffect(() => {
-		uiLoadData();
-	}, []);
 
 	return (
 		<VStack w="100%" spacing={{ base: '8px', md: '16px', lg: '24px', xl: '32px' }} align="start">
@@ -232,7 +186,7 @@ const Writings = (): JSX.Element => {
 									background: '#212529',
 								},
 							}}
-							onChange={(e) => setTopic(e.target.value)}
+							onChange={(e) => setTopic(topics.find((t) => t.name === e.target.value)!)}
 						>
 							{topics.map((t, index) => (
 								<option key={index}>{t.name}</option>
@@ -250,18 +204,17 @@ const Writings = (): JSX.Element => {
 						// TODO: author name
 						author={`Author #${article.authorId}`}
 						date={new Date().toLocaleDateString('fr-FR')}
-						// TODO: topic
+						// TODO: topic name
 						topic={`Topic #${article.topicId}`}
 						content={article.content}
 						actions={[
-							<Tooltip label="Archiver dans les brouillons">
-								<span>
-									<ViewOffIcon onClick={() => uiUpdateArticle(article.id)} color="black" />
-								</span>
-							</Tooltip>,
+							// TODO: draft to publication
 							<Tooltip label="Supprimer définitivement">
 								<span>
-									<DeleteIcon onClick={() => uiDeleteArticle(article.id)} color="black" />
+									<DeleteIcon
+										onClick={async () => await ui.online.articles.delete(article.id, () => setRefresh((r) => r + 1))}
+										color="black"
+									/>
 								</span>
 							</Tooltip>,
 						]}

@@ -34,7 +34,7 @@ const AnthologiesModal = ({
 	offlineAnthologies?: OfflineAnthology[];
 	createAnthology: (name: string, description: string) => Promise<void>;
 	onlineAction: (id: number) => Promise<void>;
-	offlineAction: (id: string) => Promise<void>;
+	offlineAction: (id: string) => void;
 }) => {
 	const createDiscolsure = useDisclosure();
 	const createIsOpen = createDiscolsure.isOpen;

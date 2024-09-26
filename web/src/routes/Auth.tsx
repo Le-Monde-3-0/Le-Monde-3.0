@@ -3,29 +3,18 @@ import { useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 import AuthLayout from 'layouts/Auth';
+import { useUserContext } from 'contexts/user';
 import { useUIContext } from 'contexts/ui';
-import { useOnlineUserContext } from 'contexts/onlineUser';
 
 const Auth = (): JSX.Element => {
+	const user = useUserContext();
+	const ui = useUIContext();
 	const navigate = useNavigate();
-	const { methods } = useOnlineUserContext();
-	const { handleToast } = useUIContext();
-
-	// TODO: in UI context ?
-	const uiSignAgain = async () => {
-		try {
-			const res = await methods.auth.sign.again();
-			handleToast(res, false, false, true);
-			if (res.status === 'success') {
-				navigate('/favoris');
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	};
 
 	useEffect(() => {
-		uiSignAgain();
+		if (!user.data.isOffline) {
+			ui.online.auth.sign.again(() => navigate('/bibliotheque'));
+		}
 	}, []);
 
 	return (

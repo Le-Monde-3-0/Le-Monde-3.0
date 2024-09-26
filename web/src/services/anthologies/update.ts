@@ -1,8 +1,8 @@
 import { servicesURL } from 'services';
 import { Anthology } from 'types/anthology';
-import { AnthologiesUpdate } from 'types/services';
+import { ParamsAnthologiesUpdate } from 'types/services';
 
-const update = async (params: AnthologiesUpdate) =>
+const update = async (params: ParamsAnthologiesUpdate) =>
 	servicesURL.patch<Anthology>(`/anthologies/${params.id}`, {
 		addArticles: params.addArticles || [],
 		removeArticles: params.removeArticles || [],

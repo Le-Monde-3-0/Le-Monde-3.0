@@ -6,78 +6,62 @@ import { Article } from 'types/article';
 import { Anthology } from 'types/anthology';
 import { Handler } from 'types/handler';
 import {
-	ArticlesCreate,
-	ArticlesDelete,
-	EmptyResponse,
-	ArticlesLike,
-	ArticlesSearchOne,
-	ArticlesSearchMany,
-	ArticlesUpdate,
-	AnthologiesArticles,
-	AnthologiesCreate,
-	AnthologiesDelete,
-	AnthologiesSearchOne,
-	AnthologiesSearchMany,
-	AnthologiesUpdate,
-	TopicsSearchOne,
-	AuthSignIn,
-	AuthSignUp,
-	AuthUpdateEmail,
-	AuthUpdatePassword,
-	AuthUpdateUsername,
-	MeResponse,
-	SignResponse,
+	ParamsAnthologiesCreate,
+	ParamsAnthologiesSearch,
+	ParamsAnthologiesUpdate,
+	ParamsArticlesCreate,
+	ParamsArticlesLike,
+	ParamsArticlesSearch,
+	ParamsArticlesUpdate,
+	ParamsAuthSignIn,
+	ParamsAuthSignUp,
+	ParamsUserUpdatePassword,
+	ResponseEmpty,
 } from 'types/services';
 
-// TODO: remove useless types
 type OnlineUserContextType = {
 	data: OnlineUser;
 	methods: {
-		data: {
-			clear: () => void;
-		};
 		auth: {
 			sign: {
-				up: (params: AuthSignUp) => Promise<Handler<SignResponse>>;
-				in: (params: AuthSignIn) => Promise<Handler<SignResponse>>;
-				out: () => Promise<Handler<EmptyResponse>>;
-				again: () => Promise<Handler<EmptyResponse>>;
+				up: (params: ParamsAuthSignUp) => Promise<Handler<OnlineUser>>;
+				in: (params: ParamsAuthSignIn) => Promise<Handler<OnlineUser>>;
+				out: () => Promise<Handler<ResponseEmpty>>;
+				again: () => Promise<Handler<ResponseEmpty>>;
 			};
-			me: () => Promise<Handler<MeResponse>>;
+		};
+		user: {
+			me: () => Promise<Handler<OnlineUser>>;
 			update: {
-				password: (params: AuthUpdatePassword) => Promise<Handler<EmptyResponse>>;
-				email: (params: AuthUpdateEmail) => Promise<Handler<EmptyResponse>>;
-				username: (params: AuthUpdateUsername) => Promise<Handler<EmptyResponse>>;
+				password: (params: ParamsUserUpdatePassword) => Promise<Handler<ResponseEmpty>>;
+				email: (newEmail: string) => Promise<Handler<ResponseEmpty>>;
+				username: (newUsername: string) => Promise<Handler<ResponseEmpty>>;
 			};
 		};
 		articles: {
-			create: (params: ArticlesCreate) => Promise<Handler<Article>>;
-			delete: (params: ArticlesDelete) => Promise<Handler<EmptyResponse>>;
-			like: (params: ArticlesLike) => Promise<Handler<EmptyResponse>>;
-			load: {
-				written: () => Promise<Handler<Article[]>>;
-				liked: () => Promise<Handler<Article[]>>;
-			};
+			create: (params: ParamsArticlesCreate) => Promise<Handler<Article>>;
 			search: {
-				one: (params: ArticlesSearchOne) => Promise<Handler<Article>>;
-				many: (params: ArticlesSearchMany) => Promise<Handler<Article[]>>;
+				allPublications: (params: ParamsArticlesSearch) => Promise<Handler<Article[]>>;
+				myArticles: (params: ParamsArticlesSearch) => Promise<Handler<Article[]>>;
+				likedPublications: (params: ParamsArticlesSearch) => Promise<Handler<Article[]>>;
+				oneDraft: (id: number) => Promise<Handler<Article>>;
+				onePublication: (id: number) => Promise<Handler<Article>>;
 			};
-			update: (params: ArticlesUpdate) => Promise<Handler<Article>>;
+			update: (params: ParamsArticlesUpdate) => Promise<Handler<Article>>;
+			like: (params: ParamsArticlesLike) => Promise<Handler<ResponseEmpty>>;
+			delete: (id: number) => Promise<Handler<ResponseEmpty>>;
 		};
 		anthologies: {
-			articles: (params: AnthologiesArticles) => Promise<Handler<Article[]>>;
-			create: (params: AnthologiesCreate) => Promise<Handler<Anthology>>;
-			delete: (params: AnthologiesDelete) => Promise<Handler<EmptyResponse>>;
-			load: () => Promise<Handler<Anthology[]>>;
+			create: (params: ParamsAnthologiesCreate) => Promise<Handler<Anthology>>;
 			search: {
-				one: (params: AnthologiesSearchOne) => Promise<Handler<Anthology>>;
-				many: (params: AnthologiesSearchMany) => Promise<Handler<Anthology[]>>;
+				many: (params: ParamsAnthologiesSearch) => Promise<Handler<Anthology[]>>;
+				one: (id: number) => Promise<Handler<Anthology>>;
 			};
-			update: (params: AnthologiesUpdate) => Promise<Handler<Anthology>>;
+			update: (params: ParamsAnthologiesUpdate) => Promise<Handler<Anthology>>;
+			delete: (id: number) => Promise<Handler<ResponseEmpty>>;
 		};
 		topics: {
 			search: {
-				one: (params: TopicsSearchOne) => Promise<Handler<Topic>>;
 				all: () => Promise<Handler<Topic[]>>;
 			};
 		};

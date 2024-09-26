@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { Link as RouteLink, useNavigate } from 'react-router-dom';
 import { Button, Link } from '@chakra-ui/react';
 
-import { useOnlineUserContext } from 'contexts/onlineUser';
 import { useUIContext } from 'contexts/ui';
 import FormInput from 'components/Inputs/FormInput';
 import PwdInput from 'components/Inputs/PwdInput';
@@ -11,8 +10,7 @@ import emailRegex from 'utils/emailRegex';
 
 const Inscription = (): JSX.Element => {
 	const navigate = useNavigate();
-	const { methods } = useOnlineUserContext();
-	const { handleToast } = useUIContext();
+	const ui = useUIContext();
 	const [email, setEmail] = useState('');
 	const [username, setUsername] = useState('');
 	const [pwd, setPwd] = useState('');
@@ -26,19 +24,6 @@ const Inscription = (): JSX.Element => {
 			confirmedPwd: { value: false, message: 'Confirmation du mot de passe non renseignée.' },
 		},
 	});
-
-	// TODO: put in UI context ?
-	const inscription = async () => {
-		try {
-			const res = await methods.auth.sign.up({ email, password: pwd, username });
-			handleToast(res, true);
-			if (res.status === 'success') {
-				navigate('/favoris');
-			}
-		} catch (error) {
-			console.error(error);
-		}
-	};
 
 	useEffect(() => {
 		const emailValidation = emailRegex.test(email);
@@ -99,7 +84,9 @@ const Inscription = (): JSX.Element => {
 				id="inscription-inscription-btn"
 				variant="primary-yellow"
 				isDisabled={!validation.valid}
-				onClick={inscription}
+				onClick={async () =>
+					await ui.online.auth.sign.up({ email, username, password: pwd }, () => navigate('/bibliotheque'))
+				}
 			>
 				Inscription
 			</Button>

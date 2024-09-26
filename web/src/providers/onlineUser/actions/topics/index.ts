@@ -1,8 +1,7 @@
-import { all, one } from './search';
+import { all } from './search';
 
 const topics = {
 	search: {
-		one,
 		all,
 	},
 };

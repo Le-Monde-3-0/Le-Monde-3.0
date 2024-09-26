@@ -49,10 +49,10 @@ const steps = [
 
 // TODO: cut this component
 const Settings = (): JSX.Element => {
+	const ui = useUIContext();
 	const user = useUserContext();
 	const onlineUser = useOnlineUserContext();
 	const offlineUser = useOfflineUserContext();
-	const { handleToast } = useUIContext();
 	const toast = useToast();
 	const navigate = useNavigate();
 	const [isCensored, setIsCensored] = useState<boolean | undefined>(undefined);
@@ -70,7 +70,7 @@ const Settings = (): JSX.Element => {
 
 	const testCensorship = async () => {
 		try {
-			const res = await onlineUser.methods.auth.me();
+			const res = await onlineUser.methods.user.me();
 			if (res.code === -1) setIsCensored(true);
 			else setIsCensored(false);
 		} catch (error) {
@@ -142,18 +142,6 @@ const Settings = (): JSX.Element => {
 				}
 			};
 			reader.readAsText(file);
-		}
-	};
-
-	const deconnect = async () => {
-		try {
-			const res = await onlineUser.methods.auth.sign.out();
-			handleToast(res, true);
-			if (res.status === 'success') {
-				navigate('/');
-			}
-		} catch (error) {
-			console.error(error);
 		}
 	};
 
@@ -473,7 +461,7 @@ const Settings = (): JSX.Element => {
 												variant="primary-yellow"
 												onClick={async () => {
 													// TODO: verify with backend the user is redirected if not already login
-													if (user.data.isOffline) await onlineUser.methods.auth.me();
+													if (user.data.isOffline) await ui.online.user.me();
 													user.methods.toggleIsOfflineState();
 												}}
 											>
@@ -548,7 +536,7 @@ const Settings = (): JSX.Element => {
 								errorMessage=""
 							/>
 							<Button>Modifier</Button>
-							<Button variant="primary-orange" onClick={deconnect}>
+							<Button variant="primary-orange" onClick={async () => await ui.online.auth.sign.out(() => navigate('/'))}>
 								Déconnexion
 							</Button>
 						</VStack>

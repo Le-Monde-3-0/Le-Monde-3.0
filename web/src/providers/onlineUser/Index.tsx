@@ -1,24 +1,17 @@
 import React, { useEffect, useState } from 'react';
 
-import OnlineUserContext, { OnlineUserContextType } from 'contexts/onlineUser';
 import { OnlineUser } from 'types/user';
 import {
-	AnthologiesArticles,
-	AnthologiesCreate,
-	AnthologiesDelete,
-	AnthologiesSearchMany,
-	AnthologiesSearchOne,
-	AnthologiesUpdate,
-	ArticlesCreate,
-	ArticlesDelete,
-	ArticlesLike,
-	ArticlesSearchMany,
-	ArticlesSearchOne,
-	ArticlesUpdate,
-	AuthUpdateEmail,
-	AuthUpdateUsername,
-	TopicsSearchOne,
+	ParamsAnthologiesCreate,
+	ParamsAnthologiesSearch,
+	ParamsAnthologiesUpdate,
+	ParamsArticlesCreate,
+	ParamsArticlesLike,
+	ParamsArticlesSearch,
+	ParamsArticlesUpdate,
+	ParamsUserUpdatePassword,
 } from 'types/services';
+import OnlineUserContext, { OnlineUserContextType } from 'contexts/onlineUser';
 import loadFromLocalStorage from 'utils/loadFromLocalStorage';
 import actions from './actions';
 
@@ -54,55 +47,51 @@ const UserProvider = ({ children }: { children: JSX.Element }) => {
 	const OnlineuserContextValue: OnlineUserContextType = {
 		data: onlineUser,
 		methods: {
-			data: {
-				clear: () => {
-					localStorage.removeItem('user');
-					setOnlineUser(defaultOnlineUser);
-				},
-			},
 			auth: {
 				sign: {
 					up: actions.auth.sign.up,
 					in: actions.auth.sign.in,
-					out: actions.auth.sign.out,
+					out: () =>
+						actions.auth.sign.out(() => {
+							localStorage.removeItem('user');
+							setOnlineUser(defaultOnlineUser);
+						}),
 					again: actions.auth.sign.again,
 				},
-				me: () => actions.auth.me({ callback: data.updateAll }),
+			},
+			user: {
+				me: () => actions.user.me(data.updateAll),
 				update: {
-					password: actions.auth.update.password,
-					email: (params: AuthUpdateEmail) => actions.auth.update.email({ callback: data.updateEmail, params }),
-					username: (params: AuthUpdateUsername) =>
-						actions.auth.update.username({ callback: data.updateUsername, params }),
+					password: (params: ParamsUserUpdatePassword) => actions.user.update.password(params),
+					email: (newEmail: string) => actions.user.update.email({ newEmail, callback: data.updateEmail }),
+					username: (newUsername: string) =>
+						actions.user.update.username({ newUsername, callback: data.updateUsername }),
 				},
 			},
 			articles: {
-				create: (params: ArticlesCreate) => actions.articles.create(params),
-				delete: (params: ArticlesDelete) => actions.articles.delete(params),
-				like: (params: ArticlesLike) => actions.articles.like(params),
-				load: {
-					written: () => actions.articles.load.written(),
-					liked: () => actions.articles.load.liked(),
-				},
+				create: (params: ParamsArticlesCreate) => actions.articles.create(params),
 				search: {
-					one: (params: ArticlesSearchOne) => actions.articles.search.one(params),
-					many: (params: ArticlesSearchMany) => actions.articles.search.many(params),
+					allPublications: (params: ParamsArticlesSearch) => actions.articles.search.allPublications(params),
+					myArticles: (params: ParamsArticlesSearch) => actions.articles.search.myArticles(params),
+					likedPublications: (params: ParamsArticlesSearch) => actions.articles.search.likedPublications(params),
+					oneDraft: (id: number) => actions.articles.search.oneDraft(id),
+					onePublication: (id: number) => actions.articles.search.onePublication(id),
 				},
-				update: (params: ArticlesUpdate) => actions.articles.update(params),
+				update: (params: ParamsArticlesUpdate) => actions.articles.update(params),
+				like: (params: ParamsArticlesLike) => actions.articles.like(params),
+				delete: (id: number) => actions.articles.delete(id),
 			},
 			anthologies: {
-				articles: (params: AnthologiesArticles) => actions.anthologies.articles(params),
-				create: (params: AnthologiesCreate) => actions.anthologies.create(params),
-				delete: (params: AnthologiesDelete) => actions.anthologies.delete(params),
-				load: () => actions.anthologies.load(),
+				create: (params: ParamsAnthologiesCreate) => actions.anthologies.create(params),
 				search: {
-					one: (params: AnthologiesSearchOne) => actions.anthologies.search.one(params),
-					many: (params: AnthologiesSearchMany) => actions.anthologies.search.many(params),
+					many: (params: ParamsAnthologiesSearch) => actions.anthologies.search.many(params),
+					one: (id: number) => actions.anthologies.search.one(id),
 				},
-				update: (params: AnthologiesUpdate) => actions.anthologies.update(params),
+				update: (params: ParamsAnthologiesUpdate) => actions.anthologies.update(params),
+				delete: (id: number) => actions.anthologies.delete(id),
 			},
 			topics: {
 				search: {
-					one: (params: TopicsSearchOne) => actions.topics.search.one(params),
 					all: () => actions.topics.search.all(),
 				},
 			},

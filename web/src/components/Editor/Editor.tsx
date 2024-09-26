@@ -1,54 +1,39 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Button, HStack, Input, Select, Stack, Textarea, VStack } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import { Button, HStack, Input, Select, Stack, Textarea, VStack } from '@chakra-ui/react';
 
-import { useOnlineUserContext } from 'contexts/onlineUser';
 import { useUIContext } from 'contexts/ui';
 import { Topic } from 'types/topic';
 
 const Editor = (): JSX.Element => {
 	const navigate = useNavigate();
-	const { handleToast } = useUIContext();
-	const onlineUser = useOnlineUserContext();
+	const ui = useUIContext();
 	const [topics, setTopics] = useState<Topic[]>([]);
 	const [title, setTitle] = useState('');
 	const [topic, setTopic] = useState('');
 	const [content, setContent] = useState('');
 
-	const uiSearchAllTopics = async () => {
-		try {
-			const res = await onlineUser.methods.topics.search.all();
-			handleToast(res);
-			if (res.status === 'success') setTopics(res.data!);
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
 	const uiCreateArticle = async (draft: boolean) => {
-		try {
-			const res = await onlineUser.methods.articles.create({
+		await ui.online.articles.create(
+			{
 				title,
 				content,
 				topic: topics.find((t) => t.name === topic)!.id,
 				draft,
-			});
-			handleToast(res, true);
-			if (res.status === 'success') {
+			},
+			(id: number) => {
 				if (!draft) {
-					navigate(`/articles/${res.data!.id}`);
+					navigate(`/articles/${id}`);
 				} else {
 					navigate(`/brouillons`);
 				}
-			}
-		} catch (error) {
-			console.error(error);
-		}
+			},
+		);
 	};
 
 	useEffect(() => {
-		uiSearchAllTopics();
+		ui.online.topics.search.all(setTopics);
 	}, []);
 
 	return (

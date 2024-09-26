@@ -13,6 +13,6 @@ export const email = async (params: AuthUpdateEmail) =>
 	});
 
 export const username = async (params: AuthUpdateUsername) =>
-	servicesURL.patch<EmptyResponse>('/authentication/username', {
+	servicesURL.patch<EmptyResponse>('/user/username', {
 		newUsername: params.newUsername,
 	});
