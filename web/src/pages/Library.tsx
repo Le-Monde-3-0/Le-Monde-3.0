@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { CircularProgress, Grid, GridItem, Stack, Tag, VStack, useDisclosure } from '@chakra-ui/react';
+import { /* CircularProgress, */ Grid, GridItem, Stack, Tag, VStack, useDisclosure } from '@chakra-ui/react';
 import { PlusSquareIcon } from '@chakra-ui/icons';
 
 import { useUIContext } from 'contexts/ui';
@@ -59,15 +59,15 @@ const Library = (): JSX.Element => {
 		};
 	}, [search]);
 
-	if (!user.data.isOffline ? !onlineAnthologies : !offlineAnthologies) {
-		return (
-			<>
-				<VStack w="100%" h="100vh" justify="center">
-					<CircularProgress size="120px" isIndeterminate color="black" />
-				</VStack>
-			</>
-		);
-	}
+	// if (!user.data.isOffline ? !onlineAnthologies : !offlineAnthologies) {
+	// 	return (
+	// 		<>
+	// 			<VStack w="100%" h="100vh" justify="center">
+	// 				<CircularProgress size="120px" isIndeterminate color="black" />
+	// 			</VStack>
+	// 		</>
+	// 	);
+	// }
 
 	return (
 		<>
@@ -142,27 +142,29 @@ const Library = (): JSX.Element => {
 				</Grid>
 			</VStack>
 
-			<AnthologyModal
-				isOpen={updateModal.isOpen}
-				onClose={updateModal.onClose}
-				type={'UPDATE'}
-				action={async (name: string, description: string) => {
-					!user.data.isOffline
-						? await ui.online.anthologies.update(onlineAnthologyToUpdate!.id, name, description, () => {
-								updateModal.onClose();
-								setOnlineAnthologyToUpdate(undefined);
-								setRefresh((r) => r + 1);
-						  })
-						: ui.offline.anthologies.update(offlineAnthologyToUpdate!.id, name, description, () => {
-								updateModal.onClose();
-								setOfflineAnthologyToUpdate(undefined);
-						  });
-				}}
-				name={!user.data.isOffline ? onlineAnthologyToUpdate!.name : offlineAnthologyToUpdate!.name}
-				description={
-					!user.data.isOffline ? onlineAnthologyToUpdate!.description : offlineAnthologyToUpdate!.description
-				}
-			/>
+			{(onlineAnthologyToUpdate || offlineAnthologyToUpdate) && (
+				<AnthologyModal
+					isOpen={updateModal.isOpen}
+					onClose={updateModal.onClose}
+					type={'UPDATE'}
+					action={async (name: string, description: string) => {
+						!user.data.isOffline
+							? await ui.online.anthologies.update(onlineAnthologyToUpdate!.id, name, description, () => {
+									updateModal.onClose();
+									setOnlineAnthologyToUpdate(undefined);
+									setRefresh((r) => r + 1);
+							  })
+							: ui.offline.anthologies.update(offlineAnthologyToUpdate!.id, name, description, () => {
+									updateModal.onClose();
+									setOfflineAnthologyToUpdate(undefined);
+							  });
+					}}
+					name={!user.data.isOffline ? onlineAnthologyToUpdate!.name : offlineAnthologyToUpdate!.name}
+					description={
+						!user.data.isOffline ? onlineAnthologyToUpdate!.description : offlineAnthologyToUpdate!.description
+					}
+				/>
+			)}
 			<AnthologyModal
 				isOpen={createModal.isOpen}
 				onClose={createModal.onClose}
