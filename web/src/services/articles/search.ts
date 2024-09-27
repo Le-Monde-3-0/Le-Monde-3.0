@@ -5,9 +5,9 @@ import { ParamsArticlesSearch } from 'types/services';
 export const allPublications = async (params: ParamsArticlesSearch) =>
 	servicesURL.get<Article[]>('/articles', {
 		params: {
-			author: params.author,
+			authorId: params.author,
 			draft: params.draft,
-			topic: params.topic,
+			topicId: params.topic,
 			isLiked: params.isLiked,
 			anthologyId: params.anthologyId,
 			q: params.query,
@@ -17,9 +17,9 @@ export const allPublications = async (params: ParamsArticlesSearch) =>
 export const myArticles = async (params: ParamsArticlesSearch) =>
 	servicesURL.get<Article[]>('/articles/me', {
 		params: {
-			author: params.author,
+			authorId: params.author,
 			draft: params.draft,
-			topic: params.topic,
+			topicId: params.topic,
 			isLiked: params.isLiked,
 			anthologyId: params.anthologyId,
 			q: params.query,
@@ -29,9 +29,9 @@ export const myArticles = async (params: ParamsArticlesSearch) =>
 export const likedPublications = async (params: ParamsArticlesSearch) =>
 	servicesURL.get<Article[]>('/articles/liked', {
 		params: {
-			author: params.author,
+			authorId: params.author,
 			draft: params.draft,
-			topic: params.topic,
+			topicId: params.topic,
 			isLiked: params.isLiked,
 			anthologyId: params.anthologyId,
 			q: params.query,
