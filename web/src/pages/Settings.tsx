@@ -504,7 +504,7 @@ const Settings = (): JSX.Element => {
 							<Text variant="h6">Nom d'utilisateur</Text>
 							<FormInput
 								value={username}
-								inputId="password-input"
+								inputId="password-input-10"
 								w="100%"
 								placeholder="Nouveau nom d'utilisateur"
 								onChange={(e) => setUsername(e.target.value)}
@@ -521,7 +521,7 @@ const Settings = (): JSX.Element => {
 							<Text variant="h6">Email</Text>
 							<FormInput
 								value={email}
-								inputId="password-input"
+								inputId="password-input-11"
 								w="100%"
 								placeholder="Nouveau nom d'utilisateur"
 								onChange={(e) => setEmail(e.target.value)}
@@ -531,14 +531,14 @@ const Settings = (): JSX.Element => {
 							/>
 							<Button
 								// TODO: callback
-								onClick={async () => await ui.online.user.update.email(username)}
+								onClick={async () => await ui.online.user.update.email(email)}
 							>
 								Modifier
 							</Button>
 							<Text variant="h6">Mot de passe</Text>
 							<PwdInput
 								value={password}
-								inputId="password-input"
+								inputId="password-input-12"
 								w="100%"
 								placeholder="Mot de passe"
 								onChange={(e) => setPassword(e.target.value)}
