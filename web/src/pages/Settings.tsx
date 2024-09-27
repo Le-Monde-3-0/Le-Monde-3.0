@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import {
 	Box,
 	Button,
-	FormControl,
-	FormLabel,
 	HStack,
 	Input,
 	InputGroup,
@@ -20,7 +18,6 @@ import {
 	StepStatus,
 	StepTitle,
 	Stepper,
-	Switch,
 	Tab,
 	TabList,
 	TabPanel,
@@ -57,9 +54,9 @@ const Settings = (): JSX.Element => {
 	const toast = useToast();
 	const navigate = useNavigate();
 	const [isCensored, setIsCensored] = useState<boolean | undefined>(undefined);
-	const [email, setEmail] = useState('');
+	const [email, setEmail] = useState(onlineUser.data.email);
 	const [username, setUsername] = useState(onlineUser.data.username);
-	const [password, setPassword] = useState(onlineUser.data.email);
+	const [password, setPassword] = useState('');
 	const [newPassword, setNewPassword] = useState('');
 	const [isGatewayWorking, setIsGatewayWorking] = useState<true | false | 'loading'>(false);
 	const [isRefreshWorking, setIsRefreshWorking] = useState<true | false | 'loading'>(false);
@@ -497,14 +494,14 @@ const Settings = (): JSX.Element => {
 						</VStack>
 					</TabPanel>
 					<TabPanel>
-						<VStack w="100%" spacing={{ base: '8px', md: '12px', lg: '16px' }} align="start">
+						<VStack w="100%" maxW="720px" spacing={{ base: '8px', md: '12px', lg: '16px' }} align="start">
 							{/* <FormControl display={'flex'} alignItems={'center'}>
 								<FormLabel htmlFor="profile-status" mb="0">
 									<Text variant={'h7'}>Profil public</Text>
 								</FormLabel>
 								<Switch id="status" size="lg" />
 							</FormControl> */}
-							<Text variant={'h5'}>Nom d'utilisateur</Text>
+							<Text variant="h6">Nom d'utilisateur</Text>
 							<FormInput
 								value={username}
 								inputId="password-input"
@@ -521,6 +518,7 @@ const Settings = (): JSX.Element => {
 							>
 								Modifier
 							</Button>
+							<Text variant="h6">Email</Text>
 							<FormInput
 								value={email}
 								inputId="password-input"
@@ -537,7 +535,7 @@ const Settings = (): JSX.Element => {
 							>
 								Modifier
 							</Button>
-							<Text variant={'h5'}>Mot de passe</Text>
+							<Text variant="h6">Mot de passe</Text>
 							<PwdInput
 								value={password}
 								inputId="password-input"
