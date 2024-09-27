@@ -39,6 +39,7 @@ import { useOnlineUserContext } from 'contexts/onlineUser';
 import { useOfflineUserContext } from 'contexts/offlineUser';
 import { useUIContext } from 'contexts/ui';
 import FormInput from 'components/Inputs/FormInput';
+import PwdInput from 'components/Inputs/PwdInput';
 
 const steps = [
 	{ title: 'Introduction', description: 'Livre blanc' },
@@ -56,7 +57,9 @@ const Settings = (): JSX.Element => {
 	const toast = useToast();
 	const navigate = useNavigate();
 	const [isCensored, setIsCensored] = useState<boolean | undefined>(undefined);
-	const [password, setPassword] = useState('');
+	const [email, setEmail] = useState('');
+	const [username, setUsername] = useState(onlineUser.data.username);
+	const [password, setPassword] = useState(onlineUser.data.email);
 	const [newPassword, setNewPassword] = useState('');
 	const [isGatewayWorking, setIsGatewayWorking] = useState<true | false | 'loading'>(false);
 	const [isRefreshWorking, setIsRefreshWorking] = useState<true | false | 'loading'>(false);
@@ -166,7 +169,7 @@ const Settings = (): JSX.Element => {
 			<Tabs isFitted variant="enclosed">
 				<TabList>
 					<Tab>Mode hors-ligne</Tab>
-					<Tab isDisabled>Profil utilisateur</Tab>
+					<Tab isDisabled={user.data.isOffline}>Profil utilisateur</Tab>
 				</TabList>
 
 				<TabPanels>
@@ -495,27 +498,47 @@ const Settings = (): JSX.Element => {
 					</TabPanel>
 					<TabPanel>
 						<VStack w="100%" spacing={{ base: '8px', md: '12px', lg: '16px' }} align="start">
-							<FormControl display={'flex'} alignItems={'center'}>
+							{/* <FormControl display={'flex'} alignItems={'center'}>
 								<FormLabel htmlFor="profile-status" mb="0">
 									<Text variant={'h7'}>Profil public</Text>
 								</FormLabel>
 								<Switch id="status" size="lg" />
-							</FormControl>
+							</FormControl> */}
 							<Text variant={'h5'}>Nom d'utilisateur</Text>
 							<FormInput
-								value={password}
+								value={username}
 								inputId="password-input"
 								w="100%"
 								placeholder="Nouveau nom d'utilisateur"
-								onChange={(e) => setPassword(e.target.value)}
+								onChange={(e) => setUsername(e.target.value)}
 								variant="primary-1"
 								isError={false}
 								errorMessage=""
 							/>
-							<Button>Modifier</Button>
-							<Text variant={'h5'}></Text>
-							<Text variant={'h5'}>Mot de passe</Text>
+							<Button
+								// TODO: callback
+								onClick={async () => await ui.online.user.update.username(username)}
+							>
+								Modifier
+							</Button>
 							<FormInput
+								value={email}
+								inputId="password-input"
+								w="100%"
+								placeholder="Nouveau nom d'utilisateur"
+								onChange={(e) => setEmail(e.target.value)}
+								variant="primary-1"
+								isError={false}
+								errorMessage=""
+							/>
+							<Button
+								// TODO: callback
+								onClick={async () => await ui.online.user.update.email(username)}
+							>
+								Modifier
+							</Button>
+							<Text variant={'h5'}>Mot de passe</Text>
+							<PwdInput
 								value={password}
 								inputId="password-input"
 								w="100%"
@@ -525,7 +548,7 @@ const Settings = (): JSX.Element => {
 								isError={false}
 								errorMessage=""
 							/>
-							<FormInput
+							<PwdInput
 								value={newPassword}
 								inputId="new-password-input"
 								w="100%"
@@ -535,7 +558,12 @@ const Settings = (): JSX.Element => {
 								isError={false}
 								errorMessage=""
 							/>
-							<Button>Modifier</Button>
+							<Button
+								// TODO: callback
+								onClick={async () => await ui.online.user.update.password({ oldPassword: password, newPassword })}
+							>
+								Modifier
+							</Button>
 							<Button variant="primary-orange" onClick={async () => await ui.online.auth.sign.out(() => navigate('/'))}>
 								Déconnexion
 							</Button>

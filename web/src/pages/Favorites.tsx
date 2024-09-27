@@ -73,8 +73,8 @@ const Favorites = (): JSX.Element => {
 				<HStack>
 					<Text variant="h5">
 						{!user.data.isOffline
-							? `Favori ${onlineLikedArticles.length === 1 ? '' : 's'}`
-							: `Favori ${offlineLikedArticles.length === 1 ? '' : 's'}`}
+							? `Favori${onlineLikedArticles.length === 1 ? '' : 's'}`
+							: `Favori${offlineLikedArticles.length === 1 ? '' : 's'}`}
 					</Text>
 					<Text
 						variant="h5"

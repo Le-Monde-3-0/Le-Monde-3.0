@@ -58,8 +58,8 @@ const UIProvider = ({ children }: { children: JSX.Element }) => {
 						description = messages[200]?.subMessage || res.message;
 						break;
 					case 201:
-						title = messages[200]?.message || 'Ressource créée.';
-						description = messages[200]?.subMessage || res.message;
+						title = messages[201]?.message || 'Ressource créée.';
+						description = messages[201]?.subMessage || res.message;
 						break;
 					case 400:
 						title = messages[400]?.message || 'Paramètres invalides.';
