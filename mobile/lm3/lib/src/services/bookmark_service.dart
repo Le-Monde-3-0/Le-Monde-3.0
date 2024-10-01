@@ -7,13 +7,12 @@ import 'package:lm3/src/models/bookmark.dart';
 
 class BookmarkService {
   final FlutterSecureStorage storage = FlutterSecureStorage();
-  final UserService _userService = UserService();
   var baseUrl = 'http://20.13.168.88'; // Remplacez par votre IP ou URL correcte
 
   // Récupérer tous les bookmarks
   Future<List<Bookmark>> getAllBookmarks() async {
     var token = await storage.read(key: "token");
-    var url = Uri.parse('$baseUrl:8080/bookmarks');
+    var url = Uri.parse('$baseUrl:8080/topics');
 
     var response = await http.get(
       url,
@@ -34,7 +33,7 @@ class BookmarkService {
   // Créer un bookmark
   Future<Bookmark> createBookmark(String title, String description) async {
     var token = await storage.read(key: "token");
-    var url = Uri.parse('$baseUrl:8080/bookmarks');
+    var url = Uri.parse('$baseUrl:8080/topics');
     var body = json.encode({'title': title, 'description': description});
 
     var response = await http.post(
@@ -56,7 +55,7 @@ class BookmarkService {
   // Supprimer un bookmark
   Future<void> deleteBookmark(int bookmarkId) async {
     var token = await storage.read(key: "token");
-    var url = Uri.parse('$baseUrl:8080/bookmarks/$bookmarkId');
+    var url = Uri.parse('$baseUrl:8080/topics/$bookmarkId');
 
     var response = await http.delete(
       url,
@@ -67,14 +66,14 @@ class BookmarkService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Impossible de supprimer le bookmark');
+      throw Exception('Impossible de supprimer le topics');
     }
   }
 
   // Mettre à jour un bookmark
   Future<Bookmark> updateBookmark(int bookmarkId, String title, String description) async {
     var token = await storage.read(key: "token");
-    var url = Uri.parse('$baseUrl:8080/bookmarks/$bookmarkId');
+    var url = Uri.parse('$baseUrl:8080/topics/$bookmarkId');
     var body = json.encode({'title': title, 'description': description});
 
     var response = await http.put(
@@ -89,14 +88,14 @@ class BookmarkService {
     if (response.statusCode == 200) {
       return Bookmark.fromJson(json.decode(response.body));
     } else {
-      throw Exception('Impossible de mettre à jour le bookmark');
+      throw Exception('Impossible de mettre à jour le topics');
     }
   }
 
   // Récupérer les articles d'un bookmark
   Future<List<ArticleModel>> getArticlesFromBookmark(int bookmarkId) async {
     var token = await storage.read(key: "token");
-    var url = Uri.parse('$baseUrl:8080/bookmarks/$bookmarkId/articles');
+    var url = Uri.parse('$baseUrl:8080/topics/$bookmarkId/articles');
 
     var response = await http.get(
       url,
@@ -110,14 +109,14 @@ class BookmarkService {
       Iterable jsonResponse = json.decode(response.body);
       return jsonResponse.map((article) => ArticleModel.fromJson(article, false)).toList();
     } else {
-      throw Exception('Impossible de récupérer les articles du bookmark');
+      throw Exception('Impossible de récupérer les articles du topics');
     }
   }
 
   // Ajouter un article à un bookmark
   Future<void> addArticleToBookmark(int bookmarkId, int articleId) async {
     var token = await storage.read(key: "token");
-    var url = Uri.parse('$baseUrl:8080/bookmarks/$bookmarkId/articles/$articleId');
+    var url = Uri.parse('$baseUrl:8080/topics/$bookmarkId/articles/$articleId');
 
     var response = await http.post(
       url,
@@ -135,7 +134,7 @@ class BookmarkService {
   // Supprimer un article d'un bookmark
   Future<void> removeArticleFromBookmark(int bookmarkId, int articleId) async {
     var token = await storage.read(key: "token");
-    var url = Uri.parse('$baseUrl:8080/bookmarks/$bookmarkId/articles/$articleId');
+    var url = Uri.parse('$baseUrl:8080/topics/$bookmarkId/articles/$articleId');
 
     var response = await http.delete(
       url,
