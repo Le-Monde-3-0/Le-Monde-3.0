@@ -19,8 +19,10 @@ class _ArticlesPageState extends State<ArticlesPage> {
   final BookmarkService _bookmarkService = BookmarkService();
   
   List<Bookmark> _bookmarks = [];
+  List<Bookmark> _filteredBookmarks = [];
   String _selectedTopic = '';
   late Future<List<ArticleModel>> futureArticles;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -35,11 +37,22 @@ class _ArticlesPageState extends State<ArticlesPage> {
       var bookmarks = await _bookmarkService.getAllBookmarks();
       setState(() {
         _bookmarks = bookmarks;
+        _filteredBookmarks = bookmarks;
         _selectedTopic = _bookmarks.isNotEmpty ? _bookmarks[0].title ?? '' : '';
       });
     } catch (e) {
       print('Erreur lors du chargement des topics: $e');
     }
+  }
+
+  // Filtrer les bookmarks en fonction de la recherche
+  void _filterBookmarks(String query) {
+    setState(() {
+      _searchQuery = query;
+      _filteredBookmarks = _bookmarks
+          .where((bookmark) => bookmark.title!.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
   }
 
   // Charger les articles depuis l'API
@@ -57,7 +70,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
       scrollDirection: Axis.horizontal,
       children: [
         editTopicButton(), // Bouton pour ajouter un topic
-        for (var bookmark in _bookmarks)
+        for (var bookmark in _filteredBookmarks)
           topicButton(bookmark.title ?? ''),
       ],
     );
@@ -199,6 +212,20 @@ class _ArticlesPageState extends State<ArticlesPage> {
         ),
         body: Column(
           children: [
+            // Ajout de la barre de recherche
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                onChanged: (value) {
+                  _filterBookmarks(value); // Filtrer les bookmarks au fur et à mesure de la saisie
+                },
+                decoration: InputDecoration(
+                  labelText: 'Rechercher des topics',
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(Icons.search),
+                ),
+              ),
+            ),
             Container(
               height: 40.0,
               child: _buildTopicsList(), // Affichage dynamique des topics
